@@ -1,0 +1,28 @@
+// See: https://code.visualstudio.com/docs/remote/containers-advanced#_connecting-to-multiple-containers-at-once
+
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.195.0/containers/javascript-node
+{
+	"name": "WebRTC Nuts and Bolts UI Container",
+
+	"dockerComposeFile": ["../../docker-compose.yml", "../../docker-compose.dev.yml"],
+	"service": "ui",
+	"shutdownAction": "none",
+
+
+	"workspaceFolder": "/workspace",
+
+
+	// Set *default* container specific settings.json values on container create.
+	"settings": {
+	},
+
+	// Add the IDs of extensions you want installed when the container is created.
+	"extensions": [
+		"dbaeumer.vscode-eslint"
+	],
+
+
+	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+	"remoteUser": "node"
+}

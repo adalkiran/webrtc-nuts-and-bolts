@@ -1,0 +1,11 @@
+server:
+  softwareName: "WebRTCNutsBolts"
+  udp:
+    singlePort: 15000 # If you need to change, you should change corresponding port config in docker-compose.yml
+    dockerHostIp: "" # e.g. 192.168.0.11
+  signaling: 
+    wsPort: 8081 # If you need to change, you should change corresponding port config in docker-compose.yml
+  domainName: "webrtcnutsbolts-notexists.com"
+  stunServerAddr: "stun.l.google.com:19302"
+  maskIpOnConsole: true
+  requestAudio: false

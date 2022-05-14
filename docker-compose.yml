@@ -1,0 +1,36 @@
+version: '3'
+services:
+  ui:
+    image: webrtc-nuts-and-bolts/ui
+    container_name: webrtcnb-ui
+    build:
+      context: ui # Dockerfile location
+      args:
+        # See for available variants: https://github.com/microsoft/vscode-dev-containers/tree/main/containers/typescript-node
+        - VARIANT:18-bullseye
+    volumes:
+      # Mount the root folder that contains .git
+      - "./ui:/workspace:cached"
+    ports:
+      - "8080:8080" # Port expose for UI Webpack Dev Server
+
+  backend:
+    image: webrtc-nuts-and-bolts/backend
+    container_name: webrtcnb-backend
+    build:
+      context: backend # Dockerfile location
+      args:
+        # See for available variants: https://hub.docker.com/_/golang?tab=tags
+        - VARIANT:1.18.1-bullseye
+    # See: https://code.visualstudio.com/docs/remote/create-dev-container#_set-up-a-folder-to-run-in-a-container
+    # [Optional] Required for ptrace-based debuggers like C++, Go, and Rust
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    volumes:
+      # Mount the root folder that contains .git
+      - "./backend:/workspace:cached"
+    ports:
+      - "8081:8081" # Port expose for backend WebSocket
+      - "15000:15000/udp" # Port expose for backend UDP end

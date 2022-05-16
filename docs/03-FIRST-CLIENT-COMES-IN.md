@@ -2,7 +2,7 @@
 
 In previous chapter, the backend server was initialized and is waiting for clients requesting to join a conference via signaling WebSocket.
 
-Now, we can visit our web application by opening a browser window and writing http://localhost:8080 to address bar.
+Now, we can visit our web application by opening a browser window and writing http://localhost:8080 to the address bar.
 
 **Note:** Tested on Chrome, we think it will run in other modern browsers but it's recommended to use Chrome.
 
@@ -10,8 +10,8 @@ Now, we can visit our web application by opening a browser window and writing ht
 
 When the web page was loaded, we run initialization code.
 
-We defined *RTC* and *Signaling* classes in TypeScript in same file [ui/src/app.ts](../ui/src/app.ts), we create instances for one each, assign them as property of *window* object to access them globally, our first focus is not "clean code" in this project :)
-We add onClick event handlers for our two buttons, *BtnCreatePC* and *BtnStopPC* to start and stop our PeerConnection. We also add onBeforeUnload event handler to *window* to finish open connections gracefully, so we can inform the server application "hey, we are leaving the conference" on closing the browser tab/window.
+We defined *RTC* and *Signaling* classes in TypeScript in the same file [ui/src/app.ts](../ui/src/app.ts), we create an instance for each one, assign them as property of *window* object to access them globally, our first focus is not "clean code" in this project :)
+We add onClick event handlers for our two buttons, *BtnCreatePC* and *BtnStopPC* to start and stop our PeerConnection. We also add onBeforeUnload event handler to *window* to close open connections gracefully, so we can inform the server application "hey, we are leaving the conference" on closing the browser tab/window.
 
 <sup>from [ui/src/app.ts](../ui/src/app.ts)</sup>
 ```ts
@@ -36,11 +36,11 @@ initApp();
 ## **3.1. Initialization of RTC object**
 <br>
 
-In the constructor of the *RTC* class, calls the "createLocalPeerConnection" function which creates a [RTCPeerConnection](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection), which represents a connection between the local device and a remote peer. This is native browser API object.
+In the constructor of the *RTC* class, calls the "createLocalPeerConnection" function which creates a [RTCPeerConnection](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection), which represents a connection between the local device and a remote peer. This is a native browser API object.
 
 The [constructor of *RTCPeerConnection*](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/RTCPeerConnection) takes a configuration parameter (click for [details](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/RTCPeerConnection)). We use default values except passing STUN Server URL.
 
-We assign some event handlers for some events, which we will discuss further. We assign handlers to some of them only to print to console, to be informed "this event was fired".
+We assign some event handlers for some events, which we will discuss further. We assign handlers to some of them only to print to console, to be informed: "This event was fired".
 
 <sup>from [ui/src/app.ts](../ui/src/app.ts)</sup>
 ```ts
@@ -99,7 +99,7 @@ We discussed lots of boring stuff so far (unfortunately there is more)... Now, w
 <br>
 
 The button click will call "rtc.start()" function which:
-* Calls "createLocalTracks" method, that says the browser "I want a video stream of default webcam, if it can be, should be in height 720p, also I want an audio stream of default microphone". The browser returns a [Promise&lt;MediaStream&gt;](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise), which we should wait for asking for permissions and (if available and permitted) initialization of camera and microphone devices.
+* Calls "createLocalTracks" method, that says to the browser, "I want a video stream of default webcam, if it can be, should be in height 720p, also I want an audio stream of default microphone". The browser returns a [Promise&lt;MediaStream&gt;](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise), which we should wait for asking for permissions and (if available and permitted) initialization of camera and microphone devices.
 
 <sup>from [ui/src/app.ts](../ui/src/app.ts)</sup>
 ```ts
@@ -130,7 +130,7 @@ The button click will call "rtc.start()" function which:
     }
 ```
 
-* The browser asks user for camera and microphone usage for our URL. If you Allow or Deny this request, the browser will remember your decision and won't ask you next time. Now we click on Allow button.
+* The browser asks user for camera and microphone permission for our URL. If you Allow or Deny this request, the browser will remember your decision and won't ask you next time. Now we click on Allow button.
 
 ![Browser asks for permission](images/03-02-browser-ask-permissions.png)
 
@@ -138,7 +138,7 @@ The button click will call "rtc.start()" function which:
 
 * We loop through the tracks of the stream object, store them in our "rtc.localTracks" array for further usage, then add them our [RTCPeerConnection](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection) "localConnection" by calling [localConnection.addTrack(track)](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addTrack).
 
-* [onnegotiationneeded](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event) event of  RTCPeerConnection is called. This says us that, "I'm ready to send come stream, but I don't have any negotiation with the remote peer via Signaling. You should send a SDP Offer, or a SDP Offer Answer for an incoming SDP Offer, including this stream".
+* [onnegotiationneeded](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/negotiationneeded_event) event of  RTCPeerConnection is called. This says to us that, "I'm ready to send some media stream, but I don't have any negotiation with the remote peer via Signaling. You should send an SDP Offer, or an SDP Offer Answer for an incoming SDP Offer, including this stream".
 <br>
 In this project's model, first SDP Offer will come from the server via Signaling WebSocket.
 <br>
@@ -221,7 +221,7 @@ func (h *WsHub) run() {
 ### **3.2.3 The client receives the *Welcome* message of Signaling Server, then sends *JoinConference* request**
 <br>
 
-When any data was received by the WebSocket client, the "ws.onmessage" event will be fired.
+When any data is received by the WebSocket client, the "ws.onmessage" event will be fired.
 
 ![Browser Received Welcome Message](images/03-04-browser-received-welcome-message.png)
 
@@ -270,11 +270,11 @@ If it is "JoinConference":
 <br>
 This function calls "NewConference", which creates a conference object and a new corresponding ServerAgent object for the conference. ServerAgent object stands for the "ICE Agent" concept in WebRTC jargon.
 <br>
-This agent will store signaled SDP data and UDP sockets related with the conference. Every ICE Agent has an unique Ufrag and Pwd string, which randomly generated while creating the instance. This Ufrag and Pwd data will be sent to the client inside SDP Offer.
+This agent will store signaled SDP data and UDP sockets related with the conference. Every ICE Agent has a unique Ufrag and Pwd string, which randomly generated while creating the instance. This Ufrag and Pwd data will be sent to the client inside SDP Offer.
 <br>
 <br>
 **Note:** By these Conference and ServerAgent objects per conference, we are able to manage multiple different conference rooms, but in this sample project we use only one conference name "defaultConference", and it doesn't count as a complete conference anyways :)
-* Then, "GenerateSdpOffer" function in [backend/src/sdp/sdp.go](../backend/src/sdp/sdp.go) is called to create a SDP Offer data, containing media types, ICE candidates' IP and port data, etc...
+* Then, "GenerateSdpOffer" function in [backend/src/sdp/sdp.go](../backend/src/sdp/sdp.go) is called to create an SDP Offer data, containing media types, ICE candidates' IP and port data, etc...
 <br>
 The generated SDP Offer data is sent to the client as JSON via Signaling WebSocket.
 
@@ -399,7 +399,7 @@ The "SDP Offer message" coming from the server is processed by switch case for "
 
 ![Browser Received SDP Offer](images/03-07-browser-received-sdpoffer.png)
 
-* We give the SDP Offer string to "acceptOffer" function of our *RTC* object. This function calls [setRemoteDescription](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/setRemoteDescription) function of our RTCPeerConnection object. By this, we say our the localConnection (RTCPeerConnection) that "You fired the 'onnegotiationneeded' event and wanted us to SDP Offer/Answer negotiation, we did it and please take it then create a SDP Answer for us".
+* We give the SDP Offer string to "acceptOffer" function of our *RTC* object. This function calls [setRemoteDescription](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/setRemoteDescription) function of our RTCPeerConnection object. By this, we say our the localConnection (RTCPeerConnection) that "You fired the 'onnegotiationneeded' event and wanted us to SDP Offer/Answer negotiation, we did it and please take it then create an SDP Answer for us".
 
 <sup>from [ui/src/app.ts](../ui/src/app.ts)</sup>
 ```ts
@@ -420,7 +420,7 @@ The "SDP Offer message" coming from the server is processed by switch case for "
 
 * Now the localConnection object knows which UDP IPs/ports it should try to connect and send it's media tracks.
 
-* Then it should generate a SDP Answer corresponding the server's SDP Offer, we call [createAnswer](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createAnswer).
+* Then it should generate an SDP Answer corresponding the server's SDP Offer, we call [createAnswer](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createAnswer).
 * We get the created answer SDP, we give it to [setLocalDescription](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/setLocalDescription) function of our RTCPeerConnection object. By this, our localConnection exposes it's tracks and fires it's [ontrack event](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/track_event).
 
 ![Browser onsignalingstatechange event](images/03-08-browser-onsignalingstatechange.png)
@@ -502,4 +502,4 @@ Then client sent SDP Answer via Signaling, now we are ready to receive STUN Bind
 
 ![Server Receive SDP Answer](images/03-12-server-receive-sdpanswer.png)
 
-Now, we will waiting for STUN Binding Request from the client over UDP port.
+Now, we will be waiting for a STUN Binding Request from the client over UDP port.

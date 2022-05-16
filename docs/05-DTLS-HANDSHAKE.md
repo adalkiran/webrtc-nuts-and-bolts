@@ -2,7 +2,7 @@
 
 In previous chapter, we received first "expected" UDP packet (STUN Binding Request), then sent a STUN Binding Response as an answer. This means that, the client can start [DTLS Handshake](https://datatracker.ietf.org/doc/html/rfc4347#section-4.2) process.
 
-[DTLS (Datagram Transport Layer Security)](https://en.wikipedia.org/wiki/Datagram_Transport_Layer_Security) for secure handshake, authenticating each oter, and crypto key exchange process. DTLS is similar to [TLS (Transport Layer Security)](https://tr.wikipedia.org/wiki/Transport_Layer_Security), DTLS runs over UDP instead of TCP. This project supports only DTLS v1.2.
+[DTLS (Datagram Transport Layer Security)](https://en.wikipedia.org/wiki/Datagram_Transport_Layer_Security) for secure handshake, authenticating each other, and crypto key exchange process. DTLS is similar to [TLS (Transport Layer Security)](https://tr.wikipedia.org/wiki/Transport_Layer_Security), DTLS runs over UDP instead of TCP. This project supports only DTLS v1.2.
 
 DTLS Handshake consists of some "flights" between client and server, schematized [here](https://tools.ietf.org/html/rfc4347#section-4.2.4) as:
 
@@ -33,14 +33,14 @@ DTLS Handshake consists of some "flights" between client and server, schematized
 ```
 
 Sources:
-* [Breaking Down the TLS Handshake](https://www.youtube.com/watch?v=cuR05y_2Gxc&list=PLyqga7AXMtPMXgn1NwDqnSlgU05cnl4PA) (Before continue, it's highly recommended to watch this Youtube playlist to understand TLS Handshake process, ciphers, curves, hashing, algorithms, etc... In videos, they tell about TLS v1.2 and v1.3, but we don't use v1.3).
+* [Breaking Down the TLS Handshake](https://www.youtube.com/watch?v=cuR05y_2Gxc&list=PLyqga7AXMtPMXgn1NwDqnSlgU05cnl4PA) (Before continuing, it's highly recommended to watch this Youtube playlist to understand TLS Handshake process, ciphers, curves, hashing, algorithms, etc... In videos, they tell about TLS v1.2 and v1.3, but we don't use v1.3).
 
 <br>
 
 ## **5.1. Client sends first ClientHello message (Flight 0)**
 <br>
 
-When a new packet comes in, the "AddBuffer" function in [backend/src/agent/udpclientsocket.go](../backend/src/agent/udpclientsocket.go) looks for which protocol standard this packet rely on.
+When a new packet comes in, the "AddBuffer" function in [backend/src/agent/udpclientsocket.go](../backend/src/agent/udpclientsocket.go) looks for which protocol standard this packet to rely on.
 
 In this context, we can check out dtls.IsDtlsPacket function. This function checks:
   * Data length (arrayLen) is greater than zero
@@ -114,7 +114,7 @@ type uint24 [3]byte
 ```
 
 * MessageSequence: Message Sequence of Handshake Header (different from RecordHeader's SequenceNumber) should be kept in track incoming and outgoing handshake packets as "ClientSequenceNumber" and "ServerHandshakeSequenceNumber" in [backend/src/dtls/handshakecontext.go](../backend/src/dtls/handshakecontext.go)
-* **DTLS Fragmentation:** Handshake messages can be larger (larger than 1KB), e.g. can transmit a X.509 certificate data. In networking, there is a concept called [MTU (Maximum Transmission Unit)](https://en.wikipedia.org/wiki/Maximum_transmission_unit) to optimize some tradeoffs explained [here](https://en.wikipedia.org/wiki/Maximum_transmission_unit). This principles require to split larger packet into smaller pieces. These pieces can be transmitted not an ordered way. So we can track the order of the packets and completeness of them using FragmentOffset and FragmentLength information.
+* **DTLS Fragmentation:** Handshake messages can be larger (larger than 1KB), e.g. can transmit a X.509 certificate data. In networking, there is a concept called [MTU (Maximum Transmission Unit)](https://en.wikipedia.org/wiki/Maximum_transmission_unit) to optimize some tradeoffs explained [here](https://en.wikipedia.org/wiki/Maximum_transmission_unit). These principles require to split a larger packet into smaller pieces. These pieces can be transmitted in an unordered way. So we can track the order of the packets and completeness of them using FragmentOffset and FragmentLength information.
 <br>
 DTLS fragmentation is not supported in this project, so we ignore these fragmentation information.
 
@@ -126,7 +126,7 @@ Source: [Header structure for the DTLS handshake protocol](https://github.com/ec
 ## **5.1.3. ClientHello Message Content (Flight 0)**
 <br>
 
-The ClientHello message is first message of first flight. The RFC counts flights starting from 1, we count them starting from 0, because we assume the Flight 0 is "waiting for ClientHello" state, Flight 1 is after receiving the first ClientHello. So, you can track the flight numbers as this way. 
+The ClientHello message is the first message of the first flight. The RFC counts flights starting from 1, we count them starting from 0, because we assume the Flight 0 is "waiting for ClientHello" state, Flight 1 is after receiving the first ClientHello. So, you can track the flight numbers this way. 
 
 <sup>from [backend/src/dtls/clienthello.go](../backend/src/dtls/clienthello.go)</sup>
 ```go
@@ -141,7 +141,7 @@ type ClientHello struct {
 }
 ```
 
-This message is bootstrapper of a new DTLS Handshake process. Client says us, "I want to make a DTLS handshake with you, these are my security data to share".
+This message is bootstrapper of a new DTLS Handshake process. Client says to us, "I want to make a DTLS handshake with you, these are my security data to share".
 
 * Version: Same logic and structure with the Version of RecordHeader. Value can differ, for e.g. RecordHeader's version can be 1.0 but ClientHello's version can be 1.2.
 * Random: Each part (the client and the server) generates random values for themselves, we call them as "Client Random" and "Server Random". In DTLS v1.2, random byte array consists of 32 bytes. The first 4 bytes are for current system time, remaining 28 bytes are randomly generated. 
@@ -158,15 +158,15 @@ Source: [Pion WebRTC: DTLS Random](https://github.com/pion/dtls/blob/b3e235f54b6
 
 * Cookie: Randomly generated 20 bytes. But in first flight, first ClientHello's Cookie is empty. The second one will come not empty, we will discuss further.
 * SessionID: We didn't use this data, pass empty array, at least in this project.
-* CipherSuiteIDs: Each party has implemented and supported a set of [Cipher Suite](https://en.wikipedia.org/wiki/Cipher_suite)s, in DTLS and TLS each of them coded with uint16 constant value. With this information, the client informs us "I support these cipher suites, choose one of them which you support too, then we can continue using it".
+* CipherSuiteIDs: Each party has implemented and supported a set of [Cipher Suite](https://en.wikipedia.org/wiki/Cipher_suite)s, in DTLS and TLS each of them coded with uint16 constant value. With this information, the client informs us "I support these cipher suites, choose one of them which you support too, then we can continue using it."
 <br>
 A "Cipher Suite" is a set of algorithms, usually consists of a key exchange algorithm, a hash algorithm and signature/authentication algorithm. You can find cipher suites and values [here](https://www.rfc-editor.org/rfc/rfc8422.html#section-6), and our only one supported cipher suite constant at [backend/src/dtls/ciphersuites.go](../backend/src/dtls/ciphersuites.go).
 * CompressionMethodIDs: We only support Uncompressed mode with value zero.
 * Extensions: Client can send a list of extension data with the ClientHello message. Some of them which we support:
-    * UseExtendedMasterSecret: In encryption, we use a "master secret". Each party generates their own "master secret" and don't share it with others. There are some ways to generate it, a standard way and an extended way. We will discuss about this, but if ClientHello contains an UseExtendedMasterSecret extension, it means "the client uses extended master secret generation, you should use it too".
-    * SupportedEllipticCurves (Supported Groups): Elliptic curve types that the client supports. We suuport only X25519. You can find further NamedCurve types [here](https://www.rfc-editor.org/rfc/rfc8422.html#section-5.1.1), and our only one supported Curve constant (X25519) at [backend/src/dtls/ciphersuites.go](../backend/src/dtls/ciphersuites.go).
-    * SupportedPointFormats: We only used "Uncompressed" value
-    * UseSRTP: In unencrypted way, the media streaming made with [RTP (Real-time Transport Protocol)](https://en.wikipedia.org/wiki/Real-time_Transport_Protocol) without any encryption. But WebRTC mandates using an encryption mechanism while transportation. If RTP packets are encrypted and authenticated, we call it [SRTP (Secure Real-time Transport Protocol)](https://en.wikipedia.org/wiki/Secure_Real-time_Transport_Protocol).
+    * UseExtendedMasterSecret: In encryption, we use a "master secret". Each party generates their own "master secret" and don't share it with others. There are some ways to generate it, a standard way and an extended way. We will discuss about this, but if ClientHello contains a UseExtendedMasterSecret extension, it means "the client uses extended master secret generation method, you should use it too".
+    * SupportedEllipticCurves (Supported Groups): Elliptic curve types that the client supports. We support only X25519. You can find further NamedCurve types [here](https://www.rfc-editor.org/rfc/rfc8422.html#section-5.1.1), and our only one supported Curve constant (X25519) at [backend/src/dtls/ciphersuites.go](../backend/src/dtls/ciphersuites.go).
+    * SupportedPointFormats: We only will use "Uncompressed" value
+    * UseSRTP: In an unencrypted way, the media streaming is made with [RTP (Real-time Transport Protocol)](https://en.wikipedia.org/wiki/Real-time_Transport_Protocol) without any encryption. But WebRTC mandates using an encryption mechanism in transportation. If RTP packets are encrypted and authenticated, we call it [SRTP (Secure Real-time Transport Protocol)](https://en.wikipedia.org/wiki/Secure_Real-time_Transport_Protocol).
     <br>
     This extension contains IDs of SRTP Protection Profiles which the client supports. We support only SRTPProtectionProfile_AEAD_AES_128_GCM. You can find further SRTP Protection profile types [here](https://www.iana.org/assignments/srtp-protection/srtp-protection.xhtml), and our only one supported profile constant (AEAD_AES_128_GCM) at [backend/src/dtls/ciphersuites.go](../backend/src/dtls/ciphersuites.go).
 
@@ -192,7 +192,7 @@ type HelloVerifyRequest struct {
 }
 ```
 
-Now we are waiting for another (nearly same) ClientHello message, but with Cookie with same value of our HelloVerifyRequest.
+Now we are waiting for another (nearly the same) ClientHello message, but with a Cookie that has the same value as our HelloVerifyRequest.
 
 ![Sent HelloVerifyRequest](images/05-02-sent-helloverifyrequest.png)
 
@@ -204,9 +204,9 @@ Now we are waiting for another (nearly same) ClientHello message, but with Cooki
 
 ![Received second ClientHello](images/05-03-received-second-clienthello.png)
 
-We received second ClientHello from the client, with nearly same content but with a Cookie.
+We received second ClientHello from the client, with nearl same content but with a Cookie.
 
-Now, we:
+We:
 * Know we are in Flight 2, we check if the incoming ClientHello's Cookie value and we sent via HelloVerifyRequest (stored in our context object). If it is empty, we should return to Flight 0 state and wait for a new ClientHello message. If not empty, we should compare two values.
 * Find a cipher suite ID which mutually supported by each peer, via calling "negotiateOnCipherSuiteIDs" function in [backend/src/dtls/handshakemanager.go](../backend/src/dtls/handshakemanager.go), then set it to context.CipherSuite. In our example, negotiated on TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 (0xc02b) cipher suite.
 * Loop through ClientHello message's extensions. We process the known and supported ones, and ignore unknown ones. Tracking the order at console output below:
@@ -276,7 +276,7 @@ func GenerateKeySignature(clientRandom []byte, serverRandom []byte, publicKey []
 
 * Set the context's Flight to "Flight 4"
 
-Now we are ready for sending a group of messages: A ServerHello, a Certificate, a ServerKeyExchange, a CertificateRequest, and a ServerHelloDone message. These messages can be sent in same packet (by fragmenting) or one by one. We prefer to send them individually, one by one.
+Now we are ready to send a group of messages: A ServerHello, a Certificate, a ServerKeyExchange, a CertificateRequest, and a ServerHelloDone message. These messages can be sent in same packet (by fragmenting) or one by one. We prefer to send them individually, one by one.
 
 Sources:
 * [Pion WebRTC: DTLS, Generating Elliptic Keypair](https://github.com/pion/dtls/blob/bee42643f57a7f9c85ee3aa6a45a4fa9811ed122/pkg/crypto/elliptic/elliptic.go#L70)
@@ -465,7 +465,7 @@ type ClientKeyExchange struct {
 ### **5.9.1. Initialization of cipher suite**
 <br>
 
-We need to generate a master secret then using this master secret, client random and server random we will initialize our keys. We will use these keys while encrypting/decrypting the SRTP packets further.
+We need to generate a master secret. Then using this master secret, client random, and server random, we will initialize our keys. We will use these keys while encrypting/decrypting the SRTP packets further.
 
 
 <br>
@@ -566,7 +566,7 @@ Sources:
 #### **5.9.1.3. Initialize GCM**
 <br>
 
-[GCM](https://en.wikipedia.org/wiki/Galois/Counter_Mode) is abbreviation for "Galois/Counter Mode" and is a type of [Block cipher mode of operation
+[GCM](https://en.wikipedia.org/wiki/Galois/Counter_Mode) is abbreviation for "Galois/Counter Mode" and is a type of [block cipher mode of operation
 ](https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation). In our project, we only implemented the TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 cipher suite, and it uses [AES-GCM](https://www.cryptosys.net/pki/manpki/pki_aesgcmauthencryption.html) authenticated encryption.
 
 So, we call the object that makes encryption/decryption over our DTLS Messages (if a message has encrypted) as GCM.
@@ -649,7 +649,7 @@ func GenerateEncryptionKeys(masterSecret []byte, clientRandom []byte, serverRand
 <br>
 We are ready to create our GCM object, which contains our ciphers and IVs. We pass our key values to our "NewGCM" function.
 <br>
-**Important note:** The order of pairs (keys.ServerWriteKey, keys.ServerWriteIV) and (keys.ClientWriteKey, keys.ClientWriteIV) while passing them to "NewGCM" function below, is important, can vary by "being a client" or "being a server" as application.
+**Important note:** The order of pairs (keys.ServerWriteKey, keys.ServerWriteIV) and (keys.ClientWriteKey, keys.ClientWriteIV) while passing them to "NewGCM" function below is important, can vary by "being a client" or "being a server" as application.
 * While creating our ciphers, we create new instances by [aes.NewCipher](https://pkg.go.dev/crypto/aes#NewCipher) and [cipher.NewGCM](https://pkg.go.dev/crypto/cipher#NewGCM)
 
 <sup>from [backend/src/dtls/crypto.go](../backend/src/dtls/crypto.go)</sup>
@@ -742,7 +742,7 @@ type ChangeCipherSpec struct {
 
 This type of message contains only a byte with value 1. We don't do anything for this message.
 
-**Important note:** Epoch of Record Header were 0 and contents were in clear text (not encrypted) until (and including) this ChangeCipherSpec message. But the messages will be came future, will have Epoch with 1, and will be encrypted.
+**Important note:** Epoch of Record Header were 0 and contents were in clear text (not encrypted) until (and including) this ChangeCipherSpec message. But the messages that will come after this, will have Epoch with 1 and will be encrypted.
 
 
 <br>

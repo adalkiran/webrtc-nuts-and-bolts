@@ -16,7 +16,7 @@ Note: For detailed information about STUN Protocol, you can find at "2.4.2. Impl
 First of all, this is our first "expected" packet incoming via UDP. " Demultiplexing" mechanism on sockets are implemented in a different (well architected) way, but in this project, we implemented the plain way. Let's explain our demultiplexing mechanism:
 
 * UDP listener object receives a packet (byte array) in "Run" function in [backend/src/udp/udpListener.go](../backend/src/udp/udpListener.go)
-* Checks if the packet was came from a known socket
+* Checks if the packet came from a known socket
 * Forwards the packet buffer to "AddBuffer" function in [backend/src/agent/udpclientsocket.go](../backend/src/agent/udpclientsocket.go)
 * The "AddBuffer" function checks which protocol the packet can be related with:
 
@@ -66,7 +66,7 @@ After we determined that this packet is STUN packet, our steps will be:
 * Validate the STUN packet's integrity via HMAC and fingerprint via CRC32, by "Validate" function [backend/src/stun/message.go](../backend/src/stun/message.go)
 * We only support "Binding Request" message type as incoming STUN packet, because of this, we have only one case.
 * Split the AttrUserName attribute's value with ":", interpret first part as serverUfrag, second part as clientUfrag. serverUfrag represents which Server ICE Agent (conference) the client wants to communicate.
-* While creating UdpClientSocket objects, we specify related ServerUfrag and ClientUfrag (values coming previously by SDP data), so a UdpClientSocket can accept STUN packets which only have the server ufrag value and the client ufrag value it has. Because of this, we check these values.
+* While creating UdpClientSocket objects, we specify related ServerUfrag and ClientUfrag (values coming previously by SDP data), so a UdpClientSocket can accept STUN packets that only have the server ufrag value and the client ufrag value it has. Because of this, we check these values.
 * If everything is OK, we create a STUN Binding Response packet (by calling "createBindingResponse" function) and send it. This means "I accept your request, we can communicate by this channel, send me DTLS ClientHello message".
 
 <sup>from [backend/src/agent/udpclientsocket.go](../backend/src/agent/udpclientsocket.go)</sup>

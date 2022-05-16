@@ -135,7 +135,7 @@ func (h *WsHub) processJoinConference(messageData map[string]interface{}, wsClie
 	conferenceName := messageData["conferenceName"].(string)
 	logging.Descf(logging.ProtoWS, "The <u>client %d</u> wanted to join the conference <u>%s</u>.", wsClient.id, conferenceName)
 	wsClient.conference = h.ConferenceManager.EnsureConference(conferenceName)
-	logging.Descf(logging.ProtoWS, "The client was joined the conference. Now we should generate a SDP Offer including our UDP candidates (IP-port pairs) and send to the client via Signaling/WebSocket.")
+	logging.Descf(logging.ProtoWS, "The client was joined the conference. Now we should generate an SDP Offer including our UDP candidates (IP-port pairs) and send to the client via Signaling/WebSocket.")
 	sdpMessage := sdp.GenerateSdpOffer(wsClient.conference.IceAgent)
 	logging.Infof(logging.ProtoSDP, "Sending SDP Offer to <u>client %d</u> (<u>%s</u>) for conference <u>%s</u>: %s", wsClient.id, wsClient.RemoteAddrStr(), conferenceName, sdpMessage)
 	logging.LineSpacer(2)

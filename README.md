@@ -18,9 +18,9 @@ You can track which steps taken during this journey by debugging or tracking the
 
 This project was initially started to learn Go language and was made for experimental and educational purposes only, not for production use.
 
-After some progress on the development, I decided to pivot my experimental work to a walkthrough document too. Because, althrough there are lots of resources exist already on the Internet, they cover small chunks of WebRTC concepts or protocols atomically. And they use the standard way of inductive method which teach in pieces then assemble them.
+After some progress on the development, I decided to pivot my experimental work to a walkthrough document. Because although there are lots of resources that exist already on the Internet, they cover small chunks of WebRTC concepts or protocols atomically. And they use the standard way of inductive method which teach in pieces then assemble them.
 
-But my style of learning lean on deductive method instead of others, so instead of learning atomic pieces and concepts first, going linearly from beginning to the end, and learning an atomic piece on the time when learning this piece is required.
+But my style of learning leans on the deductive method instead of others, so instead of learning atomic pieces and concepts first, going linearly from beginning to the end, and learning an atomic piece on the time when learning this piece is required.
 
 <br>
 

@@ -1,6 +1,16 @@
 # **WebRTC Nuts and Bolts**
 
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white&style=flat-square)](https://www.linkedin.com/in/alper-dalkiran/)
+[![Twitter](https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white&style=flat-square)](https://twitter.com/aalperdalkiran)
+[HitCount](https://hits.dwyl.com/adalkiran/webrtc-nuts-and-bolts.svg?style=flat-square&show=unique)
+![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
+
 A holistic way of understanding how WebRTC and its protocols run in practice, **with code and detailed documentation**. "The nuts and bolts" (practical side instead of theoretical facts, pure implementation details) of required protocols without using external dependencies or libraries.
+
+When you run the project and follow the instructions, web page initializes the webcam, does handshake with the backend application (executes several WebRTC processes), at the end, the backend catches keyframe images and saves them as JPEG image files. You can see your catched keyframes at /backend/output/ folder as shoot1.jpg, shoot2.jpg etc... if multiple keyframes were catched.
+
+You can track which steps taken during this journey by debugging or tracking the output at console.
 
 <br>
 
@@ -27,7 +37,7 @@ Web front-end side: Pure Typescript implementation:
 * Gathering webcam streaming track from browser and send this track to backend via UDP.
 
 Server back-end side: Pure Go language implementation:
-* A simple signaling back-end WebSocket to transfer [SDP (Session Description Protocol)](https://en.wikipedia.org/wiki/Session_Description_Protocol) using [Gorilla WebSocket](github.com/gorilla/websocket) library.
+* A simple signaling back-end WebSocket to transfer [SDP (Session Description Protocol)](https://en.wikipedia.org/wiki/Session_Description_Protocol) using [Gorilla WebSocket](https://github.com/gorilla/websocket) library.
 * Single port UDP listener, supports demultiplexing different data packet types (STUN, DTLS handshake, SRTP, SRTCP) coming from the same UDP connection.
 * Protocol implementations of (only required parts):
   * [STUN (Session Traversal Utilities for NAT)](https://en.wikipedia.org/wiki/STUN) for discovering external IP behind NAT by a STUN server and replying to the client's STUN binding request came by UDP connection.

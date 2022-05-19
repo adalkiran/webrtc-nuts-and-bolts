@@ -105,8 +105,18 @@ Now, the client will send a [ClientHello](https://datatracker.ietf.org/doc/html/
 
 Note that, one of reference link "ClientHello" refers to "The Transport Layer Security (TLS) Protocol Version 1.2", reference link of "DTLS Handshake" refers to "Datagram Transport Layer Security". Because DTLS was developed over TLS.
 
-<style>
-  table { width: 100%; }
-</style>
-| [&lt; Previous chapter](./03-FIRST-CLIENT-COMES-IN.md) | [Next chapter &gt;](./05-DTLS-HANDSHAKE.md)|
-| -- | --: |
+<br>
+
+---
+<div>
+  <div style="float: right;">
+
+  [Next chapter &gt;](./05-DTLS-HANDSHAKE.md)
+
+  </div>
+  <div style="float: left;">
+
+  [&lt; Previous chapter](./03-FIRST-CLIENT-COMES-IN.md)
+
+  </div>
+</div>

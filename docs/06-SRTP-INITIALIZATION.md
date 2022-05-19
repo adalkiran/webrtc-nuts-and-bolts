@@ -186,8 +186,18 @@ func NewGCM(masterKey, masterSalt []byte) (*GCM, error) {
 
 Now, we are ready to receive and decrypt incoming SRTP and SRTCP packets. We are not ready to encrypt, because we don't need and implemented this part :)
 
-<style>
-  table { width: 100%; }
-</style>
-| [&lt; Previous chapter](./05-DTLS-HANDSHAKE.md) | [Next chapter &gt;](./07-SRTP-PACKETS-COME.md)|
-| -- | --: |
+<br>
+
+---
+<div>
+  <div style="float: right;">
+
+  [Next chapter &gt;](./07-SRTP-PACKETS-COME.md)
+
+  </div>
+  <div style="float: left;">
+
+  [&lt; Previous chapter](./05-DTLS-HANDSHAKE.md)
+
+  </div>
+</div>

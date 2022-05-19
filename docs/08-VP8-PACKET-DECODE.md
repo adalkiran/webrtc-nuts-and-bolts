@@ -137,8 +137,18 @@ Sources:
 * [How to convert VP8 interframe into image with Pion/Webrtc? (Stackoverflow)](https://stackoverflow.com/questions/68859120/how-to-convert-vp8-interframe-into-image-with-pion-webrtc)
 * [RFC: RTP Payload Format for VP8 Video](https://tools.ietf.org/id/draft-ietf-payload-vp8-05.html)
 
-<style>
-  table { width: 100%; }
-</style>
-| [&lt; Previous chapter](./07-SRTP-PACKETS-COME.md) | [Next chapter &gt;](./09-CONCLUSION.md)|
-| -- | --: |
+<br>
+
+---
+<div>
+  <div style="float: right;">
+
+  [Next chapter &gt;](./09-CONCLUSION.md)
+
+  </div>
+  <div style="float: left;">
+
+  [&lt; Previous chapter](./07-SRTP-PACKETS-COME.md)
+
+  </div>
+</div>

@@ -22,9 +22,16 @@ Here is the adventure of a WebRTC stream from start to finish  documented as ste
 <br>
 [9. CONCLUSION](./09-CONCLUSION.md)<br>
 
-<style>
-  table { width: 100%; }
-</style>
-| | [Next chapter &gt;](./00-INFRASTRUCTURE.md)|
-| -- | --: |
+---
+<div>
+  <div style="float: right;">
 
+  [Next chapter &gt;](./00-INFRASTRUCTURE.md)
+
+  </div>
+  <div style="float: left;">
+
+  [&lt;&lt; Home](../README.md)
+
+  </div>
+</div>

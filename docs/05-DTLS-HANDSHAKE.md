@@ -828,8 +828,18 @@ type Finished struct {
 
 * Set our DTLS Handshake Context's (HandshakeContext defined in [backend/src/dtls/handshakecontext.go](../backend/src/dtls/handshakecontext.go)) state as "Connected"
 
-<style>
-  table { width: 100%; }
-</style>
-| [&lt; Previous chapter](./04-STUN-BINDING-REQUEST-FROM-CLIENT.md) | [Next chapter &gt;](./06-SRTP-INITIALIZATION.md)|
-| -- | --: |
+<br>
+
+---
+<div>
+  <div style="float: right;">
+
+  [Next chapter &gt;](./06-SRTP-INITIALIZATION.md)
+
+  </div>
+  <div style="float: left;">
+
+  [&lt; Previous chapter](./04-STUN-BINDING-REQUEST-FROM-CLIENT.md)
+
+  </div>
+</div>

@@ -18,9 +18,16 @@ Adil Alper DALKIRAN
 <br>
 <br>
 
-<style>
-  table { width: 100%; }
-</style>
-| [&lt; Previous chapter](./08-VP8-PACKET-DECODE.md) | [Home &gt;](../README.md) |
-| -- | --: |
+---
+<div>
+  <div style="float: right;">
 
+  [Home &gt;&gt;](../README.md)
+
+  </div>
+  <div style="float: left;">
+
+  [&lt; Previous chapter](./08-VP8-PACKET-DECODE.md)
+
+  </div>
+</div>

@@ -441,8 +441,18 @@ Now, our server application is waiting for client interactions on:
 
 We are ready to answer client interactions!
 
-<style>
-  table { width: 100%; }
-</style>
-| [&lt; Previous chapter](./01-RUNNING-IN-DEV-MODE.md) | [Next chapter &gt;](./03-FIRST-CLIENT-COMES-IN.md)|
-| -- | --: |
+<br>
+
+---
+<div>
+  <div style="float: right;">
+
+  [Next chapter &gt;](./03-FIRST-CLIENT-COMES-IN.md)
+
+  </div>
+  <div style="float: left;">
+
+  [&lt; Previous chapter](./01-RUNNING-IN-DEV-MODE.md)
+
+  </div>
+</div>

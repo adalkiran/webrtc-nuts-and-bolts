@@ -191,9 +191,18 @@ Downloading dependent Go modules...
 Running into Waiting loop...
 ```
 
-<style>
-  table { width: 100%; }
-</style>
-| [&lt; Previous chapter](./README.md) | [Next chapter &gt;](./01-RUNNING-IN-DEV-MODE.md)|
-| -- | --: |
+<br>
 
+---
+<div>
+  <div style="float: right;">
+
+  [Next chapter &gt;](./01-RUNNING-IN-DEV-MODE.md)
+
+  </div>
+  <div style="float: left;">
+
+  [&lt; Documentation Index](./README.md)
+
+  </div>
+</div>

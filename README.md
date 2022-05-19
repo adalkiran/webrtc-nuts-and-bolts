@@ -83,7 +83,7 @@ $ docker-compose logs -f
 
 * After waiting for enough time, open a web browser and visit http://localhost:8080 (Tested on Chrome)
 
-### <a id="dev-mode"></a> **Development Mode: VS Code Remote - Containers**
+### <a name="dev-mode"></a> **Development Mode: VS Code Remote - Containers**
 
 To continue with VS Code and if this is your first time to work with Remote Containers in VS Code, you can checkout [this link](https://code.visualstudio.com/docs/remote/containers) to learn how Remote Containers work in VS Code and follow the installation steps of [Remote Development extension pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack).
 

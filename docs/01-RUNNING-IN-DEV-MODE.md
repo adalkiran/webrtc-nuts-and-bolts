@@ -46,8 +46,18 @@ $ ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.)
 
 * Now your backend server is ready to accept requests from browser!
 
-<style>
-  table { width: 100%; }
-</style>
-| [&lt; Previous chapter](./00-INFRASTRUCTURE.md) | [Next chapter &gt;](./02-BACKEND-INITIALIZATION.md)|
-| -- | --: |
+<br>
+
+---
+<div>
+  <div style="float: right;">
+
+  [Next chapter &gt;](./02-BACKEND-INITIALIZATION.md)
+
+  </div>
+  <div style="float: left;">
+
+  [&lt; Previous chapter](./00-INFRASTRUCTURE.md)
+
+  </div>
+</div>

@@ -245,8 +245,18 @@ func (g *GCM) Decrypt(packet *rtp.Packet, roc uint32) ([]byte, error) {
 
 * If the packet's PayloadType is in PayloadTypeVP8 type, it forwards to the UDPClientSocket's "vp8Depacketizer" [channel](https://go.dev/tour/concurrency/2). This channel is listened by Run() function of VP8Decoder object in [backend/src/transcoding/vp8.go](../backend/src/transcoding/vp8.go), discussed in chapter [8. VP8 PACKET DECODE](./08-VP8-PACKET-DECODE.md).
 
-<style>
-  table { width: 100%; }
-</style>
-| [&lt; Previous chapter](./06-SRTP-INITIALIZATION.md) | [Next chapter &gt;](./08-VP8-PACKET-DECODE.md)|
-| -- | --: |
+<br>
+
+---
+<div>
+  <div style="float: right;">
+
+  [Next chapter &gt;](./08-VP8-PACKET-DECODE.md)
+
+  </div>
+  <div style="float: left;">
+
+  [&lt; Previous chapter](./06-SRTP-INITIALIZATION.md)
+
+  </div>
+</div>

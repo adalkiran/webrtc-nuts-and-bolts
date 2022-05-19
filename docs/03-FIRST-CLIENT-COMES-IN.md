@@ -6,7 +6,7 @@ Now, we can visit our web application by opening a browser window and writing ht
 
 **Note:** Tested on Chrome, we think it will run in other modern browsers but it's recommended to use Chrome.
 
-![Browser first visit](images/03-01-browser-first-visit.png)
+<img alt="Browser first visit" src="images/03-01-browser-first-visit.png" style="width: 500px;max-width:50%"></img>
 
 When the web page was loaded, we run initialization code.
 
@@ -132,7 +132,7 @@ The button click will call "rtc.start()" function which:
 
 * The browser asks user for camera and microphone permission for our URL. If you Allow or Deny this request, the browser will remember your decision and won't ask you next time. Now we click on Allow button.
 
-![Browser asks for permission](images/03-02-browser-ask-permissions.png)
+<img alt="Browser asks for permission" src="images/03-02-browser-ask-permissions.png" style="width: 500px;max-width:50%"></img>
 
 * After clicking Allow button, the promise gives us a single [MediaStream](https://developer.mozilla.org/en-US/docs/Web/API/MediaStream) object that contains multiple tracks: a video track and an audio track, we can reach them by [stream.getTracks()](https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getTracks). Currently these tracks are not online yet (not related with any RTC Connection).
 
@@ -187,8 +187,8 @@ will be triggered. This function creates a WsClient object (defined in [backend/
 ```go
 func (s *HttpServer) serveWs(w http.ResponseWriter, r *http.Request) {
     ...
-	client := &WsClient{wsHub: s.WsHub, conn: conn, send: make(chan []byte, 256)}
-	client.wsHub.register <- client
+    client := &WsClient{wsHub: s.WsHub, conn: conn, send: make(chan []byte, 256)}
+    client.wsHub.register <- client
     ...
 }
 ```
@@ -198,18 +198,18 @@ This method in an infinite loop, when a message forwarded to "register" channel,
 <sup>from [backend/src/signaling/wshub.go](../backend/src/signaling/wshub.go)</sup>
 ```go
 func (h *WsHub) run() {
-	for {
-		select {
-		case client := <-h.register:
-			h.maxClientId++
-			client.id = h.maxClientId
-			h.clients[client] = true
-			logging.Infof(logging.ProtoWS, "A new client connected: <u>client %d</u> (from <u>%s</u>)", client.id, client.conn.RemoteAddr())
-			logging.Descf(logging.ProtoWS, "Sending welcome message via WebSocket. The client is informed with client ID given by the signaling server.")
-			writeContainerJSON(client, "Welcome", ClientWelcomeMessage{
-				Id:      client.id,
-				Message: "Welcome!",
-			})
+    for {
+        select {
+        case client := <-h.register:
+            h.maxClientId++
+            client.id = h.maxClientId
+            h.clients[client] = true
+            logging.Infof(logging.ProtoWS, "A new client connected: <u>client %d</u> (from <u>%s</u>)", client.id, client.conn.RemoteAddr())
+            logging.Descf(logging.ProtoWS, "Sending welcome message via WebSocket. The client is informed with client ID given by the signaling server.")
+            writeContainerJSON(client, "Welcome", ClientWelcomeMessage{
+                Id:      client.id,
+                Message: "Welcome!",
+            })
         ...
         }
     }
@@ -281,28 +281,28 @@ The generated SDP Offer data is sent to the client as JSON via Signaling WebSock
 <sup>from [backend/src/conference/conference.go](../backend/src/conference/conference.go)</sup>
 ```go
 func NewConference(conferenceName string, candidateIPs []string, udpPort int) *Conference {
-	result := &Conference{
-		ConferenceName: conferenceName,
-		IceAgent:       agent.NewServerAgent(candidateIPs, udpPort, conferenceName),
-	}
-	return result
+    result := &Conference{
+        ConferenceName: conferenceName,
+        IceAgent:       agent.NewServerAgent(candidateIPs, udpPort, conferenceName),
+    }
+    return result
 }
 ```
 
 <sup>from [backend/src/signaling/wshub.go](../backend/src/signaling/wshub.go)</sup>
 ```go
 func (h *WsHub) run() {
-	for {
-		select {
+    for {
+        select {
         ...
         case receivedMessage := <-h.messageReceived:
-			var messageObj map[string]interface{}
-			json.Unmarshal(receivedMessage.Message, &messageObj)
+            var messageObj map[string]interface{}
+            json.Unmarshal(receivedMessage.Message, &messageObj)
 
-			logging.Infof(logging.ProtoWS, "Message received from <u>client %d</u> type <u>%s</u>", receivedMessage.Sender.id, messageObj["type"])
-			switch messageObj["type"] {
-			case "JoinConference":
-				h.processJoinConference(messageObj["data"].(map[string]interface{}), receivedMessage.Sender)
+            logging.Infof(logging.ProtoWS, "Message received from <u>client %d</u> type <u>%s</u>", receivedMessage.Sender.id, messageObj["type"])
+            switch messageObj["type"] {
+            case "JoinConference":
+                h.processJoinConference(messageObj["data"].(map[string]interface{}), receivedMessage.Sender)
         ...
         }
     }
@@ -452,17 +452,17 @@ The client generated the SDP Answer corresponding to the SDP Offer the server se
 <sup>from [backend/src/signaling/wshub.go](../backend/src/signaling/wshub.go)</sup>
 ```go
 func (h *WsHub) run() {
-	for {
-		select {
+    for {
+        select {
         ...
         case receivedMessage := <-h.messageReceived:
             ...
             switch messageObj["type"] {
             ...
             case "SdpOfferAnswer":
-				incomingSdpOfferAnswerMessage := sdp.ParseSdpOfferAnswer(messageObj["data"].(map[string]interface{}))
-				incomingSdpOfferAnswerMessage.ConferenceName = receivedMessage.Sender.conference.ConferenceName
-				h.ConferenceManager.ChanSdpOffer <- incomingSdpOfferAnswerMessage
+                incomingSdpOfferAnswerMessage := sdp.ParseSdpOfferAnswer(messageObj["data"].(map[string]interface{}))
+                incomingSdpOfferAnswerMessage.ConferenceName = receivedMessage.Sender.conference.ConferenceName
+                h.ConferenceManager.ChanSdpOffer <- incomingSdpOfferAnswerMessage
             ...
             }
         ...
@@ -476,21 +476,21 @@ This method in an infinite loop, when a message forwarded to "ChanSdpOffer" chan
 <sup>from [backend/src/conference/conferencemanager.go](../backend/src/conference/conferencemanager.go)</sup>
 ```go
 func (m *ConferenceManager) Run(waitGroup *sync.WaitGroup) {
-	defer waitGroup.Done()
-	for {
-		select {
-		case sdpOffer := <-m.ChanSdpOffer:
-			conference, ok := m.Conferences[sdpOffer.ConferenceName]
-			if !ok {
-				logging.Warningf(logging.ProtoSDP, "Conference not found: <u>%s</u>, ignoring SdpOffer\n", sdpOffer.ConferenceName)
-				continue
-			}
-			for _, sdpMediaItem := range sdpOffer.MediaItems {
-				conference.IceAgent.EnsureSignalingMediaComponent(sdpMediaItem.Ufrag, sdpMediaItem.Pwd, sdpMediaItem.FingerprintHash)
-			}
-			logging.Descf(logging.ProtoSDP, "We processed incoming SDP, notified the conference's ICE Agent object (SignalingMediaComponents) about client (media) components' ufrag, pwd and fingerprint hash in the SDP. The server knows some metadata about the UDP packets will come in future. Now we are waiting for a STUN Binding Request packet via UDP, with server Ufrag <u>%s</u> from the client!", sdpOffer.MediaItems[0].Ufrag)
-		}
-	}
+    defer waitGroup.Done()
+    for {
+        select {
+        case sdpOffer := <-m.ChanSdpOffer:
+            conference, ok := m.Conferences[sdpOffer.ConferenceName]
+            if !ok {
+                logging.Warningf(logging.ProtoSDP, "Conference not found: <u>%s</u>, ignoring SdpOffer\n", sdpOffer.ConferenceName)
+                continue
+            }
+            for _, sdpMediaItem := range sdpOffer.MediaItems {
+                conference.IceAgent.EnsureSignalingMediaComponent(sdpMediaItem.Ufrag, sdpMediaItem.Pwd, sdpMediaItem.FingerprintHash)
+            }
+            logging.Descf(logging.ProtoSDP, "We processed incoming SDP, notified the conference's ICE Agent object (SignalingMediaComponents) about client (media) components' ufrag, pwd and fingerprint hash in the SDP. The server knows some metadata about the UDP packets will come in future. Now we are waiting for a STUN Binding Request packet via UDP, with server Ufrag <u>%s</u> from the client!", sdpOffer.MediaItems[0].Ufrag)
+        }
+    }
 }
 ```
 

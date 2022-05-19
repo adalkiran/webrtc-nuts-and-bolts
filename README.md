@@ -12,6 +12,8 @@ When you run the project and follow the instructions, web page initializes the w
 
 You can track which steps taken during this journey by debugging or tracking the output at console.
 
+![Backend initial output](docs/images/01-07-backend-initial-output.png)
+
 <br>
 
 ## **WHY THIS PROJECT?**
@@ -104,14 +106,14 @@ Full-compliant WebRTC libraries should support a wide range of protocol details 
 
 In **WebRTC Nuts and Bolts** scenario, some assumptions have been made to focus only on required set of details.
 
-|  Full-compliant WebRTC libraries  |  WebRTC Nuts and Bolts  | 
+| Full-compliant WebRTC libraries | WebRTC Nuts and Bolts | 
 |---|---|
 | WebRTC has no client or server concepts in its [peer-to-peer](https://tr.wikipedia.org/wiki/Peer-to-peer) nature, there are controlling or controlled peers. | This project aims to act as listener server and it only receives media, not sends. To make the code more simplistic and cleaner; the concepts "client" instead of "local peer" and "server" instead of "remote peer" has been used. |
-| Should support both controlling and controlled roles.  |  Go language side will act only as server (ICE controlling), SDP offer will come from this side, then SDP answer will be expected from the client. |
+| Should support both controlling and controlled roles. | Go language side will act only as server (ICE controlling), SDP offer will come from this side, then SDP answer will be expected from the client. |
 | For separation of concerns and to maintain architectural extensibility, all WebRTC libraries were implemented as separate packages/repos (STUN package, DTLS package, SRTP package, etc...) | To keep it simple, this project was designed as [monorepo](https://en.wikipedia.org/wiki/Monorepo) but separated into packages. This choice depends on architectural needs and technical maintenance needs. |
 | Should support DTLS fragmentation. |  DTLS fragmentation is not supported. |
 | Should support multiple cipher suites for compatibility with different types of peers. More cipher suites can be found at [here](https://developers.cloudflare.com/ssl/ssl-tls/cipher-suites/). |  Only TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 is supported. |
-| Should implement packet reply detection, handling corrupted packets, handling unordered packet sequences and packet losses, byte array length checks, lots of security protections against cyberattacks, etc...  | This project was developed to run in only ideal conditions. Incoming malicious packets were not considered. |
+| Should implement packet reply detection, handling corrupted packets, handling unordered packet sequences and packet losses, byte array length checks, lots of security protections against cyberattacks, etc... | This project was developed to run in only ideal conditions. Incoming malicious packets were not considered. |
 
 <br>
 

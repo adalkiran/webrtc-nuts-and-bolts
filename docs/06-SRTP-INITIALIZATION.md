@@ -40,20 +40,20 @@ Although our project was designed as a monolith and one package, in real-world D
 <sup>from [backend/src/dtls/finished.go](../backend/src/dtls/finished.go)</sup>
 ```go
 func (ms *UDPClientSocket) OnDTLSStateChangeEvent(dtlsState dtls.DTLSState) {
-	logging.Infof(logging.ProtoDTLS, "State Changed: <u>%s</u> [<u>%v:%v</u>].\n", dtlsState, ms.HandshakeContext.Addr.IP, ms.HandshakeContext.Addr.Port)
-	switch dtlsState {
-	case dtls.DTLSStateConnected:
-		logging.Descf(logging.ProtoDTLS, "DTLS Handshake succeeded. Will be waiting for SRTP packets, but before them, we should init SRTP context and SRTP cipher suite, with SRTP Protection Profile <u>%s</u>.", ms.HandshakeContext.SRTPProtectionProfile)
-		ms.SRTPContext = srtpManager.NewContext(ms.Addr, ms.Conn, srtp.ProtectionProfile(ms.HandshakeContext.SRTPProtectionProfile))
-		keyLength, err := ms.SRTPContext.ProtectionProfile.KeyLength()
+    logging.Infof(logging.ProtoDTLS, "State Changed: <u>%s</u> [<u>%v:%v</u>].\n", dtlsState, ms.HandshakeContext.Addr.IP, ms.HandshakeContext.Addr.Port)
+    switch dtlsState {
+    case dtls.DTLSStateConnected:
+        logging.Descf(logging.ProtoDTLS, "DTLS Handshake succeeded. Will be waiting for SRTP packets, but before them, we should init SRTP context and SRTP cipher suite, with SRTP Protection Profile <u>%s</u>.", ms.HandshakeContext.SRTPProtectionProfile)
+        ms.SRTPContext = srtpManager.NewContext(ms.Addr, ms.Conn, srtp.ProtectionProfile(ms.HandshakeContext.SRTPProtectionProfile))
+        keyLength, err := ms.SRTPContext.ProtectionProfile.KeyLength()
         ...
-		saltLength, err := ms.SRTPContext.ProtectionProfile.SaltLength()
-		...
-		logging.Descf(logging.ProtoDTLS, "We should generate keying material from DTLS context. Key length: %d, Salt Length: %d, Total bytes length (consists of client and server key-salt pairs): <u>%d</u>", keyLength, saltLength, keyLength*2+saltLength*2)
-		keyingMaterial, err := ms.HandshakeContext.ExportKeyingMaterial(keyLength*2 + saltLength*2)
+        saltLength, err := ms.SRTPContext.ProtectionProfile.SaltLength()
         ...
-		srtpManager.InitCipherSuite(ms.SRTPContext, keyingMaterial)
-	}
+        logging.Descf(logging.ProtoDTLS, "We should generate keying material from DTLS context. Key length: %d, Salt Length: %d, Total bytes length (consists of client and server key-salt pairs): <u>%d</u>", keyLength, saltLength, keyLength*2+saltLength*2)
+        keyingMaterial, err := ms.HandshakeContext.ExportKeyingMaterial(keyLength*2 + saltLength*2)
+        ...
+        srtpManager.InitCipherSuite(ms.SRTPContext, keyingMaterial)
+    }
 }
 ```
 
@@ -64,27 +64,27 @@ func (ms *UDPClientSocket) OnDTLSStateChangeEvent(dtlsState dtls.DTLSState) {
 <sup>from [backend/src/srtp/srtpmanager.go](../backend/src/srtp/srtpmanager.go)</sup>
 ```go
 func (m *SRTPManager) extractEncryptionKeys(protectionProfile ProtectionProfile, keyingMaterial []byte) (*EncryptionKeys, error) {
-	keyLength, err := protectionProfile.KeyLength()
-	...
-	saltLength, err := protectionProfile.SaltLength()
-	...
+    keyLength, err := protectionProfile.KeyLength()
+    ...
+    saltLength, err := protectionProfile.SaltLength()
+    ...
 
-	offset := 0
-	clientMasterKey := keyingMaterial[offset : offset+keyLength]
-	offset += keyLength
-	serverMasterKey := keyingMaterial[offset : offset+keyLength]
-	offset += keyLength
-	clientMasterSalt := keyingMaterial[offset : offset+saltLength]
-	offset += saltLength
-	serverMasterSalt := keyingMaterial[offset : offset+saltLength]
+    offset := 0
+    clientMasterKey := keyingMaterial[offset : offset+keyLength]
+    offset += keyLength
+    serverMasterKey := keyingMaterial[offset : offset+keyLength]
+    offset += keyLength
+    clientMasterSalt := keyingMaterial[offset : offset+saltLength]
+    offset += saltLength
+    serverMasterSalt := keyingMaterial[offset : offset+saltLength]
 
-	result := &EncryptionKeys{
-		ClientMasterKey:  clientMasterKey,
-		ClientMasterSalt: clientMasterSalt,
-		ServerMasterKey:  serverMasterKey,
-		ServerMasterSalt: serverMasterSalt,
-	}
-	return result, nil
+    result := &EncryptionKeys{
+        ClientMasterKey:  clientMasterKey,
+        ClientMasterSalt: clientMasterSalt,
+        ServerMasterKey:  serverMasterKey,
+        ServerMasterSalt: serverMasterSalt,
+    }
+    return result, nil
 }
 ```
 
@@ -109,8 +109,8 @@ So, we call the object that makes encryption/decryption over our SRTP and SCTP p
 <sup>from [backend/src/srtp/cryptogcm.go](../backend/src/srtp/cryptogcm.go)</sup>
 ```go
 type GCM struct {
-	srtpGCM, srtcpGCM   cipher.AEAD
-	srtpSalt, srtcpSalt []byte
+    srtpGCM, srtcpGCM   cipher.AEAD
+    srtpSalt, srtcpSalt []byte
 }
 ````
 
@@ -127,57 +127,57 @@ We are ready to create our GCM object, which contains our ciphers and salt value
 
 <sup>from [backend/src/srtp/srtpmanager.go](../backend/src/srtp/srtpmanager.go)</sup>
 ```go
-	gcm, err := InitGCM(keys.ClientMasterKey, keys.ClientMasterSalt)
+    gcm, err := InitGCM(keys.ClientMasterKey, keys.ClientMasterSalt)
 ```
 
 <sup>from [backend/src/srtp/cryptogcm.go](../backend/src/srtp/cryptogcm.go)</sup>
 ```go
 func NewGCM(masterKey, masterSalt []byte) (*GCM, error) {
-	srtpSessionKey, err := aesCmKeyDerivation(labelSRTPEncryption, masterKey, masterSalt, 0, len(masterKey))
-	if err != nil {
-		return nil, err
-	}
-	srtpBlock, err := aes.NewCipher(srtpSessionKey)
-	if err != nil {
-		return nil, err
-	}
+    srtpSessionKey, err := aesCmKeyDerivation(labelSRTPEncryption, masterKey, masterSalt, 0, len(masterKey))
+    if err != nil {
+        return nil, err
+    }
+    srtpBlock, err := aes.NewCipher(srtpSessionKey)
+    if err != nil {
+        return nil, err
+    }
 
-	srtpGCM, err := cipher.NewGCM(srtpBlock)
-	if err != nil {
-		return nil, err
-	}
-	srtcpSessionKey, err := aesCmKeyDerivation(labelSRTCPEncryption, masterKey, masterSalt, 0, len(masterKey))
-	if err != nil {
-		return nil, err
-	}
+    srtpGCM, err := cipher.NewGCM(srtpBlock)
+    if err != nil {
+        return nil, err
+    }
+    srtcpSessionKey, err := aesCmKeyDerivation(labelSRTCPEncryption, masterKey, masterSalt, 0, len(masterKey))
+    if err != nil {
+        return nil, err
+    }
 
-	srtcpBlock, err := aes.NewCipher(srtcpSessionKey)
-	if err != nil {
-		return nil, err
-	}
+    srtcpBlock, err := aes.NewCipher(srtcpSessionKey)
+    if err != nil {
+        return nil, err
+    }
 
-	srtcpGCM, err := cipher.NewGCM(srtcpBlock)
-	if err != nil {
-		return nil, err
-	}
+    srtcpGCM, err := cipher.NewGCM(srtcpBlock)
+    if err != nil {
+        return nil, err
+    }
 
-	srtpSalt, err := aesCmKeyDerivation(labelSRTPSalt, masterKey, masterSalt, 0, len(masterSalt))
-	if err != nil {
-		return nil, err
-	}
+    srtpSalt, err := aesCmKeyDerivation(labelSRTPSalt, masterKey, masterSalt, 0, len(masterSalt))
+    if err != nil {
+        return nil, err
+    }
 
-	srtcpSalt, err := aesCmKeyDerivation(labelSRTCPSalt, masterKey, masterSalt, 0, len(masterSalt))
+    srtcpSalt, err := aesCmKeyDerivation(labelSRTCPSalt, masterKey, masterSalt, 0, len(masterSalt))
 
-	if err != nil {
-		return nil, err
-	}
+    if err != nil {
+        return nil, err
+    }
 
-	return &GCM{
-		srtpGCM:   srtpGCM,
-		srtpSalt:  srtpSalt,
-		srtcpGCM:  srtcpGCM,
-		srtcpSalt: srtcpSalt,
-	}, nil
+    return &GCM{
+        srtpGCM:   srtpGCM,
+        srtpSalt:  srtpSalt,
+        srtcpGCM:  srtcpGCM,
+        srtcpSalt: srtcpSalt,
+    }, nil
 }
 
 ```

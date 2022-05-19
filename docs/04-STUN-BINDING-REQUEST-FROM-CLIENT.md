@@ -23,23 +23,23 @@ First of all, this is our first "expected" packet incoming via UDP. " Demultiple
 <sup>from [backend/src/agent/udpclientsocket.go](../backend/src/agent/udpclientsocket.go)</sup>
 ```go
 func (ms *UDPClientSocket) AddBuffer(buf []byte, offset int, arrayLen int) {
-	logging.Descf(logging.ProtoUDP, "A packet received. The byte array (<u>%d bytes</u>) not parsed yet. Demultiplexing via if-else blocks.", arrayLen)
-	if stun.IsMessage(buf, offset, arrayLen) {
-		logging.Descf(logging.ProtoSTUN, "This is a STUN message.")
+    logging.Descf(logging.ProtoUDP, "A packet received. The byte array (<u>%d bytes</u>) not parsed yet. Demultiplexing via if-else blocks.", arrayLen)
+    if stun.IsMessage(buf, offset, arrayLen) {
+        logging.Descf(logging.ProtoSTUN, "This is a STUN message.")
         ...
-	} else if dtls.IsDtlsPacket(buf, offset, arrayLen) {
-		logging.Descf(logging.ProtoDTLS, "This is a DTLS packet.")
-		...
-	} else if rtp.IsRtpPacket(buf, offset, arrayLen) {
-		logging.Descf(logging.ProtoRTP, " This is an RTP packet.")
-		....
-	} else if rtcp.IsRtcpPacket(buf, offset, arrayLen) {
-		logging.Descf(logging.ProtoRTP, "This is an RTCP packet.")
-		...
-	} else {
-		logging.Descf(logging.ProtoUDP, "This packet in a different format which is not known by the server, ignoring it.")
-		logging.Warningf(logging.ProtoUDP, "Unknown message from: <u>%s</u>, <u>%v</u>", ms.Addr, buf[offset:offset+arrayLen])
-	}
+    } else if dtls.IsDtlsPacket(buf, offset, arrayLen) {
+        logging.Descf(logging.ProtoDTLS, "This is a DTLS packet.")
+        ...
+    } else if rtp.IsRtpPacket(buf, offset, arrayLen) {
+        logging.Descf(logging.ProtoRTP, " This is an RTP packet.")
+        ....
+    } else if rtcp.IsRtcpPacket(buf, offset, arrayLen) {
+        logging.Descf(logging.ProtoRTP, "This is an RTCP packet.")
+        ...
+    } else {
+        logging.Descf(logging.ProtoUDP, "This packet in a different format which is not known by the server, ignoring it.")
+        logging.Warningf(logging.ProtoUDP, "Unknown message from: <u>%s</u>, <u>%v</u>", ms.Addr, buf[offset:offset+arrayLen])
+    }
 }
 ```
 
@@ -53,7 +53,7 @@ If this buffer part complies with these conditions, we can say "this packet is a
 <sup>from [backend/src/stun/message.go](../backend/src/stun/message.go)</sup>
 ```go
 func IsMessage(buf []byte, offset int, arrayLen int) bool {
-	return arrayLen >= messageHeaderSize && binary.BigEndian.Uint32(buf[offset+4:offset+8]) == magicCookie
+    return arrayLen >= messageHeaderSize && binary.BigEndian.Uint32(buf[offset+4:offset+8]) == magicCookie
 }
 ```
 
@@ -98,7 +98,7 @@ After we determined that this packet is STUN packet, our steps will be:
 
         ms.Conn.WriteToUDP(encodedBindingResponse, ms.Addr)
         logging.Descf(logging.ProtoSTUN, "Now we are waiting for a DTLS ClientHello packet from the client!")
-	}
+    }
 ```
 
 Now, the client will send a [ClientHello](https://datatracker.ietf.org/doc/html/rfc5246#section-7.4.1.2) message and we can start the [DTLS Handshake](https://datatracker.ietf.org/doc/html/rfc4347#section-4.2) process.

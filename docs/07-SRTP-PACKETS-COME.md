@@ -6,20 +6,20 @@ When a new packet comes in, the "AddBuffer" function in [backend/src/agent/udpcl
 
 <sup>RTP packet structure</sup>
 ```
-	0                   1                   2                   3
-	0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-	+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	|V=2|P|X|  CC   |M|     PT      |       Sequence Number         |
-	+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	|                           Timestamp                           |
-	+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	|           Synchronization Source (SSRC) identifier            |
-	+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-	|            Contributing Source (CSRC) identifiers             |
-	|                             ....                              |
-	+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	|                            Payload                            |
-	+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |V=2|P|X|  CC   |M|     PT      |       Sequence Number         |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                           Timestamp                           |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |           Synchronization Source (SSRC) identifier            |
+    +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+    |            Contributing Source (CSRC) identifiers             |
+    |                             ....                              |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                            Payload                            |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ```
 
 Our RTP packet struct in [backend/src/srtp/header.go](../backend/src/srtp/header.go) and [backend/src/srtp/packet.go](../backend/src/srtp/packet.go):
@@ -29,31 +29,31 @@ Our RTP packet struct in [backend/src/srtp/header.go](../backend/src/srtp/header
 type PayloadType byte
 
 type Extension struct {
-	Id      byte
-	Payload []byte
+    Id      byte
+    Payload []byte
 }
 
 type Header struct {
-	Version          byte
-	Padding          bool
-	Extension        bool
-	Marker           bool
-	PayloadType      PayloadType
-	SequenceNumber   uint16
-	Timestamp        uint32
-	SSRC             uint32
-	CSRC             []uint32
-	ExtensionProfile uint16
-	Extensions       []Extension
+    Version          byte
+    Padding          bool
+    Extension        bool
+    Marker           bool
+    PayloadType      PayloadType
+    SequenceNumber   uint16
+    Timestamp        uint32
+    SSRC             uint32
+    CSRC             []uint32
+    ExtensionProfile uint16
+    Extensions       []Extension
 
-	RawData []byte
+    RawData []byte
 }
 
 type Packet struct {
-	Header     *Header
-	HeaderSize int
-	Payload    []byte
-	RawData    []byte
+    Header     *Header
+    HeaderSize int
+    Payload    []byte
+    RawData    []byte
 }
 ```
 
@@ -69,10 +69,10 @@ If this buffer part complies with these conditions, we can say "this packet is a
 <sup>from [backend/src/rtp/rtpheader.go](../backend/src/rtp/rtpheader.go)</sup>
 ```go
 func IsRtpPacket(buf []byte, offset int, arrayLen int) bool {
-	// Initial segment of RTP header; 7 bit payload
-	// type; values 0...35 and 96...127 usually used
-	payloadType := buf[offset+1] & 0b01111111
-	return (payloadType <= 35) || (payloadType >= 96 && payloadType <= 127)
+    // Initial segment of RTP header; 7 bit payload
+    // type; values 0...35 and 96...127 usually used
+    payloadType := buf[offset+1] & 0b01111111
+    return (payloadType <= 35) || (payloadType >= 96 && payloadType <= 127)
 }
 ```
 
@@ -97,16 +97,16 @@ We have determined that incoming packet is an RTP packet via rtp.IsRtpPacket fun
 <sup>from [backend/src/agent/udpclientsocket.go](../backend/src/agent/udpclientsocket.go)</sup>
 ```go
 func (ms *UDPClientSocket) AddBuffer(buf []byte, offset int, arrayLen int) {
-	logging.Descf(logging.ProtoUDP, "A packet received. The byte array (<u>%d bytes</u>) not parsed yet. Demultiplexing via if-else blocks.", arrayLen)
+    logging.Descf(logging.ProtoUDP, "A packet received. The byte array (<u>%d bytes</u>) not parsed yet. Demultiplexing via if-else blocks.", arrayLen)
     ...
-	} else if rtcp.IsRtcpPacket(buf, offset, arrayLen) {
-		logging.Descf(logging.ProtoRTP, " This is an RTP packet.")
-		rtpPacket, offset, err := rtp.DecodePacket(buf, offset, arrayLen)
+    } else if rtcp.IsRtcpPacket(buf, offset, arrayLen) {
+        logging.Descf(logging.ProtoRTP, " This is an RTP packet.")
+        rtpPacket, offset, err := rtp.DecodePacket(buf, offset, arrayLen)
         ...
-		logging.Infof(logging.ProtoRTP, "Received packet: %s\n", rtpPacket)
-		ms.RtpDepacketizer <- rtpPacket
+        logging.Infof(logging.ProtoRTP, "Received packet: %s\n", rtpPacket)
+        ms.RtpDepacketizer <- rtpPacket
 
-	} else {
+    } else {
     ...
 }
 ```
@@ -117,21 +117,21 @@ func (ms *UDPClientSocket) AddBuffer(buf []byte, offset int, arrayLen int) {
 <sup>from [backend/src/agent/udpclientsocket.go](../backend/src/agent/udpclientsocket.go)</sup>
 ```go
 func (ms *UDPClientSocket) runRtpDepacketizer() {
-	defer close(ms.RtpDepacketizer)
-	defer close(ms.vp8Depacketizer)
-	go ms.vp8Decoder.Run()
-	for rtpPacket := range ms.RtpDepacketizer {
-		decrypted, err := ms.SRTPContext.DecryptRTPPacket(rtpPacket)
-		rtpPacket.Payload = decrypted
-		if err != nil {
-			logging.Errorf(logging.ProtoDTLS, "Error while decrypting: %s", err)
-			continue
-		}
-		switch rtpPacket.Header.PayloadType {
-		case rtp.PayloadTypeVP8:
-			ms.vp8Depacketizer <- rtpPacket
-		}
-	}
+    defer close(ms.RtpDepacketizer)
+    defer close(ms.vp8Depacketizer)
+    go ms.vp8Decoder.Run()
+    for rtpPacket := range ms.RtpDepacketizer {
+        decrypted, err := ms.SRTPContext.DecryptRTPPacket(rtpPacket)
+        rtpPacket.Payload = decrypted
+        if err != nil {
+            logging.Errorf(logging.ProtoDTLS, "Error while decrypting: %s", err)
+            continue
+        }
+        switch rtpPacket.Header.PayloadType {
+        case rtp.PayloadTypeVP8:
+            ms.vp8Depacketizer <- rtpPacket
+        }
+    }
 }
 ```
 
@@ -146,24 +146,24 @@ We use "DecryptRTPPacket" function in [backend/src/srtp/srtpcontext.go](../backe
 <sup>from [backend/src/srtp/srtpcontext.go](../backend/src/srtp/srtpcontext.go)</sup>
 ```go
 func (c *SRTPContext) DecryptRTPPacket(packet *rtp.Packet) ([]byte, error) {
-	s := c.getSRTPSSRCState(packet.Header.SSRC)
-	roc, updateROC := s.nextRolloverCount(packet.Header.SequenceNumber)
-	result, err := c.GCM.Decrypt(packet, roc)
-	if err != nil {
-		return nil, err
-	}
-	updateROC()
-	return result[packet.HeaderSize:], nil
+    s := c.getSRTPSSRCState(packet.Header.SSRC)
+    roc, updateROC := s.nextRolloverCount(packet.Header.SequenceNumber)
+    result, err := c.GCM.Decrypt(packet, roc)
+    if err != nil {
+        return nil, err
+    }
+    updateROC()
+    return result[packet.HeaderSize:], nil
 }
 ```
 
 * If we revisit the same screenshoot above, we can see that this packet has some attributes:
-	* Version: 2
-	* [SSRC](https://help.callstats.io/hc/en-us/articles/360004485394-What-is-the-Synchronization-Source-SSRC): (some [Synchronization Source](https://help.callstats.io/hc/en-us/articles/360004485394-What-is-the-Synchronization-Source-SSRC) value)
-	* Payload Type: VP8/90000 (96)
-	* Sequence Number: (Some increasing sequence number)
-	* CSRC Count (we don't use)
-	* Payload length
+    * Version: 2
+    * [SSRC](https://help.callstats.io/hc/en-us/articles/360004485394-What-is-the-Synchronization-Source-SSRC): (some [Synchronization Source](https://help.callstats.io/hc/en-us/articles/360004485394-What-is-the-Synchronization-Source-SSRC) value)
+    * Payload Type: VP8/90000 (96)
+    * Sequence Number: (Some increasing sequence number)
+    * CSRC Count (we don't use)
+    * Payload length
 
 ![Received RTP Packet](images/07-01-received-rtp-packet.png)
 
@@ -174,9 +174,9 @@ func (c *SRTPContext) DecryptRTPPacket(packet *rtp.Packet) ([]byte, error) {
 <sup>from [backend/src/srtp/srtpcontext.go](../backend/src/srtp/srtpcontext.go)</sup>
 ```go
 type srtpSSRCState struct {
-	ssrc                 uint32
-	index                uint64
-	rolloverHasProcessed bool
+    ssrc                 uint32
+    index                uint64
+    rolloverHasProcessed bool
 }
 ```
 
@@ -184,52 +184,52 @@ type srtpSSRCState struct {
 * Call "nextRolloverCount" of our state object to calculate next rollover count value (roc), and get rollover update function
 * Call "Decrypt" function of our SRTP GCM object in the context in [backend/src/srtp/cryptogcm.go](../backend/src/srtp/cryptogcm.go) with our RTP packet object and calculated roc value
 
-	* Here, our ciphertext is packet.RawData (not only the Payload, whole raw packet byte array, because [AEAD](https://en.wikipedia.org/wiki/Authenticated_encryption) encryption should calculate the authentication data from whole bytes including clear text header bytes)
-	* Create a byte array (dst) that has same length as ciphertext array
-	* Copy the ciphertext context to dst. Because we will pass pointer of dst array, contents will be changed and we need to backup original ciphertext
-	* We "know" that our aeadAuthTagLen is 16
-	* Crop the dst array by taking first (ciphertext length - aeadAuthTagLen)
-	* Calculate the initialization vector which is special for this RTP packet via "rtpInitializationVector" function, using packet header's SSRC, roc, and packet header's SequenceNumber, then XOR it with our srtpSalt
-	* Decrypt the bytes by [AEAD.Open](https://pkg.go.dev/crypto/cipher#AEAD.Open). We gave parameters:
-		* dst: dst[packet.HeaderSize:packet.HeaderSize] (starting pointer of payload's first byte in the array that includes the header)
-		* nonce: Our calculated IV value
-		* ciphertext: Our ciphertext's payload (encrypted) part, starting from header ends (ciphertext[packet.HeaderSize:])
-		* additionalData: Our ciphertext's header (not encrypted) part (ciphertext[:packet.HeaderSize]).
-	* **Important notice:** It will decrypt the encrypted payload part, but with checking AEAD authentication with additional header data. This will give an "authentication error" if you give wrong or missing parameters. For example, on my first try, I didn't copy the ciphertext into dst variable, passed an allocated but empty byte array. But I realized that, the [AEAD.Open](https://pkg.go.dev/crypto/cipher#AEAD.Open) checks authentication in the dst parameter.
+    * Here, our ciphertext is packet.RawData (not only the Payload, whole raw packet byte array, because [AEAD](https://en.wikipedia.org/wiki/Authenticated_encryption) encryption should calculate the authentication data from whole bytes including clear text header bytes)
+    * Create a byte array (dst) that has same length as ciphertext array
+    * Copy the ciphertext context to dst. Because we will pass pointer of dst array, contents will be changed and we need to backup original ciphertext
+    * We "know" that our aeadAuthTagLen is 16
+    * Crop the dst array by taking first (ciphertext length - aeadAuthTagLen)
+    * Calculate the initialization vector which is special for this RTP packet via "rtpInitializationVector" function, using packet header's SSRC, roc, and packet header's SequenceNumber, then XOR it with our srtpSalt
+    * Decrypt the bytes by [AEAD.Open](https://pkg.go.dev/crypto/cipher#AEAD.Open). We gave parameters:
+        * dst: dst[packet.HeaderSize:packet.HeaderSize] (starting pointer of payload's first byte in the array that includes the header)
+        * nonce: Our calculated IV value
+        * ciphertext: Our ciphertext's payload (encrypted) part, starting from header ends (ciphertext[packet.HeaderSize:])
+        * additionalData: Our ciphertext's header (not encrypted) part (ciphertext[:packet.HeaderSize]).
+    * **Important notice:** It will decrypt the encrypted payload part, but with checking AEAD authentication with additional header data. This will give an "authentication error" if you give wrong or missing parameters. For example, on my first try, I didn't copy the ciphertext into dst variable, passed an allocated but empty byte array. But I realized that, the [AEAD.Open](https://pkg.go.dev/crypto/cipher#AEAD.Open) checks authentication in the dst parameter.
 
 <sup>from [backend/src/srtp/cryptogcm.go](../backend/src/srtp/cryptogcm.go)</sup>
 ```go
-	if _, err := g.srtpGCM.Open(
-		dst[packet.HeaderSize:packet.HeaderSize], iv, ciphertext[packet.HeaderSize:], ciphertext[:packet.HeaderSize],
-	); err != nil {
-		return nil, err
-	}
+    if _, err := g.srtpGCM.Open(
+        dst[packet.HeaderSize:packet.HeaderSize], iv, ciphertext[packet.HeaderSize:], ciphertext[:packet.HeaderSize],
+    ); err != nil {
+        return nil, err
+    }
 ```
 
 
 <sup>from [backend/src/srtp/cryptogcm.go](../backend/src/srtp/cryptogcm.go)</sup>
 ```go
 func (g *GCM) Decrypt(packet *rtp.Packet, roc uint32) ([]byte, error) {
-	ciphertext := packet.RawData
+    ciphertext := packet.RawData
 
-	dst := make([]byte, len(ciphertext))
-	copy(dst, ciphertext)
-	aeadAuthTagLen := 16
-	resultLength := len(ciphertext) - aeadAuthTagLen
-	if resultLength < len(dst) {
-		dst = dst[:resultLength]
-	}
+    dst := make([]byte, len(ciphertext))
+    copy(dst, ciphertext)
+    aeadAuthTagLen := 16
+    resultLength := len(ciphertext) - aeadAuthTagLen
+    if resultLength < len(dst) {
+        dst = dst[:resultLength]
+    }
 
-	iv := g.rtpInitializationVector(packet.Header, roc)
+    iv := g.rtpInitializationVector(packet.Header, roc)
 
-	if _, err := g.srtpGCM.Open(
-		dst[packet.HeaderSize:packet.HeaderSize], iv, ciphertext[packet.HeaderSize:], ciphertext[:packet.HeaderSize],
-	); err != nil {
-		return nil, err
-	}
+    if _, err := g.srtpGCM.Open(
+        dst[packet.HeaderSize:packet.HeaderSize], iv, ciphertext[packet.HeaderSize:], ciphertext[:packet.HeaderSize],
+    ); err != nil {
+        return nil, err
+    }
 
-	copy(dst[:packet.HeaderSize], ciphertext[:packet.HeaderSize])
-	return dst, nil
+    copy(dst[:packet.HeaderSize], ciphertext[:packet.HeaderSize])
+    return dst, nil
 }
 ```
 

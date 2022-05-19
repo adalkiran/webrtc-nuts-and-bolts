@@ -34,7 +34,7 @@ Sources:
 
 <sup>from [backend/src/main.go](../backend/src/main.go)</sup>
 ```go
-	config.Load()
+    config.Load()
 ```
 
 
@@ -55,7 +55,7 @@ This certifcate is a [X.509 certificate](https://en.wikipedia.org/wiki/X.509). I
 
 <sup>from [backend/src/main.go](../backend/src/main.go)</sup>
 ```go
-	dtls.Init()
+    dtls.Init()
 ```
 
 When we go deeper into dtls.Init() function, we find ourselves at "GenerateServerCertificate" function in [backend/src/dtls/crypto.go](../backend/src/dtls/crypto.go)
@@ -69,7 +69,7 @@ Also we can use different methods to generate private and public keys, but in th
 <sup>from [backend/src/dtls/crypto.go](../backend/src/dtls/crypto.go)</sup>
 ```go
 func generateServerCertificatePrivateKey() (*ecdsa.PrivateKey, error) {
-	return ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+    return ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 }
 ```
 
@@ -77,35 +77,35 @@ Now, we have randomly generated private key, and it's signed form (public key) i
 
 <sup>from [backend/src/dtls/crypto.go](../backend/src/dtls/crypto.go)</sup>
 ```go
-	pubKey := &serverCertificatePrivateKey.PublicKey
-	template := x509.Certificate{
-		SerialNumber: serialNumber,
-		Version:      2,
-		IsCA:         true,
-		Subject: pkix.Name{
-			CommonName: "WebRTC-Nuts-and-Bolts",
-		},
-		NotBefore: time.Now(),
-		NotAfter:  time.Now().Add(time.Hour * 24 * 180),
+    pubKey := &serverCertificatePrivateKey.PublicKey
+    template := x509.Certificate{
+        SerialNumber: serialNumber,
+        Version:      2,
+        IsCA:         true,
+        Subject: pkix.Name{
+            CommonName: "WebRTC-Nuts-and-Bolts",
+        },
+        NotBefore: time.Now(),
+        NotAfter:  time.Now().Add(time.Hour * 24 * 180),
 
-		KeyUsage: x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
-		ExtKeyUsage: []x509.ExtKeyUsage{
-			x509.ExtKeyUsageClientAuth,
-			x509.ExtKeyUsageServerAuth,
-		},
-		BasicConstraintsValid: true,
-	}
+        KeyUsage: x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
+        ExtKeyUsage: []x509.ExtKeyUsage{
+            x509.ExtKeyUsageClientAuth,
+            x509.ExtKeyUsageServerAuth,
+        },
+        BasicConstraintsValid: true,
+    }
 
-	raw, err := x509.CreateCertificate(rand.Reader, &template, &template, pubKey, serverCertificatePrivateKey)
-	if err != nil {
-		return nil, err
-	}
+    raw, err := x509.CreateCertificate(rand.Reader, &template, &template, pubKey, serverCertificatePrivateKey)
+    if err != nil {
+        return nil, err
+    }
 
-	return &tls.Certificate{
-		Certificate: [][]byte{raw},
-		PrivateKey:  serverCertificatePrivateKey,
-		Leaf:        &template,
-	}, nil
+    return &tls.Certificate{
+        Certificate: [][]byte{raw},
+        PrivateKey:  serverCertificatePrivateKey,
+        Leaf:        &template,
+    }, nil
 ```
 
 We store the generated certificate as global variable, "dtls.ServerCertificate" (*tls.Certificate)
@@ -117,16 +117,16 @@ This function takes the byte array consists of certificate content, calculates [
 <sup>from [backend/src/dtls/crypto.go](../backend/src/dtls/crypto.go)</sup>
 ```go
 func GetCertificateFingerprintFromBytes(certificate []byte) string {
-	fingerprint := sha256.Sum256(certificate)
+    fingerprint := sha256.Sum256(certificate)
 
-	var buf bytes.Buffer
-	for i, f := range fingerprint {
-		if i > 0 {
-			fmt.Fprintf(&buf, ":")
-		}
-		fmt.Fprintf(&buf, "%02X", f)
-	}
-	return buf.String()
+    var buf bytes.Buffer
+    for i, f := range fingerprint {
+        if i > 0 {
+            fmt.Fprintf(&buf, ":")
+        }
+        fmt.Fprintf(&buf, "%02X", f)
+    }
+    return buf.String()
 }
 ```
 
@@ -149,7 +149,7 @@ We need to know which IPs (local or external) that our server is reachable on, t
 
 <sup>from [backend/src/main.go](../backend/src/main.go)</sup>
 ```go
-	discoveredServerIPs := discoverServerIPs()
+    discoveredServerIPs := discoverServerIPs()
 ```
 
 * Discovery of local IP addresses of available and active [network interfaces](https://en.wikipedia.org/wiki/Network_interface): Made via  "GetLocalIPs" function in [backend/src/common/networkutils.go](../backend/src/common/networkutils.go). Due to our application runs in a container, and we didn't configure Docker networking type of container as "host", we can gather only container's network interfaces, not the host machine. Expected output is one IP that in our Docker's subnet, usually starts with 172.
@@ -179,11 +179,11 @@ We create a STUN Client via "NewStunClient" function in [backend/src/stun/stuncl
 <sup>from [backend/src/stun/stunclient.go](../backend/src/stun/stunclient.go)</sup>
 ```go
 func NewStunClient(serverAddr string, ufrag string, pwd string) *StunClient {
-	return &StunClient{
-		ServerAddr: serverAddr,
-		Ufrag:      ufrag,
-		Pwd:        pwd,
-	}
+    return &StunClient{
+        ServerAddr: serverAddr,
+        Ufrag:      ufrag,
+        Pwd:        pwd,
+    }
 }
 ```
 
@@ -191,7 +191,7 @@ We call our STUN Client's Discover() method, then add it to our candidate IP lis
 
 <sup>from [backend/src/main.go](../backend/src/main.go)</sup>
 ```go
-	mappedAddress, err := stunClient.Discover()
+    mappedAddress, err := stunClient.Discover()
 ```
 
 
@@ -222,10 +222,10 @@ Our STUN message struct in [backend/src/stun/message.go](../backend/src/stun/mes
 <sup>from [backend/src/stun/message.go](../backend/src/stun/message.go)</sup>
 ```go
 type Message struct {
-	MessageType   MessageType
-	TransactionID [TransactionIDSize]byte
-	Attributes    map[AttributeType]Attribute
-	RawMessage    []byte
+    MessageType   MessageType
+    TransactionID [TransactionIDSize]byte
+    Attributes    map[AttributeType]Attribute
+    RawMessage    []byte
 }
 ```
 
@@ -251,19 +251,19 @@ You can find:
 
 <sup>from [backend/src/stun/stunclient.go](../backend/src/stun/stunclient.go)</sup>
 ```go
-	serverUDPAddr, err := net.ResolveUDPAddr("udp", c.ServerAddr)
-	if err != nil {
-		return nil, err
-		//return NATError, nil, err
-	}
-	bindingRequest := createBindingRequest(transactionID)
-	encodedBindingRequest := bindingRequest.Encode(c.Pwd)
-	conn, err := net.ListenUDP("udp", nil)
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Close()
-	conn.WriteToUDP(encodedBindingRequest, serverUDPAddr)
+    serverUDPAddr, err := net.ResolveUDPAddr("udp", c.ServerAddr)
+    if err != nil {
+        return nil, err
+        //return NATError, nil, err
+    }
+    bindingRequest := createBindingRequest(transactionID)
+    encodedBindingRequest := bindingRequest.Encode(c.Pwd)
+    conn, err := net.ListenUDP("udp", nil)
+    if err != nil {
+        return nil, err
+    }
+    defer conn.Close()
+    conn.WriteToUDP(encodedBindingRequest, serverUDPAddr)
 ```
 
 After we have sent *STUN Binding Request* message successfully, we expect that the STUN Server sends us *STUN Binding Response*.
@@ -277,32 +277,32 @@ After we have sent *STUN Binding Request* message successfully, we expect that t
 
 <sup>from [backend/src/stun/stunclient.go](../backend/src/stun/stunclient.go)</sup>
 ```go
-	buf := make([]byte, 1024)
+    buf := make([]byte, 1024)
 
-	for {
-		bufLen, addr, err := conn.ReadFromUDP(buf)
-		if err != nil {
-			return nil, err
-		}
-		// If requested target server address and responder address not fit, ignore the packet
-		if !addr.IP.Equal(serverUDPAddr.IP) || addr.Port != serverUDPAddr.Port {
-			continue
-		}
-		stunMessage, stunErr := DecodeMessage(buf, 0, bufLen)
-		if stunErr != nil {
-			panic(stunErr)
-		}
-		stunMessage.Validate(c.Ufrag, c.Pwd)
-		if !bytes.Equal(stunMessage.TransactionID[:], transactionID[:]) {
-			continue
-		}
-		xorMappedAddressAttr, ok := stunMessage.Attributes[AttrXorMappedAddress]
-		if !ok {
-			continue
-		}
-		mappedAddress := DecodeAttrXorMappedAddress(xorMappedAddressAttr, stunMessage.TransactionID)
-		return mappedAddress, nil
-	}
+    for {
+        bufLen, addr, err := conn.ReadFromUDP(buf)
+        if err != nil {
+            return nil, err
+        }
+        // If requested target server address and responder address not fit, ignore the packet
+        if !addr.IP.Equal(serverUDPAddr.IP) || addr.Port != serverUDPAddr.Port {
+            continue
+        }
+        stunMessage, stunErr := DecodeMessage(buf, 0, bufLen)
+        if stunErr != nil {
+            panic(stunErr)
+        }
+        stunMessage.Validate(c.Ufrag, c.Pwd)
+        if !bytes.Equal(stunMessage.TransactionID[:], transactionID[:]) {
+            continue
+        }
+        xorMappedAddressAttr, ok := stunMessage.Attributes[AttrXorMappedAddress]
+        if !ok {
+            continue
+        }
+        mappedAddress := DecodeAttrXorMappedAddress(xorMappedAddressAttr, stunMessage.TransactionID)
+        return mappedAddress, nil
+    }
 ```
 
 At the end, now we have gathered all available IP addresses.
@@ -321,9 +321,9 @@ The ConferenceManager has Run() method to listen ChanSdpOffer [Go Channel](https
 
 <sup>from [backend/src/main.go](../backend/src/main.go)</sup>
 ```go
-	conferenceManager = conference.NewConferenceManager(discoveredServerIPs, config.Val.Server.UDP.SinglePort)
-	waitGroup.Add(1)
-	go conferenceManager.Run(waitGroup)
+    conferenceManager = conference.NewConferenceManager(discoveredServerIPs, config.Val.Server.UDP.SinglePort)
+    waitGroup.Add(1)
+    go conferenceManager.Run(waitGroup)
 ```
 
 Sources:
@@ -341,9 +341,9 @@ The UdpListener has Run() method to listen UDP port in infinite loop, we call th
 
 <sup>from [backend/src/main.go](../backend/src/main.go)</sup>
 ```go
-	var udpListener = udp.NewUdpListener("0.0.0.0", config.Val.Server.UDP.SinglePort, conferenceManager)
-	waitGroup.Add(1)
-	go udpListener.Run(waitGroup)
+    var udpListener = udp.NewUdpListener("0.0.0.0", config.Val.Server.UDP.SinglePort, conferenceManager)
+    waitGroup.Add(1)
+    go udpListener.Run(waitGroup)
 ```
 
 At the "Run" function in [backend/src/udp/udpListener.go](../backend/src/udp/udpListener.go), we create [net.UDPConn](https://pkg.go.dev/net#ListenUDP) object.
@@ -354,35 +354,35 @@ At the "Run" function in [backend/src/udp/udpListener.go](../backend/src/udp/udp
     * Otherwise, if this packet is the first packet coming from the sender, we expect that this packet is STUN Binding Request. If it is, we read it's ufrag value (two ufrags separated by ":", one for client ICE agent, one for server ICE agent), and check if we have a Server ICE Agent with incoming ufrag. Then we check if the client ufrag is known by us (previously came by SDP Offer Answer from the client)
     * If everything is OK, we create an "agent.UDPClientSocket" object and set it to Server ICE Agent's and UDP Listener's sockets map
     * Then, forward incoming packet to the "AddBuffer" function of "agent.UDPClientSocket" (we will discuss further)
-	* AddBuffer function acts as demultiplexer for different types of packets (different types of protocols) on same connection.
+    * AddBuffer function acts as demultiplexer for different types of packets (different types of protocols) on same connection.
 
 <sup>from [backend/src/udp/udpListener.go](../backend/src/udp/udpListener.go)</sup>
 ```go
-	conn, err := net.ListenUDP("udp", &net.UDPAddr{
-		IP:   net.IP{0, 0, 0, 0},
-		Port: udpListener.Port,
-	})
+    conn, err := net.ListenUDP("udp", &net.UDPAddr{
+        IP:   net.IP{0, 0, 0, 0},
+        Port: udpListener.Port,
+    })
 
     ...
 
     udpListener.conn = conn
 
-	defer conn.Close()
+    defer conn.Close()
     ...
 
     for {
-		bufLen, addr, err := conn.ReadFromUDP(buf)
+        bufLen, addr, err := conn.ReadFromUDP(buf)
         if err == nil {
-			// Is the client socket known and authenticated by server before?
-			destinationSocket, ok := udpListener.Sockets[string(addr.IP)+":"+string(rune(addr.Port))]
+            // Is the client socket known and authenticated by server before?
+            destinationSocket, ok := udpListener.Sockets[string(addr.IP)+":"+string(rune(addr.Port))]
 
-			if !ok {
+            if !ok {
                 // If client socket is not known by server, it can be a STUN binding request.
-				// Read the server and client ufrag (user fragment) string concatenated via ":" and split it.
+                // Read the server and client ufrag (user fragment) string concatenated via ":" and split it.
                 ...
             }
             // Now the client socket is known by server, we forward incoming byte array to our socket object dedicated for the client.
-			destinationSocket.AddBuffer(buf, 0, bufLen)
+            destinationSocket.AddBuffer(buf, 0, bufLen)
         }
 
         ...
@@ -400,10 +400,10 @@ The HttpServer has Run() method to listen signaling port in infinite loop, we ca
 
 <sup>from [backend/src/main.go](../backend/src/main.go)</sup>
 ```go
-	httpServer, err := signaling.NewHttpServer(fmt.Sprintf(":%d", config.Val.Server.Signaling.WsPort), conferenceManager)
+    httpServer, err := signaling.NewHttpServer(fmt.Sprintf(":%d", config.Val.Server.Signaling.WsPort), conferenceManager)
     ...
-	waitGroup.Add(1)
-	go httpServer.Run(waitGroup)
+    waitGroup.Add(1)
+    go httpServer.Run(waitGroup)
 ```
 
 At the "NewHttpServer" function in [backend/src/signaling/httpserver.go](../backend/src/signaling/httpserver.go), we create signaling.HttpServer object and a signaling.WsHub object that manages WebSocket operations. Also we map "/" and "/ws" path patterns to handler functions.
@@ -415,18 +415,18 @@ At the "NewHttpServer" function in [backend/src/signaling/httpserver.go](../back
 <sup>from [backend/src/signaling/httpserver.go](../backend/src/signaling/httpserver.go)</sup>
 ```go
 func NewHttpServer(httpServerAddr string, conferenceManager *conference.ConferenceManager) (*HttpServer, error) {
-	wsHub := newWsHub(conferenceManager)
+    wsHub := newWsHub(conferenceManager)
 
-	httpServer := &HttpServer{
-		HttpServerAddr: httpServerAddr,
-		WsHub:          wsHub,
-	}
-	http.HandleFunc("/", httpServer.serveHome)
-	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		httpServer.serveWs(w, r)
-	})
+    httpServer := &HttpServer{
+        HttpServerAddr: httpServerAddr,
+        WsHub:          wsHub,
+    }
+    http.HandleFunc("/", httpServer.serveHome)
+    http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+        httpServer.serveWs(w, r)
+    })
 
-	return httpServer, nil
+    return httpServer, nil
 }
 ```
 

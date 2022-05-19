@@ -27,26 +27,26 @@ Our VP8 packet struct in [backend/src/transcoding/vp8.go](../backend/src/transco
 <sup>from [backend/src/transcoding/vp8.go](../backend/src/transcoding/vp8.go)</sup>
 ```go
 type VP8Packet struct {
-	// Required Header
-	X   uint8 /* extended control bits present */
-	N   uint8 /* when set to 1 this frame can be discarded */
-	S   uint8 /* start of VP8 partition */
-	PID uint8 /* partition index */
+    // Required Header
+    X   uint8 /* extended control bits present */
+    N   uint8 /* when set to 1 this frame can be discarded */
+    S   uint8 /* start of VP8 partition */
+    PID uint8 /* partition index */
 
-	// Extended control bits
-	I uint8 /* 1 if PictureID is present */
-	L uint8 /* 1 if TL0PICIDX is present */
-	T uint8 /* 1 if TID is present */
-	K uint8 /* 1 if KEYIDX is present */
+    // Extended control bits
+    I uint8 /* 1 if PictureID is present */
+    L uint8 /* 1 if TL0PICIDX is present */
+    T uint8 /* 1 if TID is present */
+    K uint8 /* 1 if KEYIDX is present */
 
-	// Optional extension
-	PictureID uint16 /* 8 or 16 bits, picture ID */
-	TL0PICIDX uint8  /* 8 bits temporal level zero index */
-	TID       uint8  /* 2 bits temporal layer index */
-	Y         uint8  /* 1 bit layer sync bit */
-	KEYIDX    uint8  /* 5 bits temporal key frame index */
+    // Optional extension
+    PictureID uint16 /* 8 or 16 bits, picture ID */
+    TL0PICIDX uint8  /* 8 bits temporal level zero index */
+    TID       uint8  /* 2 bits temporal layer index */
+    Y         uint8  /* 1 bit layer sync bit */
+    KEYIDX    uint8  /* 5 bits temporal key frame index */
 
-	Payload []byte
+    Payload []byte
 }
 ```
 
@@ -56,62 +56,62 @@ type VP8Packet struct {
 ```go
 func (d *VP8Decoder) Run() {
 
-	newpath := filepath.Join(".", saveDir)
-	err := os.MkdirAll(newpath, os.ModePerm)
+    newpath := filepath.Join(".", saveDir)
+    err := os.MkdirAll(newpath, os.ModePerm)
 
-	if err != nil {
-		panic(err)
-	}
+    if err != nil {
+        panic(err)
+    }
 
-	packetCounter := 0
-	for rtpPacket := range d.src {
-		packetCounter++
+    packetCounter := 0
+    for rtpPacket := range d.src {
+        packetCounter++
 
-		vp8Packet := &VP8Packet{}
-		vp8Packet.Unmarshal(rtpPacket.Payload)
-		isKeyFrame := vp8Packet.Payload[0] & 0x01
+        vp8Packet := &VP8Packet{}
+        vp8Packet.Unmarshal(rtpPacket.Payload)
+        isKeyFrame := vp8Packet.Payload[0] & 0x01
 
-		switch {
-		case !seenKeyFrame && isKeyFrame == 1:
-			continue
-		case currentFrame == nil && vp8Packet.S != 1:
-			continue
-		}
+        switch {
+        case !seenKeyFrame && isKeyFrame == 1:
+            continue
+        case currentFrame == nil && vp8Packet.S != 1:
+            continue
+        }
 
-		seenKeyFrame = true
-		currentFrame = append(currentFrame, vp8Packet.Payload[0:]...)
+        seenKeyFrame = true
+        currentFrame = append(currentFrame, vp8Packet.Payload[0:]...)
 
-		if !rtpPacket.Header.Marker {
-			continue
-		} else if len(currentFrame) == 0 {
-			continue
-		}
+        if !rtpPacket.Header.Marker {
+            continue
+        } else if len(currentFrame) == 0 {
+            continue
+        }
 
-		err := vpx.Error(vpx.CodecDecode(d.context, string(currentFrame), uint32(len(currentFrame)), nil, 0))
-		if err != nil {
-			logging.Errorf(logging.ProtoVP8, "Error while decoding packet: %s", err)
-			currentFrame = nil
-			seenKeyFrame = false
-			continue
-		}
+        err := vpx.Error(vpx.CodecDecode(d.context, string(currentFrame), uint32(len(currentFrame)), nil, 0))
+        if err != nil {
+            logging.Errorf(logging.ProtoVP8, "Error while decoding packet: %s", err)
+            currentFrame = nil
+            seenKeyFrame = false
+            continue
+        }
 
-		var iter vpx.CodecIter
-		img := vpx.CodecGetFrame(d.context, &iter)
-		if img != nil {
-			img.Deref()
+        var iter vpx.CodecIter
+        img := vpx.CodecGetFrame(d.context, &iter)
+        if img != nil {
+            img.Deref()
 
-			outputImageFilePath, err := d.saveImageFile(img)
-			if err != nil {
-				logging.Errorf(logging.ProtoVP8, "Error while image saving: %s", err)
-			} else {
-				logging.Infof(logging.ProtoVP8, "Image file saved: %s\n", outputImageFilePath)
-			}
+            outputImageFilePath, err := d.saveImageFile(img)
+            if err != nil {
+                logging.Errorf(logging.ProtoVP8, "Error while image saving: %s", err)
+            } else {
+                logging.Infof(logging.ProtoVP8, "Image file saved: %s\n", outputImageFilePath)
+            }
 
-		}
-		currentFrame = nil
-		seenKeyFrame = false
+        }
+        currentFrame = nil
+        seenKeyFrame = false
 
-	}
+    }
 }
 ```
 

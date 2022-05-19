@@ -52,13 +52,13 @@ If this buffer part complies with these conditions, we can say "this packet is a
 <sup>from [backend/src/dtls/dtlsmessage.go](../backend/src/dtls/dtlsmessage.go)</sup>
 ```go
 func IsDtlsPacket(buf []byte, offset int, arrayLen int) bool {
-	return arrayLen > 0 && buf[offset] >= 20 && buf[offset] <= 63
+    return arrayLen > 0 && buf[offset] >= 20 && buf[offset] <= 63
 }
 ```
 
 Here is the console output when the server received an "expected" DTLS ClientHello message.
 
-![Received first ClientHello](images/05-01-received-first-clienthello.png)
+<img alt="Received first ClientHello" src="images/05-01-received-first-clienthello.png" style="max-width:75%"></img>
 
 We determined that this packet is DTLS packet. A DTLS packet consists of a Record Header and Content. If ContentType is "Handshake" (22), packet consists of Record Header, Handshake Header and Handshake Content.
 
@@ -72,11 +72,11 @@ The ClientHello packet we received is a "Handshake" message, so we should discus
 <sup>from [backend/src/dtls/recordheader.go](../backend/src/dtls/recordheader.go)</sup>
 ```go
 type RecordHeader struct {
-	ContentType    ContentType
-	Version        DtlsVersion
-	Epoch          uint16
-	SequenceNumber [SequenceNumberSize]byte //SequenceNumberSize: 6 (48 bit)
-	Length         uint16
+    ContentType    ContentType
+    Version        DtlsVersion
+    Epoch          uint16
+    SequenceNumber [SequenceNumberSize]byte //SequenceNumberSize: 6 (48 bit)
+    Length         uint16
 }
 ```
 
@@ -97,11 +97,11 @@ Source: [Generic header structure of the DTLS record layer](https://github.com/e
 <sup>from [backend/src/dtls/handshakeheader.go](../backend/src/dtls/handshakeheader.go)</sup>
 ```go
 type HandshakeHeader struct {
-	HandshakeType   HandshakeType
-	Length          uint24
-	MessageSequence uint16
-	FragmentOffset  uint24
-	FragmentLength  uint24
+    HandshakeType   HandshakeType
+    Length          uint24
+    MessageSequence uint16
+    FragmentOffset  uint24
+    FragmentLength  uint24
 }
 ```
 
@@ -131,13 +131,13 @@ The ClientHello message is the first message of the first flight. The RFC counts
 <sup>from [backend/src/dtls/clienthello.go](../backend/src/dtls/clienthello.go)</sup>
 ```go
 type ClientHello struct {
-	Version              DtlsVersion
-	Random               Random
-	Cookie               []byte
-	SessionID            []byte
-	CipherSuiteIDs       []CipherSuiteID
-	CompressionMethodIDs []byte
-	Extensions           map[ExtensionType]Extension
+    Version              DtlsVersion
+    Random               Random
+    Cookie               []byte
+    SessionID            []byte
+    CipherSuiteIDs       []CipherSuiteID
+    CompressionMethodIDs []byte
+    Extensions           map[ExtensionType]Extension
 }
 ```
 
@@ -149,8 +149,8 @@ This message is bootstrapper of a new DTLS Handshake process. Client says to us,
 <sup>from [backend/src/dtls/random.go](../backend/src/dtls/random.go)</sup>
 ```go
 type Random struct {
-	GMTUnixTime time.Time
-	RandomBytes [RandomBytesLength]byte
+    GMTUnixTime time.Time
+    RandomBytes [RandomBytesLength]byte
 }
 ```
 
@@ -187,14 +187,14 @@ We generate a HelloVerifyRequest message by calling "createDtlsHelloVerifyReques
 <sup>from [backend/src/dtls/helloverifyrequest.go](../backend/src/dtls/helloverifyrequest.go)</sup>
 ```go
 type HelloVerifyRequest struct {
-	Version DtlsVersion
-	Cookie  []byte
+    Version DtlsVersion
+    Cookie  []byte
 }
 ```
 
 Now we are waiting for another (nearly the same) ClientHello message, but with a Cookie that has the same value as our HelloVerifyRequest.
 
-![Sent HelloVerifyRequest](images/05-02-sent-helloverifyrequest.png)
+<img alt="Sent HelloVerifyRequest" src="images/05-02-sent-helloverifyrequest.png" style="max-width:75%"></img>
 
 
 <br>
@@ -202,7 +202,7 @@ Now we are waiting for another (nearly the same) ClientHello message, but with a
 ## **5.3. Client sends second ClientHello message (Flight 2)**
 <br>
 
-![Received second ClientHello](images/05-03-received-second-clienthello.png)
+<img alt="Received second ClientHello" src="images/05-03-received-second-clienthello.png" style="max-width:75%"></img>
 
 We received second ClientHello from the client, with nearl same content but with a Cookie.
 
@@ -237,8 +237,8 @@ We:
         * Server random (32 bytes)
         * ECDH Params (4 bytes)
             * \[0\]: NamedCurve (0x03)
-		    * \[1:2\]: X25519 (0x001d)
-		    * \[3\]: 32 (public key length)
+            * \[1:2\]: X25519 (0x001d)
+            * \[3\]: 32 (public key length)
         * Public key (32 bytes)
 
     * Calculate hash of the "signed_params message" via "hashAlgorithm.Execute" function in [backend/src/dtls/ciphersuites.go](../backend/src/dtls/ciphersuites.go) by [sha256.Sum256](https://pkg.go.dev/crypto/sha256#Sum256), hashing result is 32 bytes
@@ -250,27 +250,27 @@ We:
 <sup>from [backend/src/dtls/handshakemanager.go](../backend/src/dtls/handshakemanager.go)</sup>
 ```go
 context.ServerKeySignature, err = GenerateKeySignature(
-				clientRandomBytes,
-				serverRandomBytes,
-				context.ServerPublicKey,
-				context.Curve, //x25519
-				ServerCertificate.PrivateKey,
-				context.CipherSuite.HashAlgorithm)
+                clientRandomBytes,
+                serverRandomBytes,
+                context.ServerPublicKey,
+                context.Curve, //x25519
+                ServerCertificate.PrivateKey,
+                context.CipherSuite.HashAlgorithm)
 ```
 
 <sup>from [backend/src/dtls/crypto.go](../backend/src/dtls/crypto.go)</sup>
 ```go
 func GenerateKeySignature(clientRandom []byte, serverRandom []byte, publicKey []byte, curve Curve, privateKey crypto.PrivateKey, hashAlgorithm HashAlgorithm) ([]byte, error) {
-	msg := generateValueKeyMessage(clientRandom, serverRandom, publicKey, curve)
-	switch privateKeyObj := privateKey.(type) {
-	case *ecdsa.PrivateKey:
-		hashed := hashAlgorithm.Execute(msg) //SHA256 sum
-		logging.Descf(logging.ProtoCRYPTO, "signed_params values hashed: <u>0x%x</u> (<u>%d</u> bytes)", hashed, len(hashed))
-		signed, err := privateKeyObj.Sign(rand.Reader, hashed, hashAlgorithm.CryptoHashType()) //crypto.SHA256
-		logging.Descf(logging.ProtoCRYPTO, "signed_params values signed (result will be called as ServerKeySignature): <u>0x%x</u> (<u>%d</u> bytes)", signed, len(signed))
-		return signed, err
-	}
-	return nil, errors.New("not supported private key type")
+    msg := generateValueKeyMessage(clientRandom, serverRandom, publicKey, curve)
+    switch privateKeyObj := privateKey.(type) {
+    case *ecdsa.PrivateKey:
+        hashed := hashAlgorithm.Execute(msg) //SHA256 sum
+        logging.Descf(logging.ProtoCRYPTO, "signed_params values hashed: <u>0x%x</u> (<u>%d</u> bytes)", hashed, len(hashed))
+        signed, err := privateKeyObj.Sign(rand.Reader, hashed, hashAlgorithm.CryptoHashType()) //crypto.SHA256
+        logging.Descf(logging.ProtoCRYPTO, "signed_params values signed (result will be called as ServerKeySignature): <u>0x%x</u> (<u>%d</u> bytes)", signed, len(signed))
+        return signed, err
+    }
+    return nil, errors.New("not supported private key type")
 }
 ```
 
@@ -291,13 +291,13 @@ We generate a ServerHello message by calling "createDtlsServerHello" function in
 <sup>from [backend/src/dtls/serverhello.go](../backend/src/dtls/serverhello.go)</sup>
 ```go
 type ServerHello struct {
-	Version   DtlsVersion
-	Random    Random
-	SessionID []byte
+    Version   DtlsVersion
+    Random    Random
+    SessionID []byte
 
-	CipherSuiteID       CipherSuiteID
-	CompressionMethodID byte
-	Extensions          map[ExtensionType]Extension
+    CipherSuiteID       CipherSuiteID
+    CompressionMethodID byte
+    Extensions          map[ExtensionType]Extension
 }
 ```
 
@@ -309,7 +309,7 @@ type ServerHello struct {
 * Add UseSRTP extension with context.SRTPProtectionProfile value (SRTPProtectionProfile_AEAD_AES_128_GCM - 0x0007)
 * Add SupportedPointFormats extension with PointFormatUncompressed (default, zero) value
 
-![Sent ServerHello](images/05-05-sent-serverhello.png)
+<img alt="Sent ServerHello" src="images/05-05-sent-serverhello.png" style="width: 750px;max-width:75%;"></img>
 
 ServerHello message was sent.
 
@@ -323,7 +323,7 @@ We generate a Certificate message by calling "createDtlsCertificate" function in
 <sup>from [backend/src/dtls/certificate.go](../backend/src/dtls/certificate.go)</sup>
 ```go
 type Certificate struct {
-	Certificates [][]byte
+    Certificates [][]byte
 }
 ```
 
@@ -331,7 +331,7 @@ type Certificate struct {
 
 We shared our X.509 Server Certificate data with the client.
 
-![Sent Certificate](images/05-06-sent-certificate.png)
+<img alt="Sent Certificate" src="images/05-06-sent-certificate.png" style="width: 750px;max-width:75%;"></img>
 
 Certificate message was sent.
 
@@ -345,11 +345,11 @@ We generate a ServerKeyExchange message by calling "createDtlsServerKeyExchange"
 <sup>from [backend/src/dtls/serverkeyexchange.go](../backend/src/dtls/serverkeyexchange.go)</sup>
 ```go
 type ServerKeyExchange struct {
-	EllipticCurveType CurveType
-	NamedCurve        Curve
-	PublicKey         []byte
-	AlgoPair          AlgoPair
-	Signature         []byte
+    EllipticCurveType CurveType
+    NamedCurve        Curve
+    PublicKey         []byte
+    AlgoPair          AlgoPair
+    Signature         []byte
 }
 ```
 
@@ -358,11 +358,11 @@ type ServerKeyExchange struct {
 * Set PublicKey to context.ServerPublicKey
 * Set AlgoPair to AlgoPair{
     <br>
-	HashAlgorithm:      context.CipherSuite.HashAlgorithm *(HashAlgorithmSHA256 - 4)*
+    HashAlgorithm:      context.CipherSuite.HashAlgorithm *(HashAlgorithmSHA256 - 4)*
     <br>
-	SignatureAlgorithm: context.CipherSuite.SignatureAlgorithm *(SignatureAlgorithmECDSA - 3)*
+    SignatureAlgorithm: context.CipherSuite.SignatureAlgorithm *(SignatureAlgorithmECDSA - 3)*
     <br>
-	}
+    }
 * Set Signature to context.ServerKeySignature
 
 ![Sent ServerKeyExchange](images/05-07-sent-serverkeyexchange.png)
@@ -379,23 +379,23 @@ We generate a CertificateRequest message by calling "createDtlsCertificateReques
 <sup>from [backend/src/dtls/certificaterequest.go](../backend/src/dtls/certificaterequest.go)</sup>
 ```go
 type CertificateRequest struct {
-	CertificateTypes []CertificateType
-	AlgoPairs        []AlgoPair
+    CertificateTypes []CertificateType
+    AlgoPairs        []AlgoPair
 }
 ```
 
 * Set CertificateTypes to [CertificateTypeECDSASign (0x40)]
 * Set AlgoPairs to [AlgoPair{
     <br>
-	HashAlgorithm:      context.CipherSuite.HashAlgorithm *(HashAlgorithmSHA256 - 4)*
+    HashAlgorithm:      context.CipherSuite.HashAlgorithm *(HashAlgorithmSHA256 - 4)*
     <br>
-	SignatureAlgorithm: context.CipherSuite.SignatureAlgorithm *(SignatureAlgorithmECDSA - 3)*
+    SignatureAlgorithm: context.CipherSuite.SignatureAlgorithm *(SignatureAlgorithmECDSA - 3)*
     <br>
-	}]
+    }]
 
 We requested for a client certificate which ECDSASign type, generated using hash algorithm SHA256 and signature algorithm ECDSA.
 
-![Sent CertificateRequest](images/05-08-sent-certificaterequest.png)
+<img alt="Sent CertificateRequest" src="images/05-08-sent-certificaterequest.png" style="width: 750px;max-width:75%;"></img>
 
 CertificateRequest message was sent.
 
@@ -414,7 +414,7 @@ type ServerHelloDone struct {
 
 The message doesn't carry any data.
 
-![Sent ServerHelloDone](images/05-09-sent-serverhellodone.png)
+<img alt="Sent ServerHelloDone" src="images/05-09-sent-serverhellodone.png" style="width: 750px;max-width:75%;"></img>
 
 ServerHelloDone message was sent.
 
@@ -431,7 +431,7 @@ Now we are waiting for a group of messages: A Certificate, a ClientKeyExchange, 
 <sup>from [backend/src/dtls/certificate.go](../backend/src/dtls/certificate.go)</sup>
 ```go
 type Certificate struct {
-	Certificates [][]byte
+    Certificates [][]byte
 }
 ```
 
@@ -452,7 +452,7 @@ The client shared their X.509 Server Certificate data with the server.
 <sup>from [backend/src/dtls/clientkeyexchange.go](../backend/src/dtls/clientkeyexchange.go)</sup>
 ```go
 type ClientKeyExchange struct {
-	PublicKey []byte
+    PublicKey []byte
 }
 ```
 
@@ -477,7 +477,7 @@ We call "GeneratePreMasterSecret" function in [backend/src/dtls/crypto.go](../ba
 
 <sup>from [backend/src/dtls/handshakemanager.go](../backend/src/dtls/handshakemanager.go)</sup>
 ```go
-	preMasterSecret, err := GeneratePreMasterSecret(context.ClientKeyExchangePublic, context.ServerPrivateKey, context.Curve)
+    preMasterSecret, err := GeneratePreMasterSecret(context.ClientKeyExchangePublic, context.ServerPrivateKey, context.Curve)
 ```
 
 * Generate a byte array using the public key which came by ClientKeyExchange message, and our ServerPrivateKey via [curve25519.X25519](https://pkg.go.dev/golang.org/x/crypto@v0.0.0-20220411220226-7b82a4e95df4/curve25519#X25519). We call is as "pre-master key"
@@ -502,13 +502,13 @@ Don't forget that, we cached latest received and sent messages by handshake mess
 <br>
 Order should be like:
     * ClientHello (recv)
-	* ServerHello (sent)
-	* Certificate (sent)
-	* ServerKeyExchange (sent)
-	* CertificateRequest (sent)
-	* ServerHelloDone (sent)
-	* Certificate (recv)
-	* ClientKeyExchange (recv)
+    * ServerHello (sent)
+    * Certificate (sent)
+    * ServerKeyExchange (sent)
+    * CertificateRequest (sent)
+    * ServerHelloDone (sent)
+    * Certificate (recv)
+    * ClientKeyExchange (recv)
 
 * In the screenshoot below (and also the screenshoot in chapter 5.9), we can see the concatenation result took *1179 bytes*.
 * Calculate hash of the "handshakeMessages" byte array via "hashAlgorithm.Execute" function in [backend/src/dtls/ciphersuites.go](../backend/src/dtls/ciphersuites.go) by [sha256.Sum256](https://pkg.go.dev/crypto/sha256#Sum256), hashing result is 32 bytes. We call this value as "handshakeHash".
@@ -517,13 +517,13 @@ Order should be like:
 <sup>from [backend/src/dtls/crypto.go](../backend/src/dtls/crypto.go)</sup>
 ```go
 func GenerateExtendedMasterSecret(preMasterSecret []byte, handshakeHash []byte, hashAlgorithm HashAlgorithm) ([]byte, error) {
-	seed := append([]byte("extended master secret"), handshakeHash...)
-	result, err := PHash(preMasterSecret, seed, 48, hashAlgorithm)
-	if err != nil {
-		return nil, err
-	}
-	logging.Descf(logging.ProtoCRYPTO, "Generated Extended MasterSecret using Pre-Master Secret, Handshake Hash via <u>%s</u>: <u>0x%x</u> (<u>%d bytes</u>)", hashAlgorithm, result, len(result))
-	return result, nil
+    seed := append([]byte("extended master secret"), handshakeHash...)
+    result, err := PHash(preMasterSecret, seed, 48, hashAlgorithm)
+    if err != nil {
+        return nil, err
+    }
+    logging.Descf(logging.ProtoCRYPTO, "Generated Extended MasterSecret using Pre-Master Secret, Handshake Hash via <u>%s</u>: <u>0x%x</u> (<u>%d bytes</u>)", hashAlgorithm, result, len(result))
+    return result, nil
 }
 ```
 
@@ -578,8 +578,8 @@ You can find the original code on [Pion WebRTC DTLS project, GCM struct (Github)
 <sup>from [backend/src/dtls/cryptogcm.go](../backend/src/dtls/cryptogcm.go)</sup>
 ```go
 type GCM struct {
-	localGCM, remoteGCM         cipher.AEAD
-	localWriteIV, remoteWriteIV []byte
+    localGCM, remoteGCM         cipher.AEAD
+    localWriteIV, remoteWriteIV []byte
 }
 ````
 
@@ -613,31 +613,31 @@ So we need (16+16+4+4) = 40 bytes array which is generated by PHash with our mas
 <sup>from [backend/src/dtls/crypto.go](../backend/src/dtls/crypto.go)</sup>
 ```go
 func GenerateEncryptionKeys(masterSecret []byte, clientRandom []byte, serverRandom []byte, keyLen int, ivLen int, hashAlgorithm HashAlgorithm) (*EncryptionKeys, error) {
-	logging.Descf(logging.ProtoCRYPTO, "Generating encryption keys with Key Length: <u>%d</u>, IV Length: <u>%d</u> via <u>%s</u>, using Master Secret, Server Random, Client Random...", keyLen, ivLen, hashAlgorithm)
-	seed := append(append([]byte("key expansion"), serverRandom...), clientRandom...)
-	keyMaterial, err := PHash(masterSecret, seed, (2*keyLen)+(2*ivLen), hashAlgorithm)
-	if err != nil {
-		return nil, err
-	}
+    logging.Descf(logging.ProtoCRYPTO, "Generating encryption keys with Key Length: <u>%d</u>, IV Length: <u>%d</u> via <u>%s</u>, using Master Secret, Server Random, Client Random...", keyLen, ivLen, hashAlgorithm)
+    seed := append(append([]byte("key expansion"), serverRandom...), clientRandom...)
+    keyMaterial, err := PHash(masterSecret, seed, (2*keyLen)+(2*ivLen), hashAlgorithm)
+    if err != nil {
+        return nil, err
+    }
 
-	clientWriteKey := keyMaterial[:keyLen]
-	keyMaterial = keyMaterial[keyLen:]
+    clientWriteKey := keyMaterial[:keyLen]
+    keyMaterial = keyMaterial[keyLen:]
 
-	serverWriteKey := keyMaterial[:keyLen]
-	keyMaterial = keyMaterial[keyLen:]
+    serverWriteKey := keyMaterial[:keyLen]
+    keyMaterial = keyMaterial[keyLen:]
 
-	clientWriteIV := keyMaterial[:ivLen]
-	keyMaterial = keyMaterial[ivLen:]
+    clientWriteIV := keyMaterial[:ivLen]
+    keyMaterial = keyMaterial[ivLen:]
 
-	serverWriteIV := keyMaterial[:ivLen]
+    serverWriteIV := keyMaterial[:ivLen]
 
-	return &EncryptionKeys{
-		MasterSecret:   masterSecret,
-		ClientWriteKey: clientWriteKey,
-		ServerWriteKey: serverWriteKey,
-		ClientWriteIV:  clientWriteIV,
-		ServerWriteIV:  serverWriteIV,
-	}, nil
+    return &EncryptionKeys{
+        MasterSecret:   masterSecret,
+        ClientWriteKey: clientWriteKey,
+        ServerWriteKey: serverWriteKey,
+        ClientWriteIV:  clientWriteIV,
+        ServerWriteIV:  serverWriteIV,
+    }, nil
 }
 ````
 
@@ -654,27 +654,27 @@ We are ready to create our GCM object, which contains our ciphers and IVs. We pa
 
 <sup>from [backend/src/dtls/crypto.go](../backend/src/dtls/crypto.go)</sup>
 ```go
-	gcm, err := NewGCM(keys.ServerWriteKey, keys.ServerWriteIV, keys.ClientWriteKey, keys.ClientWriteIV)
+    gcm, err := NewGCM(keys.ServerWriteKey, keys.ServerWriteIV, keys.ClientWriteKey, keys.ClientWriteIV)
 ```
 
 <sup>from [backend/src/dtls/cryptogcm.go](../backend/src/dtls/cryptogcm.go)</sup>
 ```go
 func NewGCM(localKey, localWriteIV, remoteKey, remoteWriteIV []byte) (*GCM, error) {
-	localBlock, err := aes.NewCipher(localKey)
-	...
-	localGCM, err := cipher.NewGCM(localBlock)
-	...
-	remoteBlock, err := aes.NewCipher(remoteKey)
-	...
-	remoteGCM, err := cipher.NewGCM(remoteBlock)
-	...
+    localBlock, err := aes.NewCipher(localKey)
+    ...
+    localGCM, err := cipher.NewGCM(localBlock)
+    ...
+    remoteBlock, err := aes.NewCipher(remoteKey)
+    ...
+    remoteGCM, err := cipher.NewGCM(remoteBlock)
+    ...
 
-	return &GCM{
-		localGCM:      localGCM,
-		localWriteIV:  localWriteIV,
-		remoteGCM:     remoteGCM,
-		remoteWriteIV: remoteWriteIV,
-	}, nil
+    return &GCM{
+        localGCM:      localGCM,
+        localWriteIV:  localWriteIV,
+        remoteGCM:     remoteGCM,
+        remoteWriteIV: remoteWriteIV,
+    }, nil
 }
 
 ```
@@ -699,8 +699,8 @@ Sources:
 <sup>from [backend/src/dtls/certificateverify.go](../backend/src/dtls/certificateverify.go)</sup>
 ```go
 type CertificateVerify struct {
-	AlgoPair  AlgoPair
-	Signature []byte
+    AlgoPair  AlgoPair
+    Signature []byte
 }
 ```
 
@@ -709,13 +709,13 @@ type CertificateVerify struct {
 * Concatenate previous (sent and received) handshake messages as one byte array in a row via "concatHandshakeMessages" function in [backend/src/dtls/handshakemanager.go](../backend/src/dtls/handshakemanager.go). <br>
 Order should be like:
     * ClientHello (recv)
-	* ServerHello (sent)
-	* Certificate (sent)
-	* ServerKeyExchange (sent)
-	* CertificateRequest (sent)
-	* ServerHelloDone (sent)
-	* Certificate (recv)
-	* ClientKeyExchange (recv)
+    * ServerHello (sent)
+    * Certificate (sent)
+    * ServerKeyExchange (sent)
+    * CertificateRequest (sent)
+    * ServerHelloDone (sent)
+    * Certificate (recv)
+    * ClientKeyExchange (recv)
 
 * Call "VerifyCertificate" function in [backend/src/dtls/crypto.go](../backend/src/dtls/crypto.go) with *concenated handshakeMessages*, *context.CipherSuite.HashAlgorithm*, *message.Signature*, *context.ClientCertificates*
 * Unmarshall the ECDSA R and S values from the Signature of incoming CertificateVerify message by [asn1.Unmarshal](https://pkg.go.dev/encoding/asn1#Unmarshal)
@@ -732,7 +732,7 @@ ecdsa.Verify(clientCertificatePublicKey, hash, ecdsaSign.R, ecdsaSign.S)
 ## **5.11. Client sends ChangeCipherSpec message (Flight 4)**
 <br>
 
-![Received ChangeCipherSpec](images/05-15-received-changecipherspec.png)
+<img alt="Received ChangeCipherSpec" src="images/05-15-received-changecipherspec.png" style="width: 750px;max-width:75%;"></img>
 
 <sup>from [backend/src/dtls/changecipherspec.go](../backend/src/dtls/changecipherspec.go)</sup>
 ```go
@@ -755,7 +755,7 @@ This type of message contains only a byte with value 1. We don't do anything for
 <sup>from [backend/src/dtls/finished.go](../backend/src/dtls/finished.go)</sup>
 ```go
 type Finished struct {
-	VerifyData []byte
+    VerifyData []byte
 }
 ```
 
@@ -764,15 +764,15 @@ type Finished struct {
 * Concatenate previous (sent and received) handshake messages as one byte array in a row via "concatHandshakeMessages" function in [backend/src/dtls/handshakemanager.go](../backend/src/dtls/handshakemanager.go). <br>
 Order should be like (attention to CertificateVerify and Finished were addded despite previous concatenations):
     * ClientHello (recv)
-	* ServerHello (sent)
-	* Certificate (sent)
-	* ServerKeyExchange (sent)
-	* CertificateRequest (sent)
-	* ServerHelloDone (sent)
-	* Certificate (recv)
-	* ClientKeyExchange (recv)
+    * ServerHello (sent)
+    * Certificate (sent)
+    * ServerKeyExchange (sent)
+    * CertificateRequest (sent)
+    * ServerHelloDone (sent)
+    * Certificate (recv)
+    * ClientKeyExchange (recv)
     * CertificateVerify (recv)
-	* Finished (recv)
+    * Finished (recv)
 
 * Call "VerifyFinishedData" function in [backend/src/dtls/crypto.go](../backend/src/dtls/crypto.go) with *concenated handshakeMessages*, *context.ServerMasterSecret*, *context.CipherSuite.HashAlgorithm*
 * Calculate hash of the "handshakeMessages" byte array via "hashAlgorithm.GetFunction" function in [backend/src/dtls/ciphersuites.go](../backend/src/dtls/ciphersuites.go) by "Sum" function of the object created by [sha256.New](https://pkg.go.dev/crypto/sha256#New).
@@ -800,7 +800,7 @@ This type of message contains only a byte with value 1.
 
 **Important note:** Epoch of Record Header were 0 and contents were in clear text (not encrypted) until (and including) this ChangeCipherSpec message. But the messages will be sent future, will have Epoch with 1, and will be encrypted.
 
-![Sent ChangeCipherSpec](images/05-17-sent-changecipherspec.png)
+<img alt="Sent ChangeCipherSpec" src="images/05-17-sent-changecipherspec.png" style="width: 750px;max-width:75%;"></img>
 
 * ChangeCipherSpec message was sent.
 
@@ -816,11 +816,11 @@ We generate a Finished message by calling "createDtlsFinished" function in [back
 <sup>from [backend/src/dtls/finished.go](../backend/src/dtls/finished.go)</sup>
 ```go
 type Finished struct {
-	VerifyData []byte
+    VerifyData []byte
 }
 ```
 
-![Sent Finished](images/05-18-sent-finished.png)
+<img alt="Sent Finished" src="images/05-18-sent-finished.png" style="max-width:75%;"></img>
 
 * Set VerifyData to calculatedVerifyData (calculated previously by calling "VerifyFinishedData" function)
 

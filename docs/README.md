@@ -21,3 +21,10 @@ Here is the adventure of a WebRTC stream from start to finish  documented as ste
 [8. VP8 PACKET DECODE](./08-VP8-PACKET-DECODE.md)
 <br>
 [9. CONCLUSION](./09-CONCLUSION.md)<br>
+
+<style>
+  table { width: 100%; }
+</style>
+| | [Next chapter &gt;](./00-INFRASTRUCTURE.md)|
+| -- | --: |
+

@@ -13,3 +13,14 @@ You can find me on [Linkedin](https://www.linkedin.com/in/alper-dalkiran/), [Twi
 Thanks sincerely,
 <br>
 Adil Alper DALKIRAN
+
+<br>
+<br>
+<br>
+
+<style>
+  table { width: 100%; }
+</style>
+| [&lt; Previous chapter](./08-VP8-PACKET-DECODE.md) | [Home &gt;](../README.md) |
+| -- | --: |
+

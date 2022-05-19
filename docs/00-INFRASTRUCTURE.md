@@ -190,3 +190,10 @@ Downloading dependent Go modules...
 
 Running into Waiting loop...
 ```
+
+<style>
+  table { width: 100%; }
+</style>
+| [&lt; Previous chapter](./README.md) | [Next chapter &gt;](./01-RUNNING-IN-DEV-MODE.md)|
+| -- | --: |
+

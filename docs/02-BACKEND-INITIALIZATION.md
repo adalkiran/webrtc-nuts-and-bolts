@@ -440,3 +440,9 @@ Now, our server application is waiting for client interactions on:
 * For incoming UDP packets (STUN, DTLS, RTP, RTCP, etc... packets) on port 15000 (default)
 
 We are ready to answer client interactions!
+
+<style>
+  table { width: 100%; }
+</style>
+| [&lt; Previous chapter](./01-RUNNING-IN-DEV-MODE.md) | [Next chapter &gt;](./03-FIRST-CLIENT-COMES-IN.md)|
+| -- | --: |

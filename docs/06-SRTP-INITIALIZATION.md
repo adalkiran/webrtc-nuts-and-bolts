@@ -185,3 +185,9 @@ func NewGCM(masterKey, masterSalt []byte) (*GCM, error) {
 * We set returned GCM object to context.GCM and set context.IsCipherSuiteInitialized as true.
 
 Now, we are ready to receive and decrypt incoming SRTP and SRTCP packets. We are not ready to encrypt, because we don't need and implemented this part :)
+
+<style>
+  table { width: 100%; }
+</style>
+| [&lt; Previous chapter](./05-DTLS-HANDSHAKE.md) | [Next chapter &gt;](./07-SRTP-PACKETS-COME.md)|
+| -- | --: |

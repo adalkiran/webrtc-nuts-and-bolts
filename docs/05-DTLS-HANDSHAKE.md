@@ -827,3 +827,9 @@ type Finished struct {
 **Important note:** We sent our first encrypted message successfully!
 
 * Set our DTLS Handshake Context's (HandshakeContext defined in [backend/src/dtls/handshakecontext.go](../backend/src/dtls/handshakecontext.go)) state as "Connected"
+
+<style>
+  table { width: 100%; }
+</style>
+| [&lt; Previous chapter](./04-STUN-BINDING-REQUEST-FROM-CLIENT.md) | [Next chapter &gt;](./06-SRTP-INITIALIZATION.md)|
+| -- | --: |

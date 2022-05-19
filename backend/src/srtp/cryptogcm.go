@@ -28,7 +28,7 @@ type GCM struct {
 	srtpSalt, srtcpSalt []byte
 }
 
-// NewGCM creates a SRTP GCM Cipher
+// NewGCM creates an SRTP GCM Cipher
 func NewGCM(masterKey, masterSalt []byte) (*GCM, error) {
 	srtpSessionKey, err := aesCmKeyDerivation(labelSRTPEncryption, masterKey, masterSalt, 0, len(masterKey))
 	if err != nil {

@@ -64,7 +64,7 @@ In this context, we can check out rtp.IsRtpPacket function. This function checks
   * Use "and" bitwise operator on this byte and 0b01111111 (it sets 8. bit as zero, takes other 7 bits)
   * This result byte data (ordinally) is between 0 and 35, or between 96 and 127. This byte represents the SRTP Header's PayloadType value.
 
-If this buffer part comply with these conditions, we can say "this packet is a SRTP protocol packet", then we can process it with SRTP protocol's methods.
+If this buffer part complies with these conditions, we can say "this packet is an SRTP protocol packet", then we can process it with SRTP protocol's methods.
 
 <sup>from [backend/src/rtp/rtpheader.go](../backend/src/rtp/rtpheader.go)</sup>
 ```go
@@ -89,9 +89,9 @@ Sources:
 ## **7.1. Processing incoming SRTP package**
 <br>
 
-We have determined that incoming packet is a RTP packet via rtp.IsRtpPacket function at "AddBuffer" function.
+We have determined that incoming packet is an RTP packet via rtp.IsRtpPacket function at "AddBuffer" function.
 
-* Call "DecodePacket" function in [backend/src/rtp/packet.go](../backend/src/rtp/packet.go). This method only decodes the byte array buffer to RTP header and packet objects, it doesn't decrypt the payload yet. Our RTP packet object has to store decoded/parsed values, and also the complete raw data, because we will need to the raw state of the data while decryption.
+* Call "DecodePacket" function in [backend/src/rtp/packet.go](../backend/src/rtp/packet.go). This method only decodes the byte array buffer to RTP header and packet objects, it doesn't decrypt the payload yet. Our RTP packet object has to store decoded/parsed values, and also the complete raw data, because we will need the raw state of the data while decryption.
 * Forward the decoded RTP packet to the UDPClientSocket's "RtpDepacketizer" [channel](https://go.dev/tour/concurrency/2). This channel is listened by runRtpDepacketizer() function of UDPClientSocket object, shown below:
 
 <sup>from [backend/src/agent/udpclientsocket.go](../backend/src/agent/udpclientsocket.go)</sup>
@@ -100,7 +100,7 @@ func (ms *UDPClientSocket) AddBuffer(buf []byte, offset int, arrayLen int) {
 	logging.Descf(logging.ProtoUDP, "A packet received. The byte array (<u>%d bytes</u>) not parsed yet. Demultiplexing via if-else blocks.", arrayLen)
     ...
 	} else if rtcp.IsRtcpPacket(buf, offset, arrayLen) {
-		logging.Descf(logging.ProtoRTP, " This is a RTP packet.")
+		logging.Descf(logging.ProtoRTP, " This is an RTP packet.")
 		rtpPacket, offset, err := rtp.DecodePacket(buf, offset, arrayLen)
         ...
 		logging.Infof(logging.ProtoRTP, "Received packet: %s\n", rtpPacket)
@@ -180,22 +180,22 @@ type srtpSSRCState struct {
 }
 ```
 
-* In the "DecryptRTPPacket" function, we get or create a srtpSSRCState state object for our packet's SSRC value (packet.Header.SSRC) via "getSRTPSSRCState" function
+* In the "DecryptRTPPacket" function, we get or create an srtpSSRCState state object for our packet's SSRC value (packet.Header.SSRC) via "getSRTPSSRCState" function
 * Call "nextRolloverCount" of our state object to calculate next rollover count value (roc), and get rollover update function
 * Call "Decrypt" function of our SRTP GCM object in the context in [backend/src/srtp/cryptogcm.go](../backend/src/srtp/cryptogcm.go) with our RTP packet object and calculated roc value
 
 	* Here, our ciphertext is packet.RawData (not only the Payload, whole raw packet byte array, because [AEAD](https://en.wikipedia.org/wiki/Authenticated_encryption) encryption should calculate the authentication data from whole bytes including clear text header bytes)
-	* Create a byte array (dst) which has same length with ciphertext array
+	* Create a byte array (dst) that has same length as ciphertext array
 	* Copy the ciphertext context to dst. Because we will pass pointer of dst array, contents will be changed and we need to backup original ciphertext
 	* We "know" that our aeadAuthTagLen is 16
 	* Crop the dst array by taking first (ciphertext length - aeadAuthTagLen)
-	* Calculate the initialization vector which is special for this RTP packet via "rtpInitializationVector" function, using packet header's SSRC, roc and packet headers's SequenceNumber, then XOR it with our srtpSalt
+	* Calculate the initialization vector which is special for this RTP packet via "rtpInitializationVector" function, using packet header's SSRC, roc, and packet header's SequenceNumber, then XOR it with our srtpSalt
 	* Decrypt the bytes by [AEAD.Open](https://pkg.go.dev/crypto/cipher#AEAD.Open). We gave parameters:
-		* dst: dst[packet.HeaderSize:packet.HeaderSize] (startng pointer of payload's first byte in the array that includes the header)
+		* dst: dst[packet.HeaderSize:packet.HeaderSize] (starting pointer of payload's first byte in the array that includes the header)
 		* nonce: Our calculated IV value
 		* ciphertext: Our ciphertext's payload (encrypted) part, starting from header ends (ciphertext[packet.HeaderSize:])
 		* additionalData: Our ciphertext's header (not encrypted) part (ciphertext[:packet.HeaderSize]).
-	* **Important notice:** It will decrypt the encrypted payload part, but with checking AEAD authentication with additional header data. This will give an "authentication error" if you give wrong or missing parameters. For example, at my first try, I didn't copy the ciphertext into dst variable, passed an allocated but empty byte array. But I realized that, the [AEAD.Open](https://pkg.go.dev/crypto/cipher#AEAD.Open) checks authentication in the dst parameter.
+	* **Important notice:** It will decrypt the encrypted payload part, but with checking AEAD authentication with additional header data. This will give an "authentication error" if you give wrong or missing parameters. For example, on my first try, I didn't copy the ciphertext into dst variable, passed an allocated but empty byte array. But I realized that, the [AEAD.Open](https://pkg.go.dev/crypto/cipher#AEAD.Open) checks authentication in the dst parameter.
 
 <sup>from [backend/src/srtp/cryptogcm.go](../backend/src/srtp/cryptogcm.go)</sup>
 ```go
@@ -243,4 +243,4 @@ func (g *GCM) Decrypt(packet *rtp.Packet, roc uint32) ([]byte, error) {
 ## **7.2. Decoding the VP8 Video Content**
 <br>
 
-* If the packet's PayloadType is in PayloadTypeVP8 type, it forwards to the UDPClientSocket's "vp8Depacketizer" [channel](https://go.dev/tour/concurrency/2). This channel is listened by Run() function of VP8Decoder object in [backend/src/transcoding/vp8.go](../backend/src/transcoding/vp8.go), discussed at chapter [8. VP8 PACKET DECODE](./08-VP8-PACKET-DECODE.md).
+* If the packet's PayloadType is in PayloadTypeVP8 type, it forwards to the UDPClientSocket's "vp8Depacketizer" [channel](https://go.dev/tour/concurrency/2). This channel is listened by Run() function of VP8Decoder object in [backend/src/transcoding/vp8.go](../backend/src/transcoding/vp8.go), discussed in chapter [8. VP8 PACKET DECODE](./08-VP8-PACKET-DECODE.md).

@@ -8,7 +8,7 @@
 
 A holistic way of understanding how WebRTC and its protocols run in practice, **with code and detailed documentation**. "The nuts and bolts" (practical side instead of theoretical facts, pure implementation details) of required protocols without using external dependencies or libraries.
 
-When you run the project and follow the instructions, web page initializes the webcam, does handshake with the backend application (executes several WebRTC processes), at the end, the backend catches keyframe images and saves them as JPEG image files. You can see your catched keyframes at /backend/output/ folder as shoot1.jpg, shoot2.jpg etc... if multiple keyframes were catched.
+When you run the project and follow the instructions, web page initializes the webcam, does handshake with the backend application (executes several WebRTC processes), at the end, the backend catches keyframe images and saves them as JPEG image files. You can see your caught keyframes at /backend/output/ folder as shoot1.jpg, shoot2.jpg etc... if multiple keyframes were caught.
 
 You can track which steps taken during this journey by debugging or tracking the output at console.
 
@@ -117,7 +117,7 @@ In **WebRTC Nuts and Bolts** scenario, some assumptions have been made to focus 
 
 ## **RESOURCES**
 
-I want to thank to contributors of the awesome sources which referred during development this project and writing this documentation. You can find these sources below, also in between the lines in code and documentation.
+I want to thank to contributors of the awesome sources which were referred during development of this project and writing this documentation. You can find these sources below, also in between the lines in code and documentation.
 
 * [Wikipedia](https://en.wikipedia.org)
 * [WebRTC For The Curious](https://webrtcforthecurious.com): Awesome resource on theoretical concepts of WebRTC. It is vendor agnostic. Created by creators of [Pion project](https://github.com/pion)

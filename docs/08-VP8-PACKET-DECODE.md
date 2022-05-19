@@ -4,7 +4,7 @@ In previous chapter, we decoded the SRTP packet and decrypted it successfully, a
 
 * If the packet's PayloadType is in PayloadTypeVP8 type, it forwards to the UDPClientSocket's "vp8Depacketizer" [channel](https://go.dev/tour/concurrency/2). This channel is listened by Run() function of VP8Decoder object in [backend/src/transcoding/vp8.go](../backend/src/transcoding/vp8.go), shown below
 
-* Our VP8Decoder aims to process incoming VP8 RTP packets, catch and concatenate keyframe packets then convert it to an image object and save it as a JPEG image file.
+* Our VP8Decoder aims to process incoming VP8 RTP packets, catch and concatenate keyframe packets then convert the result to an image object and save it as a JPEG image file.
 
 <sup>VP8 Payload Descriptor</sup>
 ```
@@ -123,10 +123,10 @@ img := vpx.CodecGetFrame(d.context, &iter)
 ```go
 img.Deref()
 ```
-* If everything has gone OK, save the image as JPEG file by [jpeg.Encode](https://pkg.go.dev/image/jpeg#Encode)
-* You can see your catched keyframes at /backend/output/ folder as shoot1.jpg, shoot2.jpg etc... if multiple keyframes were catched.
+* If everything has gone OK, save the image as a JPEG file by [jpeg.Encode](https://pkg.go.dev/image/jpeg#Encode)
+* You can see your caught keyframes at /backend/output/ folder as shoot1.jpg, shoot2.jpg, etc... if multiple keyframes were caught.
 
-* As you can see below, we received multiple RTP packets containing VP8 video data, in different packet lengths, then we catched a keyframe from these packets, concatenate them, then created and saved image.
+* As you can see below, we received multiple RTP packets containing VP8 video data, in different packet lengths, then we caught a keyframe from these packets, concatenate them, then created and saved image.
 
 * At the end of our journey, we saw the "[INFO] Image file saved: ../output/shoot1.jpg" log line! All of our these efforts are to achieve this....
 

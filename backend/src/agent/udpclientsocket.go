@@ -143,7 +143,7 @@ func (ms *UDPClientSocket) AddBuffer(buf []byte, offset int, arrayLen int) {
 			}
 		}
 	} else if rtp.IsRtpPacket(buf, offset, arrayLen) {
-		logging.Descf(logging.ProtoRTP, " This is a RTP packet.")
+		logging.Descf(logging.ProtoRTP, " This is an RTP packet.")
 		rtpPacket, offset, err := rtp.DecodePacket(buf, offset, arrayLen)
 		if err != nil {
 			logging.Errorf(logging.ProtoRTP, "Unknown message from: %s, %v. Err: %v\n", ms.Addr, buf[offset:offset+arrayLen], err)

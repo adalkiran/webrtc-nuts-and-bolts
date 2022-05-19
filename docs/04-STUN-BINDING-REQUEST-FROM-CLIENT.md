@@ -31,10 +31,10 @@ func (ms *UDPClientSocket) AddBuffer(buf []byte, offset int, arrayLen int) {
 		logging.Descf(logging.ProtoDTLS, "This is a DTLS packet.")
 		...
 	} else if rtp.IsRtpPacket(buf, offset, arrayLen) {
-		logging.Descf(logging.ProtoRTP, " This is a RTP packet.")
+		logging.Descf(logging.ProtoRTP, " This is an RTP packet.")
 		....
 	} else if rtcp.IsRtcpPacket(buf, offset, arrayLen) {
-		logging.Descf(logging.ProtoRTP, "This is a RTCP packet.")
+		logging.Descf(logging.ProtoRTP, "This is an RTCP packet.")
 		...
 	} else {
 		logging.Descf(logging.ProtoUDP, "This packet in a different format which is not known by the server, ignoring it.")
@@ -48,7 +48,7 @@ In this context, we can check out stun.IsMessage function. This function checks:
   <br>and
   * 4 bytes after 4. byte (between 4. and 8. indices) equals to STUN magicCookie (constant value, 0x2112A442).
 
-If this buffer part comply with these conditions, we can say "this packet is a STUN protocol packet", then we can process it with STUN protocol's methods.
+If this buffer part complies with these conditions, we can say "this packet is a STUN protocol packet", then we can process it with STUN protocol's methods.
 
 <sup>from [backend/src/stun/message.go](../backend/src/stun/message.go)</sup>
 ```go

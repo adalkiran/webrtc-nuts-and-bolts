@@ -76,7 +76,11 @@ class RTC {
                     this.localConnection.addTrack(track);
                 });
             })
-            //.then(() => this.createOffer());
+            .catch(e => {
+                console.error("Error while starting: ", e);
+                alert("Error while starting:\n" + e);
+                this.stop(true);
+            })
             .then(() => signaling.connect());
     }
 
@@ -87,6 +91,8 @@ class RTC {
         });
         if (closeConnection) {
             this.localConnection.close();
+            //Recreate a new RTCPeerConnection which is in "stable" signaling state.
+            this.localConnection = this.createLocalPeerConnection();
         }
         this.localTracks = [];
         console.log('Stopping tracks. closeConnection: ', closeConnection);
@@ -211,12 +217,6 @@ class Signaling {
                 break;
             }
         };
-        
-/*
-        setTimeout(() => {
-            this.ws.emit('/chat', {message: 'Hello from client!'});
-        }, 1000);
-        */
     }
 
     close() {

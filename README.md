@@ -3,7 +3,7 @@
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white&style=flat-square)](https://www.linkedin.com/in/alper-dalkiran/)
 [![Twitter](https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white&style=flat-square)](https://twitter.com/aalperdalkiran)
-[HitCount](https://hits.dwyl.com/adalkiran/webrtc-nuts-and-bolts.svg?style=flat-square&show=unique)
+![HitCount](https://hits.dwyl.com/adalkiran/webrtc-nuts-and-bolts.svg?style=flat-square)
 ![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
 
 A holistic way of understanding how WebRTC and its protocols run in practice, **with code and detailed documentation**. "The nuts and bolts" (practical side instead of theoretical facts, pure implementation details) of required protocols without using external dependencies or libraries.

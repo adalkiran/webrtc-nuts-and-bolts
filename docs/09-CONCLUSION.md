@@ -4,9 +4,9 @@ If you really read all of my journey in this walkthrough documentation, I want t
 
 If you liked this repo, you can give a star on Github :)
 
-Also thanks to contributors of the awesome sources which were referred during development of this project and writing this documentation. You can find these sources in [README](../README), also in between the lines.
+Also thanks to contributors of the awesome sources which were referred during development of this project and writing this documentation. You can find these sources in [README](../README.md), also in between the lines.
 
-You can find me on [Linkedin](https://www.linkedin.com/in/alper-dalkiran/), [Twitter](https://twitter.com/aalperdalkiran)
+You can find me on &nbsp; [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white&style=flat-square)](https://www.linkedin.com/in/alper-dalkiran/) &nbsp; [![Twitter](https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white&style=flat-square)](https://twitter.com/aalperdalkiran)
 
 <br>
 <br>

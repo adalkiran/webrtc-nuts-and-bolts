@@ -108,15 +108,9 @@ Note that, one of reference link "ClientHello" refers to "The Transport Layer Se
 <br>
 
 ---
-<div>
-  <div style="float: right;">
 
-  [Next chapter &gt;](./05-DTLS-HANDSHAKE.md)
+<div align="right">
 
-  </div>
-  <div style="float: left;">
+[&lt;&nbsp;&nbsp;Previous chapter: FIRST CLIENT COMES IN](./03-FIRST-CLIENT-COMES-IN.md)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Next chapter: DTLS HANDSHAKE&nbsp;&nbsp;&gt;](./05-DTLS-HANDSHAKE.md)
 
-  [&lt; Previous chapter](./03-FIRST-CLIENT-COMES-IN.md)
-
-  </div>
 </div>

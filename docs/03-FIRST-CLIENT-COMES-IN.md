@@ -507,15 +507,9 @@ Now, we will be waiting for a STUN Binding Request from the client over UDP port
 <br>
 
 ---
-<div>
-  <div style="float: right;">
 
-  [Next chapter &gt;](./04-STUN-BINDING-REQUEST-FROM-CLIENT.md)
+<div align="right">
 
-  </div>
-  <div style="float: left;">
+[&lt;&nbsp;&nbsp;Previous chapter: BACKEND INITIALIZATION](./02-BACKEND-INITIALIZATION.md)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Next chapter: STUN BINDING REQUEST FROM CLIENT&nbsp;&nbsp;&gt;](./04-STUN-BINDING-REQUEST-FROM-CLIENT.md)
 
-  [&lt; Previous chapter](./02-BACKEND-INITIALIZATION.md)
-
-  </div>
 </div>

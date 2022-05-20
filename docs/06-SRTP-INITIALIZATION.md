@@ -189,15 +189,9 @@ Now, we are ready to receive and decrypt incoming SRTP and SRTCP packets. We are
 <br>
 
 ---
-<div>
-  <div style="float: right;">
 
-  [Next chapter &gt;](./07-SRTP-PACKETS-COME.md)
+<div align="right">
 
-  </div>
-  <div style="float: left;">
+[&lt;&nbsp;&nbsp;Previous chapter: DTLS HANDSHAKE](./05-DTLS-HANDSHAKE.md)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Next chapter: SRTP PACKETS COME&nbsp;&nbsp;&gt;](./07-SRTP-PACKETS-COME.md)
 
-  [&lt; Previous chapter](./05-DTLS-HANDSHAKE.md)
-
-  </div>
 </div>

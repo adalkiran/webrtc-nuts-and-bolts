@@ -19,15 +19,9 @@ Adil Alper DALKIRAN
 <br>
 
 ---
-<div>
-  <div style="float: right;">
 
-  [Home &gt;&gt;](../README.md)
+<div align="right">
 
-  </div>
-  <div style="float: left;">
+[&lt;&nbsp;&nbsp;Previous chapter: VP8 PACKET DECODE](./08-VP8-PACKET-DECODE.md)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Home&nbsp;&nbsp;&gt;&gt;](../README.md)
 
-  [&lt; Previous chapter](./08-VP8-PACKET-DECODE.md)
-
-  </div>
 </div>

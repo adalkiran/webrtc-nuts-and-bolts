@@ -194,15 +194,9 @@ Running into Waiting loop...
 <br>
 
 ---
-<div>
-  <div style="float: right;">
 
-  [Next chapter &gt;](./01-RUNNING-IN-DEV-MODE.md)
+<div align="right">
 
-  </div>
-  <div style="float: left;">
+[&lt;&nbsp;&nbsp;Documentation Index](./README.md)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Next chapter: RUNNING IN DEVELOPMENT MODE&nbsp;&nbsp;&gt;](./01-RUNNING-IN-DEV-MODE.md)
 
-  [&lt; Documentation Index](./README.md)
-
-  </div>
 </div>

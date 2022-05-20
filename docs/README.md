@@ -23,15 +23,9 @@ Here is the adventure of a WebRTC stream from start to finish  documented as ste
 [9. CONCLUSION](./09-CONCLUSION.md)<br>
 
 ---
-<div>
-  <div style="float: right;">
 
-  [Next chapter &gt;](./00-INFRASTRUCTURE.md)
+<div align="right">
 
-  </div>
-  <div style="float: left;">
+[&lt;&lt;&nbsp;&nbsp;Home: README](../README.md)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Next chapter: INFRASTRUCTURE&nbsp;&nbsp;&gt;](./00-INFRASTRUCTURE.md)
 
-  [&lt;&lt; Home](../README.md)
-
-  </div>
 </div>

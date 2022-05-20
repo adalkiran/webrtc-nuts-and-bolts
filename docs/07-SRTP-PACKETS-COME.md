@@ -248,15 +248,9 @@ func (g *GCM) Decrypt(packet *rtp.Packet, roc uint32) ([]byte, error) {
 <br>
 
 ---
-<div>
-  <div style="float: right;">
 
-  [Next chapter &gt;](./08-VP8-PACKET-DECODE.md)
+<div align="right">
 
-  </div>
-  <div style="float: left;">
+[&lt;&nbsp;&nbsp;Previous chapter: SRTP INITIALIZATION](./06-SRTP-INITIALIZATION.md)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Next chapter: VP8 PACKET DECODE&nbsp;&nbsp;&gt;](./08-VP8-PACKET-DECODE.md)
 
-  [&lt; Previous chapter](./06-SRTP-INITIALIZATION.md)
-
-  </div>
 </div>

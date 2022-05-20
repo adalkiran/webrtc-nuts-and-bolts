@@ -444,15 +444,9 @@ We are ready to answer client interactions!
 <br>
 
 ---
-<div>
-  <div style="float: right;">
 
-  [Next chapter &gt;](./03-FIRST-CLIENT-COMES-IN.md)
+<div align="right">
 
-  </div>
-  <div style="float: left;">
+[&lt;&nbsp;&nbsp;Previous chapter: RUNNING IN DEVELOPMENT MODE](./01-RUNNING-IN-DEV-MODE.md)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Next chapter: FIRST CLIENT COMES IN&nbsp;&nbsp;&gt;](./03-FIRST-CLIENT-COMES-IN.md)
 
-  [&lt; Previous chapter](./01-RUNNING-IN-DEV-MODE.md)
-
-  </div>
 </div>

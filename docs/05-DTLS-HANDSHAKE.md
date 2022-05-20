@@ -831,15 +831,9 @@ type Finished struct {
 <br>
 
 ---
-<div>
-  <div style="float: right;">
 
-  [Next chapter &gt;](./06-SRTP-INITIALIZATION.md)
+<div align="right">
 
-  </div>
-  <div style="float: left;">
+[&lt;&nbsp;&nbsp;Previous chapter: STUN BINDING REQUEST FROM CLIENT](./04-STUN-BINDING-REQUEST-FROM-CLIENT.md)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Next chapter: SRTP INITIALIZATION&nbsp;&nbsp;&gt;](./06-SRTP-INITIALIZATION.md)
 
-  [&lt; Previous chapter](./04-STUN-BINDING-REQUEST-FROM-CLIENT.md)
-
-  </div>
 </div>

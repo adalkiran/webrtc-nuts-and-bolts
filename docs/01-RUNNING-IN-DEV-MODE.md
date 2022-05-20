@@ -49,15 +49,9 @@ $ ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.)
 <br>
 
 ---
-<div>
-  <div style="float: right;">
 
-  [Next chapter &gt;](./02-BACKEND-INITIALIZATION.md)
+<div align="right">
 
-  </div>
-  <div style="float: left;">
+[&lt;&nbsp;&nbsp;Previous chapter: INFRASTRUCTURE](./00-INFRASTRUCTURE.md)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Next chapter: BACKEND INITIALIZATION&nbsp;&nbsp;&gt;](./02-BACKEND-INITIALIZATION.md)
 
-  [&lt; Previous chapter](./00-INFRASTRUCTURE.md)
-
-  </div>
 </div>

@@ -140,15 +140,9 @@ Sources:
 <br>
 
 ---
-<div>
-  <div style="float: right;">
 
-  [Next chapter &gt;](./09-CONCLUSION.md)
+<div align="right">
 
-  </div>
-  <div style="float: left;">
+[&lt;&nbsp;&nbsp;Previous chapter: SRTP PACKETS COME](./07-SRTP-PACKETS-COME.md)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Next chapter: CONCLUSION&nbsp;&nbsp;&gt;](./09-CONCLUSION.md)
 
-  [&lt; Previous chapter](./07-SRTP-PACKETS-COME.md)
-
-  </div>
 </div>

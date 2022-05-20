@@ -56,6 +56,64 @@ func IsMessage(buf []byte, offset int, arrayLen int) bool {
     return arrayLen >= messageHeaderSize && binary.BigEndian.Uint32(buf[offset+4:offset+8]) == magicCookie
 }
 ```
+<details>
+  <summary>Click to expand Wireshark capture (Received): STUN Binding Request</summary>
+
+```
+Frame 414: 140 bytes on wire (1120 bits), 140 bytes captured (1120 bits) on interface lo0, id 0
+Null/Loopback
+Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
+User Datagram Protocol, Src Port: 52993, Dst Port: 15000
+Session Traversal Utilities for NAT
+    [Response In: 451]
+    Message Type: 0x0001 (Binding Request)
+    Message Length: 88
+    Message Cookie: 2112a442
+    Message Transaction ID: 467479737a594f3632596a2f
+    [STUN Network Version: RFC-5389/8489 (3)]
+    Attributes
+        USERNAME: xPLDnJObCsNVlwnb:vv+t
+            Attribute Type: USERNAME
+                0... .... .... .... = Attribute Type Comprehension: Required (0x0)
+                .0.. .... .... .... = Attribute Type Assignment: IETF Review (0x0)
+            Attribute Length: 21
+            Username: xPLDnJObCsNVlwnb:vv+t
+            Padding: 3
+        GOOG-NETWORK-INFO
+            Attribute Type: GOOG-NETWORK-INFO
+                1... .... .... .... = Attribute Type Comprehension: Optional (0x1)
+                .1.. .... .... .... = Attribute Type Assignment: Designated Expert (0x1)
+            Attribute Length: 4
+            Google Network ID: 1
+            Google Network Cost: Low (10)
+        ICE-CONTROLLED
+            Attribute Type: ICE-CONTROLLED
+                1... .... .... .... = Attribute Type Comprehension: Optional (0x1)
+                .0.. .... .... .... = Attribute Type Assignment: IETF Review (0x0)
+            Attribute Length: 8
+            Tie breaker: 3d35f1dedc0b9ace
+        PRIORITY
+            Attribute Type: PRIORITY
+                0... .... .... .... = Attribute Type Comprehension: Required (0x0)
+                .0.. .... .... .... = Attribute Type Assignment: IETF Review (0x0)
+            Attribute Length: 4
+            Priority: 1853824767
+        MESSAGE-INTEGRITY
+            Attribute Type: MESSAGE-INTEGRITY
+                0... .... .... .... = Attribute Type Comprehension: Required (0x0)
+                .0.. .... .... .... = Attribute Type Assignment: IETF Review (0x0)
+            Attribute Length: 20
+            HMAC-SHA1: 5b8ea8d6e018e4789af5f951e64e5f737e2539df
+        FINGERPRINT
+            Attribute Type: FINGERPRINT
+                1... .... .... .... = Attribute Type Comprehension: Optional (0x1)
+                .0.. .... .... .... = Attribute Type Assignment: IETF Review (0x0)
+            Attribute Length: 4
+            CRC-32: 0xaaff24d0
+```
+</details>
+
+<br>
 
 Here is the console output when the server received an "expected" STUN Binding Request.
 
@@ -100,6 +158,68 @@ After we determined that this packet is STUN packet, our steps will be:
         logging.Descf(logging.ProtoSTUN, "Now we are waiting for a DTLS ClientHello packet from the client!")
     }
 ```
+
+<details>
+  <summary>Click to expand Wireshark capture (Sent): STUN Binding Response</summary>
+
+```
+Frame 451: 144 bytes on wire (1152 bits), 144 bytes captured (1152 bits) on interface lo0, id 0
+Null/Loopback
+Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
+User Datagram Protocol, Src Port: 15000, Dst Port: 52993
+Session Traversal Utilities for NAT
+    [Request In: 414]
+    [Time: 0.004788000 seconds]
+    Message Type: 0x0101 (Binding Success Response)
+        .... ...1 ...0 .... = Message Class: 0x10 Success Response (2)
+        ..00 000. 000. 0001 = Message Method: 0x0001 Binding (0x001)
+        ..0. .... .... .... = Message Method Assignment: IETF Review (0x0)
+    Message Length: 92
+    Message Cookie: 2112a442
+    Message Transaction ID: 467479737a594f3632596a2f
+    [STUN Network Version: RFC-5389/8489 (3)]
+    Attributes
+        XOR-MAPPED-ADDRESS: 172.19.0.1:63001
+            Attribute Type: XOR-MAPPED-ADDRESS
+                0... .... .... .... = Attribute Type Comprehension: Required (0x0)
+                .0.. .... .... .... = Attribute Type Assignment: IETF Review (0x0)
+            Attribute Length: 8
+            Reserved: 00
+            Protocol Family: IPv4 (0x01)
+            Port (XOR-d): d70b
+            [Port: 63001]
+            IP (XOR-d): 8d01a443
+            [IP: 172.19.0.1]
+        USERNAME: xPLDnJObCsNVlwnb:vv+t
+            Attribute Type: USERNAME
+                0... .... .... .... = Attribute Type Comprehension: Required (0x0)
+                .0.. .... .... .... = Attribute Type Assignment: IETF Review (0x0)
+            Attribute Length: 21
+            Username: xPLDnJObCsNVlwnb:vv+t
+            Padding: 3
+        SOFTWARE
+            Attribute Type: SOFTWARE
+                1... .... .... .... = Attribute Type Comprehension: Optional (0x1)
+                .0.. .... .... .... = Attribute Type Assignment: IETF Review (0x0)
+            Attribute Length: 15
+            Software: WebRTCNutsBolts
+            Padding: 1
+        MESSAGE-INTEGRITY
+            Attribute Type: MESSAGE-INTEGRITY
+                0... .... .... .... = Attribute Type Comprehension: Required (0x0)
+                .0.. .... .... .... = Attribute Type Assignment: IETF Review (0x0)
+            Attribute Length: 20
+            HMAC-SHA1: 8d55bd07b6dfda1861f4f37541248a6ee330330c
+        FINGERPRINT
+            Attribute Type: FINGERPRINT
+                1... .... .... .... = Attribute Type Comprehension: Optional (0x1)
+                .0.. .... .... .... = Attribute Type Assignment: IETF Review (0x0)
+            Attribute Length: 4
+            CRC-32: 0x8387d149
+```
+</details>
+
+<br>
 
 Now, the client will send a [ClientHello](https://datatracker.ietf.org/doc/html/rfc5246#section-7.4.1.2) message and we can start the [DTLS Handshake](https://datatracker.ietf.org/doc/html/rfc4347#section-4.2) process.
 

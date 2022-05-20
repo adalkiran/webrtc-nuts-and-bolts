@@ -57,6 +57,25 @@ type Packet struct {
 }
 ```
 
+<details>
+  <summary>Click to expand Wireshark capture (Received): First SRTP Packet</summary>
+<br>
+
+**Important note:** As you can see at the end of the block, Wireshark couldn't specify the protocol of the packet as RTP. It shows RTP/SRTP packets as raw UDP packets.
+
+```
+Frame 568: 1068 bytes on wire (8544 bits), 1068 bytes captured (8544 bits) on interface lo0, id 0
+Null/Loopback
+Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
+User Datagram Protocol, Src Port: 52993, Dst Port: 15000
+Data (1036 bytes)
+    Data: 806010d66b18660546dfb57f81a378739249bef2f2f5552907340c6229373297f3c52e7e…
+    [Length: 1036]
+```
+</details>
+
+<br>
+
 **Important notice:** You can ask "The chapter is about SRTP but you show me RTP without the 'S'?". Because [SRTP (Secure Real-time Transport Protocol)](https://en.wikipedia.org/wiki/Secure_Real-time_Transport_Protocol), a secure version of [RTP (Real-time Transport Protocol)](https://en.wikipedia.org/wiki/Real-time_Transport_Protocol). Header is in clear text, Payload part is encrypted and authenticated we will discuss further.
 
 In this context, we can check out rtp.IsRtpPacket function. This function checks:

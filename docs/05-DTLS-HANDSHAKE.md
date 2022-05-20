@@ -141,6 +141,123 @@ type ClientHello struct {
 }
 ```
 
+<details>
+  <summary>Click to expand Wireshark capture (Received): DTLS ClientHello (first, without cookie)</summary>
+
+```
+Frame 458: 189 bytes on wire (1512 bits), 189 bytes captured (1512 bits) on interface lo0, id 0
+Null/Loopback
+Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
+User Datagram Protocol, Src Port: 52993, Dst Port: 15000
+Datagram Transport Layer Security
+    DTLSv1.2 Record Layer: Handshake Protocol: Client Hello
+        Content Type: Handshake (22)
+        Version: DTLS 1.0 (0xfeff)
+        Epoch: 0
+        Sequence Number: 0
+        Length: 144
+        Handshake Protocol: Client Hello
+            Handshake Type: Client Hello (1)
+            Length: 132
+            Message Sequence: 0
+            Fragment Offset: 0
+            Fragment Length: 132
+            Version: DTLS 1.2 (0xfefd)
+            Random: 78aa217a2ab532e840bf2f989d8f13ec4b66671e1cf1d8627eddd4917e51b31b
+                GMT Unix Time: Feb 24, 2034 20:40:10.000000000 +03
+                Random Bytes: 2ab532e840bf2f989d8f13ec4b66671e1cf1d8627eddd4917e51b31b
+            Session ID Length: 0
+            Cookie Length: 0
+            Cipher Suites Length: 22
+            Cipher Suites (11 suites)
+                Cipher Suite: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 (0xc02b)
+                Cipher Suite: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 (0xc02f)
+                Cipher Suite: TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256 (0xcca9)
+                Cipher Suite: TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256 (0xcca8)
+                Cipher Suite: TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA (0xc009)
+                Cipher Suite: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA (0xc013)
+                Cipher Suite: TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA (0xc00a)
+                Cipher Suite: TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA (0xc014)
+                Cipher Suite: TLS_RSA_WITH_AES_128_GCM_SHA256 (0x009c)
+                Cipher Suite: TLS_RSA_WITH_AES_128_CBC_SHA (0x002f)
+                Cipher Suite: TLS_RSA_WITH_AES_256_CBC_SHA (0x0035)
+            Compression Methods Length: 1
+            Compression Methods (1 method)
+                Compression Method: null (0)
+            Extensions Length: 68
+            Extension: extended_master_secret (len=0)
+                Type: extended_master_secret (23)
+                Length: 0
+            Extension: renegotiation_info (len=1)
+                Type: renegotiation_info (65281)
+                Length: 1
+                Renegotiation Info extension
+                    Renegotiation info extension length: 0
+            Extension: supported_groups (len=8)
+                Type: supported_groups (10)
+                Length: 8
+                Supported Groups List Length: 6
+                Supported Groups (3 groups)
+                    Supported Group: x25519 (0x001d)
+                    Supported Group: secp256r1 (0x0017)
+                    Supported Group: secp384r1 (0x0018)
+            Extension: ec_point_formats (len=2)
+                Type: ec_point_formats (11)
+                Length: 2
+                EC point formats Length: 1
+                Elliptic curves point formats (1)
+                    EC point format: uncompressed (0)
+            Extension: session_ticket (len=0)
+                Type: session_ticket (35)
+                Length: 0
+                Data (0 bytes)
+            Extension: signature_algorithms (len=20)
+                Type: signature_algorithms (13)
+                Length: 20
+                Signature Hash Algorithms Length: 18
+                Signature Hash Algorithms (9 algorithms)
+                    Signature Algorithm: ecdsa_secp256r1_sha256 (0x0403)
+                        Signature Hash Algorithm Hash: SHA256 (4)
+                        Signature Hash Algorithm Signature: ECDSA (3)
+                    Signature Algorithm: rsa_pss_rsae_sha256 (0x0804)
+                        Signature Hash Algorithm Hash: Unknown (8)
+                        Signature Hash Algorithm Signature: SM2 (4)
+                    Signature Algorithm: rsa_pkcs1_sha256 (0x0401)
+                        Signature Hash Algorithm Hash: SHA256 (4)
+                        Signature Hash Algorithm Signature: RSA (1)
+                    Signature Algorithm: ecdsa_secp384r1_sha384 (0x0503)
+                        Signature Hash Algorithm Hash: SHA384 (5)
+                        Signature Hash Algorithm Signature: ECDSA (3)
+                    Signature Algorithm: rsa_pss_rsae_sha384 (0x0805)
+                        Signature Hash Algorithm Hash: Unknown (8)
+                        Signature Hash Algorithm Signature: Unknown (5)
+                    Signature Algorithm: rsa_pkcs1_sha384 (0x0501)
+                        Signature Hash Algorithm Hash: SHA384 (5)
+                        Signature Hash Algorithm Signature: RSA (1)
+                    Signature Algorithm: rsa_pss_rsae_sha512 (0x0806)
+                        Signature Hash Algorithm Hash: Unknown (8)
+                        Signature Hash Algorithm Signature: Unknown (6)
+                    Signature Algorithm: rsa_pkcs1_sha512 (0x0601)
+                        Signature Hash Algorithm Hash: SHA512 (6)
+                        Signature Hash Algorithm Signature: RSA (1)
+                    Signature Algorithm: rsa_pkcs1_sha1 (0x0201)
+                        Signature Hash Algorithm Hash: SHA1 (2)
+                        Signature Hash Algorithm Signature: RSA (1)
+            Extension: use_srtp (len=9)
+                Type: use_srtp (14)
+                Length: 9
+                SRTP Protection Profiles Length: 6
+                SRTP Protection Profile: SRTP_AES128_CM_HMAC_SHA1_80 (0x0001)
+                SRTP Protection Profile: SRTP_AEAD_AES_256_GCM (0x0008)
+                SRTP Protection Profile: SRTP_AEAD_AES_128_GCM (0x0007)
+                MKI Length: 0
+            [JA3 Fullstring: 65277,49195-49199-52393-52392-49161-49171-49162-49172-156-47-53,23-65281-10-11-35-13-14,29-23-24,0]
+            [JA3: c14667d7da3e6f7a7ab5519ef78c2452]
+```
+</details>
+
+<br>
+
 This message is bootstrapper of a new DTLS Handshake process. Client says to us, "I want to make a DTLS handshake with you, these are my security data to share".
 
 * Version: Same logic and structure with the Version of RecordHeader. Value can differ, for e.g. RecordHeader's version can be 1.0 but ClientHello's version can be 1.2.
@@ -192,6 +309,35 @@ type HelloVerifyRequest struct {
 }
 ```
 
+<details>
+  <summary>Click to expand Wireshark capture (Sent): DTLS HelloVerifyRequest</summary>
+
+```
+Frame 483: 80 bytes on wire (640 bits), 80 bytes captured (640 bits) on interface lo0, id 0
+Null/Loopback
+Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
+User Datagram Protocol, Src Port: 15000, Dst Port: 52993
+Datagram Transport Layer Security
+    DTLSv1.2 Record Layer: Handshake Protocol: Hello Verify Request
+        Content Type: Handshake (22)
+        Version: DTLS 1.2 (0xfefd)
+        Epoch: 0
+        Sequence Number: 0
+        Length: 35
+        Handshake Protocol: Hello Verify Request
+            Handshake Type: Hello Verify Request (3)
+            Length: 23
+            Message Sequence: 0
+            Fragment Offset: 0
+            Fragment Length: 23
+            Version: DTLS 1.2 (0xfefd)
+            Cookie Length: 20
+            Cookie: b130316a0e21459cd54d85062f2fb018c4f78be0
+```
+</details>
+
+<br>
+
 Now we are waiting for another (nearly the same) ClientHello message, but with a Cookie that has the same value as our HelloVerifyRequest.
 
 <img alt="Sent HelloVerifyRequest" src="images/05-02-sent-helloverifyrequest.png" style="max-width:75%"></img>
@@ -200,6 +346,124 @@ Now we are waiting for another (nearly the same) ClientHello message, but with a
 <br>
 
 ## **5.3. Client sends second ClientHello message (Flight 2)**
+<br>
+
+<details>
+  <summary>Click to expand Wireshark capture (Received): DTLS ClientHello (second, with cookie)</summary>
+
+```
+Frame 484: 209 bytes on wire (1672 bits), 209 bytes captured (1672 bits) on interface lo0, id 0
+Null/Loopback
+Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
+User Datagram Protocol, Src Port: 52993, Dst Port: 15000
+Datagram Transport Layer Security
+    DTLSv1.2 Record Layer: Handshake Protocol: Client Hello
+        Content Type: Handshake (22)
+        Version: DTLS 1.0 (0xfeff)
+        Epoch: 0
+        Sequence Number: 1
+        Length: 164
+        Handshake Protocol: Client Hello
+            Handshake Type: Client Hello (1)
+            Length: 152
+            Message Sequence: 1
+            Fragment Offset: 0
+            Fragment Length: 152
+            Version: DTLS 1.2 (0xfefd)
+            Random: 78aa217a2ab532e840bf2f989d8f13ec4b66671e1cf1d8627eddd4917e51b31b
+                GMT Unix Time: Feb 24, 2034 20:40:10.000000000 +03
+                Random Bytes: 2ab532e840bf2f989d8f13ec4b66671e1cf1d8627eddd4917e51b31b
+            Session ID Length: 0
+            Cookie Length: 20
+            Cookie: b130316a0e21459cd54d85062f2fb018c4f78be0
+            Cipher Suites Length: 22
+            Cipher Suites (11 suites)
+                Cipher Suite: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 (0xc02b)
+                Cipher Suite: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 (0xc02f)
+                Cipher Suite: TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256 (0xcca9)
+                Cipher Suite: TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256 (0xcca8)
+                Cipher Suite: TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA (0xc009)
+                Cipher Suite: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA (0xc013)
+                Cipher Suite: TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA (0xc00a)
+                Cipher Suite: TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA (0xc014)
+                Cipher Suite: TLS_RSA_WITH_AES_128_GCM_SHA256 (0x009c)
+                Cipher Suite: TLS_RSA_WITH_AES_128_CBC_SHA (0x002f)
+                Cipher Suite: TLS_RSA_WITH_AES_256_CBC_SHA (0x0035)
+            Compression Methods Length: 1
+            Compression Methods (1 method)
+                Compression Method: null (0)
+            Extensions Length: 68
+            Extension: extended_master_secret (len=0)
+                Type: extended_master_secret (23)
+                Length: 0
+            Extension: renegotiation_info (len=1)
+                Type: renegotiation_info (65281)
+                Length: 1
+                Renegotiation Info extension
+                    Renegotiation info extension length: 0
+            Extension: supported_groups (len=8)
+                Type: supported_groups (10)
+                Length: 8
+                Supported Groups List Length: 6
+                Supported Groups (3 groups)
+                    Supported Group: x25519 (0x001d)
+                    Supported Group: secp256r1 (0x0017)
+                    Supported Group: secp384r1 (0x0018)
+            Extension: ec_point_formats (len=2)
+                Type: ec_point_formats (11)
+                Length: 2
+                EC point formats Length: 1
+                Elliptic curves point formats (1)
+                    EC point format: uncompressed (0)
+            Extension: session_ticket (len=0)
+                Type: session_ticket (35)
+                Length: 0
+                Data (0 bytes)
+            Extension: signature_algorithms (len=20)
+                Type: signature_algorithms (13)
+                Length: 20
+                Signature Hash Algorithms Length: 18
+                Signature Hash Algorithms (9 algorithms)
+                    Signature Algorithm: ecdsa_secp256r1_sha256 (0x0403)
+                        Signature Hash Algorithm Hash: SHA256 (4)
+                        Signature Hash Algorithm Signature: ECDSA (3)
+                    Signature Algorithm: rsa_pss_rsae_sha256 (0x0804)
+                        Signature Hash Algorithm Hash: Unknown (8)
+                        Signature Hash Algorithm Signature: SM2 (4)
+                    Signature Algorithm: rsa_pkcs1_sha256 (0x0401)
+                        Signature Hash Algorithm Hash: SHA256 (4)
+                        Signature Hash Algorithm Signature: RSA (1)
+                    Signature Algorithm: ecdsa_secp384r1_sha384 (0x0503)
+                        Signature Hash Algorithm Hash: SHA384 (5)
+                        Signature Hash Algorithm Signature: ECDSA (3)
+                    Signature Algorithm: rsa_pss_rsae_sha384 (0x0805)
+                        Signature Hash Algorithm Hash: Unknown (8)
+                        Signature Hash Algorithm Signature: Unknown (5)
+                    Signature Algorithm: rsa_pkcs1_sha384 (0x0501)
+                        Signature Hash Algorithm Hash: SHA384 (5)
+                        Signature Hash Algorithm Signature: RSA (1)
+                    Signature Algorithm: rsa_pss_rsae_sha512 (0x0806)
+                        Signature Hash Algorithm Hash: Unknown (8)
+                        Signature Hash Algorithm Signature: Unknown (6)
+                    Signature Algorithm: rsa_pkcs1_sha512 (0x0601)
+                        Signature Hash Algorithm Hash: SHA512 (6)
+                        Signature Hash Algorithm Signature: RSA (1)
+                    Signature Algorithm: rsa_pkcs1_sha1 (0x0201)
+                        Signature Hash Algorithm Hash: SHA1 (2)
+                        Signature Hash Algorithm Signature: RSA (1)
+            Extension: use_srtp (len=9)
+                Type: use_srtp (14)
+                Length: 9
+                SRTP Protection Profiles Length: 6
+                SRTP Protection Profile: SRTP_AES128_CM_HMAC_SHA1_80 (0x0001)
+                SRTP Protection Profile: SRTP_AEAD_AES_256_GCM (0x0008)
+                SRTP Protection Profile: SRTP_AEAD_AES_128_GCM (0x0007)
+                MKI Length: 0
+            [JA3 Fullstring: 65277,49195-49199-52393-52392-49161-49171-49162-49172-156-47-53,23-65281-10-11-35-13-14,29-23-24,0]
+            [JA3: c14667d7da3e6f7a7ab5519ef78c2452]
+```
+</details>
+
 <br>
 
 <img alt="Received second ClientHello" src="images/05-03-received-second-clienthello.png" style="max-width:75%"></img>
@@ -301,6 +565,62 @@ type ServerHello struct {
 }
 ```
 
+<details>
+  <summary>Click to expand Wireshark capture (Sent): DTLS ServerHello</summary>
+
+```
+Frame 511: 121 bytes on wire (968 bits), 121 bytes captured (968 bits) on interface lo0, id 0
+Null/Loopback
+Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
+User Datagram Protocol, Src Port: 15000, Dst Port: 52993
+Datagram Transport Layer Security
+    DTLSv1.2 Record Layer: Handshake Protocol: Server Hello
+        Content Type: Handshake (22)
+        Version: DTLS 1.2 (0xfefd)
+        Epoch: 0
+        Sequence Number: 1
+        Length: 76
+        Handshake Protocol: Server Hello
+            Handshake Type: Server Hello (2)
+            Length: 64
+            Message Sequence: 1
+            Fragment Offset: 0
+            Fragment Length: 64
+            Version: DTLS 1.2 (0xfefd)
+            Random: 627ac5897ff551e05e567951d2b9258207f9bfaf75084047c1fdcca5faad5b64
+                GMT Unix Time: May 10, 2022 23:05:29.000000000 +03
+                Random Bytes: 7ff551e05e567951d2b9258207f9bfaf75084047c1fdcca5faad5b64
+            Session ID Length: 0
+            Cipher Suite: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 (0xc02b)
+            Compression Method: null (0)
+            Extensions Length: 24
+            Extension: renegotiation_info (len=1)
+                Type: renegotiation_info (65281)
+                Length: 1
+                Renegotiation Info extension
+                    Renegotiation info extension length: 0
+            Extension: use_srtp (len=5)
+                Type: use_srtp (14)
+                Length: 5
+                SRTP Protection Profiles Length: 2
+                SRTP Protection Profile: SRTP_AEAD_AES_128_GCM (0x0007)
+                MKI Length: 0
+            Extension: ec_point_formats (len=2)
+                Type: ec_point_formats (11)
+                Length: 2
+                EC point formats Length: 1
+                Elliptic curves point formats (1)
+                    EC point format: uncompressed (0)
+            Extension: extended_master_secret (len=0)
+                Type: extended_master_secret (23)
+                Length: 0
+            [JA3S Fullstring: 65277,49195,65281-14-11-23]
+            [JA3S: eeb7a12006b679344c81e682d2ae5951]
+```
+</details>
+
+<br>
+
 * Set Version to context.ProtocolVersion
 * Set Random to context.ServerRandom
 * Set CipherSuiteID to context.CipherSuite.ID
@@ -327,6 +647,99 @@ type Certificate struct {
 }
 ```
 
+<details>
+  <summary>Click to expand Wireshark capture (Sent): DTLS Certificate</summary>
+
+```
+Frame 513: 483 bytes on wire (3864 bits), 483 bytes captured (3864 bits) on interface lo0, id 0
+Null/Loopback
+Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
+User Datagram Protocol, Src Port: 15000, Dst Port: 52993
+Datagram Transport Layer Security
+    DTLSv1.2 Record Layer: Handshake Protocol: Certificate
+        Content Type: Handshake (22)
+        Version: DTLS 1.2 (0xfefd)
+        Epoch: 0
+        Sequence Number: 2
+        Length: 438
+        Handshake Protocol: Certificate
+            Handshake Type: Certificate (11)
+            Length: 426
+            Message Sequence: 2
+            Fragment Offset: 0
+            Fragment Length: 426
+            Certificates Length: 423
+            Certificates (423 bytes)
+                Certificate Length: 420
+                Certificate: 308201a030820146a0030201020211016d6af47768a9349159deffbcaaec2761300a0608… (id-at-commonName=WebRTC-Nuts-and-Bolts)
+                    signedCertificate
+                        version: v3 (2)
+                        serialNumber: 0x016d6af47768a9349159deffbcaaec2761
+                        signature (ecdsa-with-SHA256)
+                            Algorithm Id: 1.2.840.10045.4.3.2 (ecdsa-with-SHA256)
+                        issuer: rdnSequence (0)
+                            rdnSequence: 1 item (id-at-commonName=WebRTC-Nuts-and-Bolts)
+                                RDNSequence item: 1 item (id-at-commonName=WebRTC-Nuts-and-Bolts)
+                                    RelativeDistinguishedName item (id-at-commonName=WebRTC-Nuts-and-Bolts)
+                                        Id: 2.5.4.3 (id-at-commonName)
+                                        DirectoryString: printableString (1)
+                                            printableString: WebRTC-Nuts-and-Bolts
+                        validity
+                            notBefore: utcTime (0)
+                                utcTime: 2022-05-10 20:05:04 (UTC)
+                            notAfter: utcTime (0)
+                                utcTime: 2022-11-06 20:05:04 (UTC)
+                        subject: rdnSequence (0)
+                            rdnSequence: 1 item (id-at-commonName=WebRTC-Nuts-and-Bolts)
+                                RDNSequence item: 1 item (id-at-commonName=WebRTC-Nuts-and-Bolts)
+                                    RelativeDistinguishedName item (id-at-commonName=WebRTC-Nuts-and-Bolts)
+                                        Id: 2.5.4.3 (id-at-commonName)
+                                        DirectoryString: printableString (1)
+                                            printableString: WebRTC-Nuts-and-Bolts
+                        subjectPublicKeyInfo
+                            algorithm (id-ecPublicKey)
+                                Algorithm Id: 1.2.840.10045.2.1 (id-ecPublicKey)
+                                ECParameters: namedCurve (1)
+                                    namedCurve: 1.2.840.10045.3.1.7 (secp256r1)
+                            Padding: 0
+                            subjectPublicKey: 0470c752a7ef812d4c99e2a776188a3ad2b38de6c794dd124fdce1317c2c0a57eb51a983…
+                        extensions: 4 items
+                            Extension (id-ce-keyUsage)
+                                Extension Id: 2.5.29.15 (id-ce-keyUsage)
+                                critical: True
+                                Padding: 2
+                                KeyUsage: a4
+                                    1... .... = digitalSignature: True
+                                    .0.. .... = contentCommitment: False
+                                    ..1. .... = keyEncipherment: True
+                                    ...0 .... = dataEncipherment: False
+                                    .... 0... = keyAgreement: False
+                                    .... .1.. = keyCertSign: True
+                                    .... ..0. = cRLSign: False
+                                    .... ...0 = encipherOnly: False
+                                    0... .... = decipherOnly: False
+                            Extension (id-ce-extKeyUsage)
+                                Extension Id: 2.5.29.37 (id-ce-extKeyUsage)
+                                KeyPurposeIDs: 2 items
+                                    KeyPurposeId: 1.3.6.1.5.5.7.3.2 (id-kp-clientAuth)
+                                    KeyPurposeId: 1.3.6.1.5.5.7.3.1 (id-kp-serverAuth)
+                            Extension (id-ce-basicConstraints)
+                                Extension Id: 2.5.29.19 (id-ce-basicConstraints)
+                                critical: True
+                                BasicConstraintsSyntax
+                                    cA: True
+                            Extension (id-ce-subjectKeyIdentifier)
+                                Extension Id: 2.5.29.14 (id-ce-subjectKeyIdentifier)
+                                SubjectKeyIdentifier: ec5a0cc3ea06935d4482027434aae62cca6b8b8a
+                    algorithmIdentifier (ecdsa-with-SHA256)
+                        Algorithm Id: 1.2.840.10045.4.3.2 (ecdsa-with-SHA256)
+                    Padding: 0
+                    encrypted: 304502206b40cd413f21a016d5aa53325b2029e1a5ee3bddc2e49a9dadf97a5040718ff8…
+```
+</details>
+
+<br>
+
 * Set Certificates to ServerCertificate.Certificate
 
 We shared our X.509 Server Certificate data with the client.
@@ -352,6 +765,42 @@ type ServerKeyExchange struct {
     Signature         []byte
 }
 ```
+
+<details>
+  <summary>Click to expand Wireshark capture (Sent): DTLS ServerKeyExchange</summary>
+
+```
+Frame 514: 169 bytes on wire (1352 bits), 169 bytes captured (1352 bits) on interface lo0, id 0
+Null/Loopback
+Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
+User Datagram Protocol, Src Port: 15000, Dst Port: 52993
+Datagram Transport Layer Security
+    DTLSv1.2 Record Layer: Handshake Protocol: Server Key Exchange
+        Content Type: Handshake (22)
+        Version: DTLS 1.2 (0xfefd)
+        Epoch: 0
+        Sequence Number: 3
+        Length: 124
+        Handshake Protocol: Server Key Exchange
+            Handshake Type: Server Key Exchange (12)
+            Length: 112
+            Message Sequence: 3
+            Fragment Offset: 0
+            Fragment Length: 112
+            EC Diffie-Hellman Server Params
+                Curve Type: named_curve (0x03)
+                Named Curve: x25519 (0x001d)
+                Pubkey Length: 32
+                Pubkey: 845dc25870655b8c2c93129b13a4308c375c74179d0de751852aa02a679e6557
+                Signature Algorithm: ecdsa_secp256r1_sha256 (0x0403)
+                    Signature Hash Algorithm Hash: SHA256 (4)
+                    Signature Hash Algorithm Signature: ECDSA (3)
+                Signature Length: 72
+                Signature: 3046022100b8609b89a48945bee8ccad168c935466c2dcf46c8539bbf0f81ac6641e5db2…
+```
+</details>
+
+<br>
 
 * Set EllipticCurveType to context.CurveType (CurveTypeNamedCurve 0x03)
 * Set NamedCurve to context.Curve (CurveX25519 0x001d)
@@ -384,6 +833,41 @@ type CertificateRequest struct {
 }
 ```
 
+<details>
+  <summary>Click to expand Wireshark capture (Sent): DTLS CertificateRequest</summary>
+
+```
+Frame 515: 65 bytes on wire (520 bits), 65 bytes captured (520 bits) on interface lo0, id 0
+Null/Loopback
+Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
+User Datagram Protocol, Src Port: 15000, Dst Port: 52993
+Datagram Transport Layer Security
+    DTLSv1.2 Record Layer: Handshake Protocol: Certificate Request
+        Content Type: Handshake (22)
+        Version: DTLS 1.2 (0xfefd)
+        Epoch: 0
+        Sequence Number: 4
+        Length: 20
+        Handshake Protocol: Certificate Request
+            Handshake Type: Certificate Request (13)
+            Length: 8
+            Message Sequence: 4
+            Fragment Offset: 0
+            Fragment Length: 8
+            Certificate types count: 1
+            Certificate types (1 type)
+                Certificate type: ECDSA Sign (64)
+            Signature Hash Algorithms Length: 2
+            Signature Hash Algorithms (1 algorithm)
+                Signature Algorithm: ecdsa_secp256r1_sha256 (0x0403)
+                    Signature Hash Algorithm Hash: SHA256 (4)
+                    Signature Hash Algorithm Signature: ECDSA (3)
+            Distinguished Names Length: 0
+```
+</details>
+
+<br>
+
 * Set CertificateTypes to [CertificateTypeECDSASign (0x40)]
 * Set AlgoPairs to [AlgoPair{
     <br>
@@ -412,6 +896,32 @@ type ServerHelloDone struct {
 }
 ```
 
+<details>
+  <summary>Click to expand Wireshark capture (Sent): DTLS ServerHelloDone</summary>
+
+```
+Frame 516: 57 bytes on wire (456 bits), 57 bytes captured (456 bits) on interface lo0, id 0
+Null/Loopback
+Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
+User Datagram Protocol, Src Port: 15000, Dst Port: 52993
+Datagram Transport Layer Security
+    DTLSv1.2 Record Layer: Handshake Protocol: Server Hello Done
+        Content Type: Handshake (22)
+        Version: DTLS 1.2 (0xfefd)
+        Epoch: 0
+        Sequence Number: 5
+        Length: 12
+        Handshake Protocol: Server Hello Done
+            Handshake Type: Server Hello Done (14)
+            Length: 0
+            Message Sequence: 5
+            Fragment Offset: 0
+            Fragment Length: 0
+```
+</details>
+
+<br>
+
 The message doesn't carry any data.
 
 <img alt="Sent ServerHelloDone" src="images/05-09-sent-serverhellodone.png" style="width: 750px;max-width:75%;"></img>
@@ -435,6 +945,73 @@ type Certificate struct {
 }
 ```
 
+<details>
+  <summary>Click to expand Wireshark capture (Received): DTLS Certificate (came in combined packet)</summary>
+
+```
+Frame 522: 579 bytes on wire (4632 bits), 579 bytes captured (4632 bits) on interface lo0, id 0
+Null/Loopback
+Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
+User Datagram Protocol, Src Port: 52993, Dst Port: 15000
+Datagram Transport Layer Security
+    DTLSv1.2 Record Layer: Handshake Protocol: Certificate
+        Content Type: Handshake (22)
+        Version: DTLS 1.2 (0xfefd)
+        Epoch: 0
+        Sequence Number: 2
+        Length: 300
+        Handshake Protocol: Certificate
+            Handshake Type: Certificate (11)
+            Length: 288
+            Message Sequence: 2
+            Fragment Offset: 0
+            Fragment Length: 288
+            Certificates Length: 285
+            Certificates (285 bytes)
+                Certificate Length: 282
+                Certificate: 308201163081bda00302010202090087e9356f9f2916ea300a06082a8648ce3d04030230… (id-at-commonName=WebRTC)
+                    signedCertificate
+                        version: v3 (2)
+                        serialNumber: 0x0087e9356f9f2916ea
+                        signature (ecdsa-with-SHA256)
+                            Algorithm Id: 1.2.840.10045.4.3.2 (ecdsa-with-SHA256)
+                        issuer: rdnSequence (0)
+                            rdnSequence: 1 item (id-at-commonName=WebRTC)
+                                RDNSequence item: 1 item (id-at-commonName=WebRTC)
+                                    RelativeDistinguishedName item (id-at-commonName=WebRTC)
+                                        Id: 2.5.4.3 (id-at-commonName)
+                                        DirectoryString: uTF8String (4)
+                                            uTF8String: WebRTC
+                        validity
+                            notBefore: utcTime (0)
+                                utcTime: 2022-05-09 20:05:26 (UTC)
+                            notAfter: utcTime (0)
+                                utcTime: 2022-06-09 20:05:26 (UTC)
+                        subject: rdnSequence (0)
+                            rdnSequence: 1 item (id-at-commonName=WebRTC)
+                                RDNSequence item: 1 item (id-at-commonName=WebRTC)
+                                    RelativeDistinguishedName item (id-at-commonName=WebRTC)
+                                        Id: 2.5.4.3 (id-at-commonName)
+                                        DirectoryString: uTF8String (4)
+                                            uTF8String: WebRTC
+                        subjectPublicKeyInfo
+                            algorithm (id-ecPublicKey)
+                                Algorithm Id: 1.2.840.10045.2.1 (id-ecPublicKey)
+                                ECParameters: namedCurve (1)
+                                    namedCurve: 1.2.840.10045.3.1.7 (secp256r1)
+                            Padding: 0
+                            subjectPublicKey: 0417529a3b477764073e1eade96bf4916c96db64f753d61de4dc7ade47799d8ee5899998…
+                    algorithmIdentifier (ecdsa-with-SHA256)
+                        Algorithm Id: 1.2.840.10045.4.3.2 (ecdsa-with-SHA256)
+                    Padding: 0
+                    encrypted: 3045022100fe8422aaf94444773b82c63b20cd031afa23dd7feb4dcb0b2cf12132f04fd6…
+
+...
+```
+</details>
+
+<br>
+
 The client shared their X.509 Server Certificate data with the server. 
 
 * Set context.ClientCertificates to message.Certificates
@@ -455,6 +1032,40 @@ type ClientKeyExchange struct {
     PublicKey []byte
 }
 ```
+
+<details>
+  <summary>Click to expand Wireshark capture (Received): DTLS ClientKeyExchange (came in combined packet)</summary>
+
+```
+Frame 522: 579 bytes on wire (4632 bits), 579 bytes captured (4632 bits) on interface lo0, id 0
+Null/Loopback
+Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
+User Datagram Protocol, Src Port: 52993, Dst Port: 15000
+Datagram Transport Layer Security
+
+...
+
+    DTLSv1.2 Record Layer: Handshake Protocol: Client Key Exchange
+        Content Type: Handshake (22)
+        Version: DTLS 1.2 (0xfefd)
+        Epoch: 0
+        Sequence Number: 3
+        Length: 45
+        Handshake Protocol: Client Key Exchange
+            Handshake Type: Client Key Exchange (16)
+            Length: 33
+            Message Sequence: 3
+            Fragment Offset: 0
+            Fragment Length: 33
+            EC Diffie-Hellman Client Params
+                Pubkey Length: 32
+                Pubkey: 3377c79bef8cf1d25c9a3f9df5f8e4f5977147016afaa3c090dbfbf5f013007a
+
+...
+```
+</details>
+
+<br>
 
 * Set context.ClientKeyExchangePublic to message.PublicKey
 * If context.IsCipherSuiteInitialized is false (our cipher suite is not initialized yet), we are ready to initialize our cipher suite, call "initCipherSuite" function in from [backend/src/dtls/handshakemanager.go](../backend/src/dtls/handshakemanager.go)
@@ -581,7 +1192,7 @@ type GCM struct {
     localGCM, remoteGCM         cipher.AEAD
     localWriteIV, remoteWriteIV []byte
 }
-````
+```
 
 * We call "InitGCM" function in [backend/src/dtls/crypto.go](../backend/src/dtls/crypto.go) with our *context.ServerMasterSecret*, *clientRandom*, *serverRandom* and *context.CipherSuite*.
 
@@ -639,7 +1250,7 @@ func GenerateEncryptionKeys(masterSecret []byte, clientRandom []byte, serverRand
         ServerWriteIV:  serverWriteIV,
     }, nil
 }
-````
+```
 
 * You can find generated encryption keys below:
 
@@ -704,6 +1315,42 @@ type CertificateVerify struct {
 }
 ```
 
+<details>
+  <summary>Click to expand Wireshark capture (Received): DTLS CertificateVerify (came in combined packet)</summary>
+
+```
+Frame 522: 579 bytes on wire (4632 bits), 579 bytes captured (4632 bits) on interface lo0, id 0
+Null/Loopback
+Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
+User Datagram Protocol, Src Port: 52993, Dst Port: 15000
+Datagram Transport Layer Security
+
+...
+
+    DTLSv1.2 Record Layer: Handshake Protocol: Certificate Verify
+        Content Type: Handshake (22)
+        Version: DTLS 1.2 (0xfefd)
+        Epoch: 0
+        Sequence Number: 4
+        Length: 88
+        Handshake Protocol: Certificate Verify
+            Handshake Type: Certificate Verify (15)
+            Length: 76
+            Message Sequence: 4
+            Fragment Offset: 0
+            Fragment Length: 76
+            Signature Algorithm: ecdsa_secp256r1_sha256 (0x0403)
+                Signature Hash Algorithm Hash: SHA256 (4)
+                Signature Hash Algorithm Signature: ECDSA (3)
+            Signature length: 72
+            Signature: 30460221008002b23011ec9910f5af308336cbac1b48b6a011dc170ddbfe77dfb0b1a8a1…
+
+...
+```
+</details>
+
+<br>
+
 * Compare hash algorithm ID of incoming *message.AlgoPair.HashAlgorithm* and *context.CipherSuite.HashAlgorithm*
 * Compare signature algorithm ID of incoming *message.AlgoPair.SignatureAlgorithm* and *context.CipherSuite.SignatureAlgorithm*
 * Concatenate previous (sent and received) handshake messages as one byte array in a row via "concatHandshakeMessages" function in [backend/src/dtls/handshakemanager.go](../backend/src/dtls/handshakemanager.go). <br>
@@ -740,6 +1387,32 @@ type ChangeCipherSpec struct {
 }
 ```
 
+<details>
+  <summary>Click to expand Wireshark capture (Received): DTLS ChangeCipherSpec (came in combined packet)</summary>
+
+```
+Frame 522: 579 bytes on wire (4632 bits), 579 bytes captured (4632 bits) on interface lo0, id 0
+Null/Loopback
+Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
+User Datagram Protocol, Src Port: 52993, Dst Port: 15000
+Datagram Transport Layer Security
+
+...
+
+    DTLSv1.2 Record Layer: Change Cipher Spec Protocol: Change Cipher Spec
+        Content Type: Change Cipher Spec (20)
+        Version: DTLS 1.2 (0xfefd)
+        Epoch: 0
+        Sequence Number: 5
+        Length: 1
+        Change Cipher Spec Message
+
+...
+```
+</details>
+
+<br>
+
 This type of message contains only a byte with value 1. We don't do anything for this message.
 
 **Important note:** Epoch of Record Header were 0 and contents were in clear text (not encrypted) until (and including) this ChangeCipherSpec message. But the messages that will come after this, will have Epoch with 1 and will be encrypted.
@@ -758,6 +1431,34 @@ type Finished struct {
     VerifyData []byte
 }
 ```
+
+<details>
+  <summary>Click to expand Wireshark capture (Received): DTLS Finished (came in combined packet)</summary>
+<br>
+
+**Important note:** As you can see at the end of the block, latest handshake message (Finished) has Epoch: 1, and content was encrypted. Because of this, we can't see contents of it as clear text in Wireshark.
+
+```
+Frame 522: 579 bytes on wire (4632 bits), 579 bytes captured (4632 bits) on interface lo0, id 0
+Null/Loopback
+Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
+User Datagram Protocol, Src Port: 52993, Dst Port: 15000
+Datagram Transport Layer Security
+
+...
+
+    Record Layer
+        Content Type: Handshake (22)
+        Version: DTLS 1.2 (0xfefd)
+        Epoch: 1
+        Sequence Number: 0
+        Length: 48
+        Handshake Protocol
+(Encrypted content: 0x0001000000000000e22c7b2609d96a7d3a98c7b80e32ea03868231eb419623ce8af27b5ab97b16df143e8743ab0cb6ba)
+```
+</details>
+
+<br>
 
 **Important note:** Epoch of Record Header is 1 and, this Finished message is the first message which was encrypted. If we can decode and decrypt contents of this message successfully, then verify the VerifyData successfully, it means that, the handshake process for our side succeeded! After that we will send two other messages, then it will be "completely" finished!
 
@@ -796,6 +1497,27 @@ type ChangeCipherSpec struct {
 }
 ```
 
+<details>
+  <summary>Click to expand Wireshark capture (Sent): DTLS ChangeCipherSpec</summary>
+
+```
+Frame 549: 46 bytes on wire (368 bits), 46 bytes captured (368 bits) on interface lo0, id 0
+Null/Loopback
+Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
+User Datagram Protocol, Src Port: 15000, Dst Port: 52993
+Datagram Transport Layer Security
+    DTLSv1.2 Record Layer: Change Cipher Spec Protocol: Change Cipher Spec
+        Content Type: Change Cipher Spec (20)
+        Version: DTLS 1.2 (0xfefd)
+        Epoch: 0
+        Sequence Number: 6
+        Length: 1
+        Change Cipher Spec Message
+```
+</details>
+
+<br>
+
 This type of message contains only a byte with value 1.
 
 **Important note:** Epoch of Record Header were 0 and contents were in clear text (not encrypted) until (and including) this ChangeCipherSpec message. But the messages will be sent future, will have Epoch with 1, and will be encrypted.
@@ -819,6 +1541,32 @@ type Finished struct {
     VerifyData []byte
 }
 ```
+
+<details>
+  <summary>Click to expand Wireshark capture (Sent): DTLS Finished</summary>
+
+<br>
+
+**Important note:** As you can see at the end of the block, the handshake message (Finished) has Epoch: 1, and content was encrypted. Because of this, we can't see contents of it as clear text in Wireshark.
+
+```
+Frame 550: 93 bytes on wire (744 bits), 93 bytes captured (744 bits) on interface lo0, id 0
+Null/Loopback
+Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
+User Datagram Protocol, Src Port: 15000, Dst Port: 52993
+Datagram Transport Layer Security
+    Record Layer
+        Content Type: Handshake (22)
+        Version: DTLS 1.2 (0xfefd)
+        Epoch: 1
+        Sequence Number: 0
+        Length: 48
+        Handshake Protocol
+(Encrypted content: 0x61c244d15307ccaf237e2ef34fdd5bddff3d7d17cf3fcb837a80db65f777a2496c609b03d7a35b772754cc206bb16db2)
+```
+</details>
+
+<br>
 
 <img alt="Sent Finished" src="images/05-18-sent-finished.png" style="max-width:75%;"></img>
 

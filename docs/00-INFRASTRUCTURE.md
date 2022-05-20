@@ -1,6 +1,6 @@
 # **0. INFRASTRUCTURE**
 
-When you run the docker-compose.yml file individually (for production mode) or docker-compose.yml with docker-compose.dev.yml (for development mode, with VS Code, explained in [Development Mode: VS Code Remote - Containers](../README#dev-mode)), it will create two containers webrtcnb-ui (with [ui/Dockerfile](../ui/Dockerfile)) and webrtcnb-backend (with [backend/Dockerfile](../backend/Dockerfile))
+When you run the docker-compose.yml file individually (for production mode) or docker-compose.yml with docker-compose.dev.yml (for development mode, with VS Code, explained in [Development Mode: VS Code Remote - Containers](../README.md#dev-mode)), it will create two containers webrtcnb-ui (with [ui/Dockerfile](../ui/Dockerfile)) and webrtcnb-backend (with [backend/Dockerfile](../backend/Dockerfile))
 
 ## **0.1. Container webrtcnb-ui (ui/Dockerfile) is booting up...**
 

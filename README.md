@@ -34,7 +34,7 @@ The adventure of a WebRTC stream from start to finish can be found documented as
 
 ## **COVERAGE**
 
-Web front-end side: Pure Typescript implementation:
+Web front-end side: Pure TypeScript implementation:
 * Communicate with signaling backend WebSocket,
 * Gathering webcam streaming track from browser and send this track to backend via UDP.
 

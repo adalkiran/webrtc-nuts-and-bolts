@@ -58,7 +58,7 @@ While every time of the container starting up:
     build:
       context: backend # Dockerfile location
       args:
-        - VARIANT:1.18.1-bullseye
+        - VARIANT:1.20.2-bullseye
     # [Optional] Required for ptrace-based debuggers like C++, Go, and Rust
     cap_add:
       - SYS_PTRACE
@@ -75,7 +75,7 @@ While every time of the container starting up:
 
 <sup>Related part of [backend/Dockerfile](../backend/Dockerfile):</sup>
 ```dockerfile
-ARG VARIANT=1.18.1-bullseye
+ARG VARIANT=1.20.2-bullseye
 FROM golang:${VARIANT}
 
 COPY entrypoint.sh entrypoint-dev.sh /
@@ -89,7 +89,7 @@ WORKDIR /workspace
 ENTRYPOINT "/entrypoint.sh"
 ```
 
-This file inherits from *golang:1.18.1-bullseye* image which come up with an environment includes Go language support, libraries for processing VP8 (video) and OPUS (audio) encoding, on Debian "Bullseye" Linux Distribution. We don't need to install related things manually.
+This file inherits from *golang:1.20.2-bullseye* image which come up with an environment includes Go language support, libraries for processing VP8 (video) and OPUS (audio) encoding, on Debian "Bullseye" Linux Distribution. We don't need to install related things manually.
 
 While building the custom image (once):
 * Embeds [entrypoint.sh](../backend/entrypoint.sh) and [entrypoint-dev.sh](../backend/entrypoint-dev.sh) files into the custom image

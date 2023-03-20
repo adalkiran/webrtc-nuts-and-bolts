@@ -9,8 +9,12 @@ module.exports = {
     devtool: "inline-source-map",
     devServer: {
         host: "0.0.0.0",
-        publicPath: "/",
-        contentBase: "./dist",
+        devMiddleware: {
+            publicPath: "/"
+        },        
+        static: {
+            directory: "./dist"
+        },
         hot: true
     },
     output: {

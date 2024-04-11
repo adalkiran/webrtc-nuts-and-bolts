@@ -5,6 +5,7 @@ When you run the docker-compose.yml file individually (for production mode) or d
 ## **0.1. Container webrtcnb-ui (ui/Dockerfile) is booting up...**
 
 <sup>Related part of [docker-compose.yml](../docker-compose.yml):</sup>
+
 ```yml
 ...
   ui:
@@ -23,6 +24,7 @@ When you run the docker-compose.yml file individually (for production mode) or d
 ```
 
 <sup>Related part of [ui/Dockerfile](../ui/Dockerfile):</sup>
+
 ```dockerfile
 ARG VARIANT=18-bullseye
 FROM mcr.microsoft.com/vscode/devcontainers/typescript-node:0-${VARIANT}
@@ -37,9 +39,11 @@ ENTRYPOINT yarn install && npm run start
 This file inherits from *mcr.microsoft.com/vscode/devcontainers/typescript-node:18-bullseye* image which come up with an environment includes NodeJS, Webpack, Webpack Dev Server, TypeScript, over Debian "Bullseye" Linux Distribution. We don't need to install related things manually.
 
 While building the custom image (once):
+
 * Runs *apt-get update* to update installed OS dependencies
 
 While every time of the container starting up:
+
 * Boots up *webrtcnb-ui* container
 * Maps */ui* directory (in host machine) to */workspace* (in container)
 * Exposes container's *8080* port to the host (so we can browse the website served in the container)
@@ -50,6 +54,7 @@ While every time of the container starting up:
 ## **0.2. Container webrtcnb-backend (backend/Dockerfile) is booting up...**
 
 <sup>Related part of [docker-compose.yml](../docker-compose.yml):</sup>
+
 ```yml
 ...
   backend:
@@ -74,6 +79,7 @@ While every time of the container starting up:
 ```
 
 <sup>Related part of [backend/Dockerfile](../backend/Dockerfile):</sup>
+
 ```dockerfile
 ARG VARIANT=1.20.2-bullseye
 FROM golang:${VARIANT}
@@ -92,12 +98,14 @@ ENTRYPOINT "/entrypoint.sh"
 This file inherits from *golang:1.20.2-bullseye* image which come up with an environment includes Go language support, libraries for processing VP8 (video) and OPUS (audio) encoding, on Debian "Bullseye" Linux Distribution. We don't need to install related things manually.
 
 While building the custom image (once):
+
 * Embeds [entrypoint.sh](../backend/entrypoint.sh) and [entrypoint-dev.sh](../backend/entrypoint-dev.sh) files into the custom image
 * Runs *apt-get update* to update installed OS dependencies
 * Installs [libvpx](https://en.wikipedia.org/wiki/Libvpx) and other codec libraries. Currently we use the libvpx one only.
 * Allows the entrypoint shell script files to be executed.
 
 While every time of the container starting up:
+
 * Boots up *webrtcnb-backend* container
 * Maps */backend* directory (in host machine) to */workspace* (in container)
 * Exposes container's *8081* port to the host (so our browser can access the websocket served in the container)
@@ -106,6 +114,7 @@ While every time of the container starting up:
 * Executes *[entrypoint.sh](../backend/entrypoint.sh)* or *[entrypoint-dev.sh](../backend/entrypoint-dev.sh)* according to which mode (production or development) it runs.
 
 <sup>Related part of [backend/entrypoint.sh](../backend/entrypoint.sh):</sup>
+
 ```sh
 echo "Downloading dependent Go modules..."
 go mod download -x
@@ -115,6 +124,7 @@ go run .
 ```
 
 <sup>Related part of [backend/entrypoint-dev.sh](../backend/entrypoint-dev.sh):</sup>
+
 ```sh
 echo "Downloading dependent Go modules..."
 go mod download -x
@@ -123,6 +133,7 @@ tail -f /dev/null
 ```
 
 * Both entrypoint.sh and entrypoint-dev.sh files call *go mod download -x* to download and install related Go language dependencies defined in [go.mod](../backend/go.mod) (this step can take some time)
+
     * If it is in production mode, it calls
     <br>*go run .*
     <br>to start our server immediately.
@@ -137,6 +148,7 @@ If you followed up related instructions correctly, you can see outputs like thes
 * Checking the containers are running:
 
 Expected output (can vary)
+
 ```console
 $ docker ps
 
@@ -150,6 +162,7 @@ CONTAINER ID   IMAGE                           COMMAND                  CREATED 
 If you can see *｢wdm｣: Compiled successfully.* in latest output, it has started serving successfully.
 
 Expected output (can vary) (you can exit by pressing <kbd>CTRL+C</kbd>)
+
 ```console
 $ docker logs -f webrtcnb-ui
 
@@ -181,7 +194,7 @@ webpack 5.72.0 compiled successfully in 4333 ms
 
 If you can see *Running into Waiting loop...* in latest output, it has started successfully and waiting for you to start the server application manually.
 
-```console
+```sh
 $ docker logs -f webrtcnb-backend
 
 Container started

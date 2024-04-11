@@ -1,0 +1,12 @@
+*
+!.gitignore
+!mkdocs.yml.template
+!*.sh
+!stylesheets
+!stylesheets/**/*
+!javascripts
+!javascripts/**/*
+!assets
+!assets/**/*
+!extra-content
+!extra-content/**/*

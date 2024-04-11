@@ -1,0 +1,102 @@
+site_name: WebRTC Nuts and Bolts
+site_url: https://adalkiran.github.io/webrtc-nuts-and-bolts/
+site_author: Adil Alper DALKIRAN
+site_description: A holistic way of understanding how WebRTC and its protocols run in practice, with code and detailed documentation.
+copyright: Copyright &copy; 2022 - present, Adil Alper DALKIRAN. All rights reserved.
+repo_url: https://github.com/adalkiran/webrtc-nuts-and-bolts
+repo_name: adalkiran/webrtc-nuts-and-bolts
+
+theme:
+  name: 'material'
+  logo: 'assets/icon.svg'
+  favicon: 'assets/icon.png'
+  features:
+    - toc.follow
+    - toc.integrate
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.top
+    - navigation.tracking
+    - navigation.footer
+    - content.code.copy
+  icon:
+    repo: fontawesome/brands/github
+  palette: 
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default 
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to system preference
+
+extra_css:
+  - stylesheets/custom.css
+
+nav:
+  - LLaMA Nuts and Bolts: '../llama-nuts-and-bolts'
+  - 'WebRTC Nuts and Bolts':
+{{navigation_placeholder}}
+  - 'Contact': 'https://www.linkedin.com/in/alper-dalkiran/'
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      name: 'adalkiran'
+      link: https://github.com/adalkiran
+    - icon: fontawesome/brands/x-twitter
+      name: '@aadalkiran'
+      link: https://www.linkedin.com/in/alper-dalkiran/
+    - icon: fontawesome/brands/linkedin
+      name: 'in/alper-dalkiran'
+      link: https://www.linkedin.com/in/alper-dalkiran/
+  analytics:
+    provider: google
+    property: G-05VMCF3NF0
+#  consent:
+#    title: Cookie consent
+#    description: >- 
+#      We use cookies to recognize your repeated visits and preferences, as well
+#      as to measure the effectiveness of our documentation and whether users
+#      find what they're searching for. With your consent, you're helping us to
+#      make our documentation better.
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+  - md_in_html
+  - pymdownx.arithmatex:
+      generic: true
+      inline_syntax: ['dollar']
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+      use_pygments: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+plugins:
+  - social
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js

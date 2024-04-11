@@ -10,10 +10,11 @@ Now, we can visit our web application by opening a browser window and writing ht
 
 When the web page was loaded, we run initialization code.
 
-We defined *RTC* and *Signaling* classes in TypeScript in the same file [ui/src/app.ts](../ui/src/app.ts), we create an instance for each one, assign them as property of *window* object to access them globally, our first focus is not "clean code" in this project :)
+We defined *RTC* and *Signaling* classes in TypeScript in the same file [ui/src/app.ts](../ui/src/app.ts), we create an instance for each one, assign them as property of *window* object to access them globally, our first focus is not "clean code" in this project :blush:
 We add onClick event handlers for our two buttons, *BtnCreatePC* and *BtnStopPC* to start and stop our PeerConnection. We also add onBeforeUnload event handler to *window* to close open connections gracefully, so we can inform the server application "hey, we are leaving the conference" on closing the browser tab/window.
 
 <sup>from [ui/src/app.ts](../ui/src/app.ts)</sup>
+
 ```ts
 const rtc = new RTC();
 (<any>window).rtc = rtc;
@@ -31,10 +32,7 @@ function initApp() {
 initApp();
 ```
 
-<br>
-
 ## **3.1. Initialization of RTC object**
-<br>
 
 In the constructor of the *RTC* class, calls the "createLocalPeerConnection" function which creates a [RTCPeerConnection](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection), which represents a connection between the local device and a remote peer. This is a native browser API object.
 
@@ -43,6 +41,7 @@ The [constructor of *RTCPeerConnection*](https://developer.mozilla.org/en-US/doc
 We assign some event handlers for some events, which we will discuss further. We assign handlers to some of them only to print to console, to be informed: "This event was fired".
 
 <sup>from [ui/src/app.ts](../ui/src/app.ts)</sup>
+
 ```ts
     ...
     createLocalPeerConnection() {
@@ -86,22 +85,18 @@ We assign some event handlers for some events, which we will discuss further. We
     ...
 ```
 
-<br>
-
 ## **3.2. Let the show begin!**
-<br>
 
 We discussed lots of boring stuff so far (unfortunately there is more)... Now, we click on the "Create PeerConnection" button to start the show!
 
-<br>
-
 ### **3.2.1 Creating streams, connecting to Signaling Server WebSocket**
-<br>
 
 The button click will call "rtc.start()" function which:
+
 * Calls "createLocalTracks" method, that says to the browser, "I want a video stream of default webcam, if it can be, should be in height 720p, also I want an audio stream of default microphone". The browser returns a [Promise&lt;MediaStream&gt;](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise), which we should wait for asking for permissions and (if available and permitted) initialization of camera and microphone devices.
 
 <sup>from [ui/src/app.ts](../ui/src/app.ts)</sup>
+
 ```ts
     createLocalTracks(): Promise<MediaStream> {
         return navigator.mediaDevices.getUserMedia({
@@ -116,6 +111,7 @@ The button click will call "rtc.start()" function which:
 * We called this.createLocalTracks, chained further operations by "then" to the returned Promise, and waiting for the browser asks for permissions and create streams for us.
 
 <sup>from [ui/src/app.ts](../ui/src/app.ts)</sup>
+
 ```ts
     start() {
         return this.createLocalTracks()
@@ -151,6 +147,7 @@ You can find detailed information about the signaling flow here: [Signaling tran
 We add related event handlers to our WebSocket client object. We will discuss on "ws.onmessage" futher.
 
 <sup>from [ui/src/app.ts](../ui/src/app.ts)</sup>
+
 ```ts
     connect() {
         console.log("Start connect() http://localhost:8081/ws/");
@@ -175,15 +172,13 @@ We add related event handlers to our WebSocket client object. We will discuss on
 
 * Now we are waiting for "Welcome" message from the Signaling Server.
 
-<br>
-
 ### **3.2.2 The Signaling Server welcomes the client**
-<br>
 
 When we make the first contact with the backend WebSocket with connecting, "serveWs" function in [backend/src/signaling/httpserver.go](../backend/src/signaling/httpserver.go)
 will be triggered. This function creates a WsClient object (defined in [backend/src/signaling/wsclient.go](../backend/src/signaling/wsclient.go)) and it forwards to the wsHub's "register" [channel](https://go.dev/tour/concurrency/2). This channel is listened by run() function of WsHub object, shown below:
 
 <sup>from [backend/src/signaling/httpserver.go](../backend/src/signaling/httpserver.go)</sup>
+
 ```go
 func (s *HttpServer) serveWs(w http.ResponseWriter, r *http.Request) {
     ...
@@ -196,6 +191,7 @@ func (s *HttpServer) serveWs(w http.ResponseWriter, r *http.Request) {
 This method in an infinite loop, when a message forwarded to "register" channel, it registers the new incoming client object itself, and sends a "ClientWelcomeMessage" with message type "Welcome".
 
 <sup>from [backend/src/signaling/wshub.go](../backend/src/signaling/wshub.go)</sup>
+
 ```go
 func (h *WsHub) run() {
     for {
@@ -216,10 +212,7 @@ func (h *WsHub) run() {
 }
 ```
 
-<br>
-
 ### **3.2.3 The client receives the *Welcome* message of Signaling Server, then sends *JoinConference* request**
-<br>
 
 When any data is received by the WebSocket client, the "ws.onmessage" event will be fired.
 
@@ -228,6 +221,7 @@ When any data is received by the WebSocket client, the "ws.onmessage" event will
 The "Welcome message" coming from the server is processed by switch case for "Welcome" "data.type". The code below sends a JSON message that says "I want to join the conference named 'defaultConference'".
 
 <sup>Generated and sent JSON:</sup>
+
 ```json
 {
     "type": "JoinConference", 
@@ -238,6 +232,7 @@ The "Welcome message" coming from the server is processed by switch case for "We
 ```
 
 <sup>from [ui/src/app.ts](../ui/src/app.ts)</sup>
+
 ```ts
     this.ws.onmessage = (message) => {
         const data = message.data ? JSON.parse(message.data) : null;
@@ -257,14 +252,13 @@ The "Welcome message" coming from the server is processed by switch case for "We
     }
 ```
 
-<br>
-
 ### **3.2.4 The client receives the *Welcome* message of Signaling Server, sends *JoinConference* request, then server  sends SDP Offer**
-<br>
 
 This method in an infinite loop, when a message forwarded to "messageReceived" channel, it [Unmarshalls](https://pkg.go.dev/encoding/json#Unmarshal) it, looks the type attribute of the JSON.
 <br>
+
 If it is "JoinConference":
+
 * It calls "processJoinConference" function of WsHub object.
 * After, "EnsureConference" function in [backend/src/conference/conferencemanager.go](../backend/src/conference/conferencemanager.go) is called to create a conference object if not exists.
 <br>
@@ -273,12 +267,13 @@ This function calls "NewConference", which creates a conference object and a new
 This agent will store signaled SDP data and UDP sockets related with the conference. Every ICE Agent has a unique Ufrag and Pwd string, which randomly generated while creating the instance. This Ufrag and Pwd data will be sent to the client inside SDP Offer.
 <br>
 <br>
-**Note:** By these Conference and ServerAgent objects per conference, we are able to manage multiple different conference rooms, but in this sample project we use only one conference name "defaultConference", and it doesn't count as a complete conference anyways :)
+**Note:** By these Conference and ServerAgent objects per conference, we are able to manage multiple different conference rooms, but in this sample project we use only one conference name "defaultConference", and it doesn't count as a complete conference anyways :blush:
 * Then, "GenerateSdpOffer" function in [backend/src/sdp/sdp.go](../backend/src/sdp/sdp.go) is called to create an SDP Offer data, containing media types, ICE candidates' IP and port data, etc...
 <br>
 The generated SDP Offer data is sent to the client as JSON via Signaling WebSocket.
 
 <sup>from [backend/src/conference/conference.go](../backend/src/conference/conference.go)</sup>
+
 ```go
 func NewConference(conferenceName string, candidateIPs []string, udpPort int) *Conference {
     result := &Conference{
@@ -290,6 +285,7 @@ func NewConference(conferenceName string, candidateIPs []string, udpPort int) *C
 ```
 
 <sup>from [backend/src/signaling/wshub.go](../backend/src/signaling/wshub.go)</sup>
+
 ```go
 func (h *WsHub) run() {
     for {
@@ -313,10 +309,7 @@ During this process, our server console will be similar to this:
 
 ![Server: a new client connected](images/03-05-server-a-new-client-connected.png)
 
-<br>
-
 ### **3.2.5 The client receives the *SdpOffer* message of Signaling Server**
-<br>
 
 When any data was received by the WebSocket client, the "ws.onmessage" event will be fired.
 
@@ -327,6 +320,7 @@ The "SDP Offer message" coming from the server is processed by switch case for "
 * This message came as JSON, we need to convert it to [SDP format](https://en.wikipedia.org/wiki/Session_Description_Protocol) via [sdp-transform](https://www.npmjs.com/package/sdp-transform) library.
 
 <sup>from [ui/src/app.ts](../ui/src/app.ts)</sup>
+
 ```ts
     this.ws.onmessage = (message) => {
         ...
@@ -395,6 +389,7 @@ The "SDP Offer message" coming from the server is processed by switch case for "
         }
     }
 ```
+
 * The JSON message converted to the SDP format as:
 
 ![Browser Received SDP Offer](images/03-07-browser-received-sdpoffer.png)
@@ -402,6 +397,7 @@ The "SDP Offer message" coming from the server is processed by switch case for "
 * We give the SDP Offer string to "acceptOffer" function of our *RTC* object. This function calls [setRemoteDescription](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/setRemoteDescription) function of our RTCPeerConnection object. By this, we say our the localConnection (RTCPeerConnection) that "You fired the 'onnegotiationneeded' event and wanted us to SDP Offer/Answer negotiation, we did it and please take it then create an SDP Answer for us".
 
 <sup>from [ui/src/app.ts](../ui/src/app.ts)</sup>
+
 ```ts
     acceptOffer(offerSdp: string) {
         return this.localConnection.setRemoteDescription({
@@ -434,22 +430,22 @@ The "SDP Offer message" coming from the server is processed by switch case for "
 * On onicecandidate event fired when our localConnection object's iceGatheringState value comes 'complete', it's time to parse *localConnection.localDescription.sdp* value (generated SDP Answer above), give it to "sendSdpToSignaling" function, converts this SDP Answer to JSON and sends to the client via Signaling.
 
 <sup>from [ui/src/app.ts](../ui/src/app.ts)</sup>
+
 ```ts
 sendSdpToSignaling(parsedSdp: sdpTransform.SessionDescription) {
     console.log('sendSdpToSignaling', parsedSdp);
     signaling.ws.send(JSON.stringify({type: "SdpOfferAnswer", data: parsedSdp}));
 }
 ```
+
 ![Browser SDP Answer via Signaling](images/03-11-browser-send-sdp-answer-signaling.png)
 
-<br>
-
 ### **3.2.6 The server receives the *SdpAnswer* message of Signaling Server**
-<br>
 
 The client generated the SDP Answer corresponding to the SDP Offer the server sent. Then we forward it to ConferenceManager's ChanSdpOffer channel.
 
 <sup>from [backend/src/signaling/wshub.go](../backend/src/signaling/wshub.go)</sup>
+
 ```go
 func (h *WsHub) run() {
     for {
@@ -474,6 +470,7 @@ func (h *WsHub) run() {
 This method in an infinite loop, when a message forwarded to "ChanSdpOffer" channel, it loops over the incoming SDP Answer's media items, gives items to "EnsureSignalingMediaComponent" function of ServerAgent in [backend/src/agent/serveragent.go](../backend/src/agent/serveragent.go). This function creates SignalingMediaComponent objects per media item, then adds them to "SignalingMediaComponents" property of the ServerAgent. When UDP connection started, the UDP listener compares the ICE information coming from UDP and previously came "SignalingMediaComponents" via Signaling.
 
 <sup>from [backend/src/conference/conferencemanager.go](../backend/src/conference/conferencemanager.go)</sup>
+
 ```go
 func (m *ConferenceManager) Run(waitGroup *sync.WaitGroup) {
     defer waitGroup.Done()

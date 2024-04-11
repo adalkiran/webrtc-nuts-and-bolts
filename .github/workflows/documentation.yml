@@ -1,0 +1,45 @@
+name: Release Documentation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'docs-mkdocs'
+      - 'main'
+    paths:
+        - 'docs/**'
+        - '.github/workflows/**'
+  pull_request:
+    branches:
+      - 'main'
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    name: Deploy documentation
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        sparse-checkout: |
+          .github
+          docs
+
+    - name: Prepare files
+      run: chmod +x docs/mkdocs/prepare-mkdocs.sh && cd docs && ./mkdocs/prepare-mkdocs.sh
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12.2'
+  
+    - name: Install mkdocs
+      run: pip install mkdocs-material mkdocs-material[imaging]
+  
+    - name: Perform deployment
+      run: cd docs/mkdocs && mkdocs gh-deploy --force
+

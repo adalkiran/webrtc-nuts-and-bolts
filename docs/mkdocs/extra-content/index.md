@@ -1,9 +1,20 @@
-# <img src="docs/images/icon.svg" width="24"></img> **WebRTC Nuts and Bolts**
+---
+title: HOME
+type: docs
+menus:
+  - main
+weight: 0
+---
+# <img src="assets/icon.svg" style="width: 0.8em"></img> **WebRTC Nuts and Bolts**
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white&style=flat-square)](https://www.linkedin.com/in/alper-dalkiran/)
 [![Twitter](https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white&style=flat-square)](https://twitter.com/aalperdalkiran)
 ![HitCount](https://hits.dwyl.com/adalkiran/webrtc-nuts-and-bolts.svg?style=flat-square)
 ![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
+
+!!! info "Welcome!"
+
+    This documentation website is a customized version of original documentation of the [:fontawesome-brands-github: WebRTC Nuts and Bolts repository](https://github.com/adalkiran/webrtc-nuts-and-bolts). You can find the running Go implementation of the project codes in this repository.
 
 A holistic way of understanding how WebRTC and its protocols run in practice, **with code and detailed documentation**. "The nuts and bolts" (practical side instead of theoretical facts, pure implementation details) of required protocols without using external dependencies or libraries.
 
@@ -11,7 +22,7 @@ When you run the project and follow the instructions, web page initializes the w
 
 You can track which steps taken during this journey by debugging or tracking the output at console.
 
-![Backend initial output](docs/images/01-07-backend-initial-output.png)
+![Backend initial output](images/01-07-backend-initial-output.png)
 
 ## :thought_balloon: **WHY THIS PROJECT?**
 
@@ -20,10 +31,6 @@ This project was initially started to learn Go language and was made for experim
 After some progress on the development, I decided to pivot my experimental work to a walkthrough document. Because although there are lots of resources that exist already on the Internet, they cover small chunks of WebRTC concepts or protocols atomically. And they use the standard way of inductive method which teach in pieces then assemble them.
 
 But my style of learning leans on the deductive method instead of others, so instead of learning atomic pieces and concepts first, going linearly from beginning to the end, and learning an atomic piece on the time when learning this piece is required.
-
-## :blue_book: **DOCUMENTATION**
-
-The adventure of a WebRTC stream from start to finish can be found documented as step by step at [WebRTC Nuts and Bolts - GitHub Pages](https://adalkiran.github.io/webrtc-nuts-and-bolts/) website with a visually better experience, or at [docs directory](./docs/).
 
 ## :dart: **COVERAGE**
 
@@ -47,47 +54,7 @@ Server back-end side: Pure Go language implementation:
 
 ## :package: **INSTALLATION and RUNNING**
 
-This project was designed to run in Docker Container. Docker Compose file creates two containers: webrtcnb-ui and webrtcnb-backend.
-
-**Important Note:**
-<br>
-First of all, you should learn your machine's LAN IP address and write it into [backend/config.yml](backend/config.yml) file at server/udp/dockerHostIp section.
-<br>
-Because, we didn't configure the docker networking type as "host", and the backend application in the container cannot discover the host machine's (your physical computer) real LAN IP but it needs this information to run correctly. Unfortunately, it can't run with 127.0.0.1. The LAN IPs usually start with 192 or 10.
-<br>
-Tried to configure the docker networking type as "host", but it doesn't work in Docker Desktop for Mac, because of Docker's subsystem runs in a Linux VM on MacOS, and it always returns 192.168.65.1 as gateway.
-
-You can run it production mode or development mode.
-
-### **Production Mode**
-
-* Clone this repo and run in terminal:
-
-```sh
-$ docker-compose up -d
-```
-
-* Wait until Go and Node modules were installed and configured. This can take some time. You can checkout the download status by:
-
-```sh
-$ docker-compose logs -f
-```
-
-* After waiting for enough time, open a web browser and visit http://localhost:8080 (Tested on Chrome)
-
-### <a name="dev-mode"></a>**Development Mode: VS Code Remote - Containers**
-
-To continue with VS Code and if this is your first time to work with Remote Containers in VS Code, you can checkout [this link](https://code.visualstudio.com/docs/remote/containers) to learn how Remote Containers work in VS Code and follow the installation steps of [Remote Development extension pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack).
-
-Then, follow these steps:
-
-* Clone this repo to your local filesystem
-* Open the folder "webrtc-nuts-and-bolts" with VS Code by "Open Folder..." command. This opens the root folder of the project.
-* Press <kbd>F1</kbd> and select **"Remote Containers: Open Folder in Container..."** then select "backend" folder in "webrtc-nuts-and-bolts".
-* This command creates (if they don't exist) required containers in Docker, then connects inside of webrtcnb-backend container for development and debugging purposes.
-* Wait until the containers created, configured and related VS Code server extensions installed inside the container. This can take some time. VS Code can ask for some required installations, click "Install All" for these prompts.
-* After completion of all installations, press <kbd>F5</kbd> to start server application.
-* Then, open a web browser and visit http://localhost:8080 (Tested on Chrome)
+Installation and building instructions are described at [:fontawesome-brands-github: GitHub README](https://github.com/adalkiran/webrtc-nuts-and-bolts#package-installation-and-running).
 
 ## :bricks: **ASSUMPTIONS**
 
@@ -108,7 +75,7 @@ In **WebRTC Nuts and Bolts** scenario, some assumptions have been made to focus 
 
 You are welcome to [create issues](https://github.com/adalkiran/webrtc-nuts-and-bolts/issues/new) to report any bugs or problems you encounter. At present, I'm not sure whether this project should be expanded to cover more concepts or not. Only time will tell :blush:.
 
-If you liked and found my project helpful and valuable, I would greatly appreciate it if you could give the repo a star :star: on GitHub. Your support and feedback not only help the project improve and grow but also contribute to reaching a wider audience within the community. Additionally, it motivates me to create even more innovative projects in the future.
+If you liked and found my project helpful and valuable, I would greatly appreciate it if you could give the repo a star :star: on [:fontawesome-brands-github: GitHub](https://github.com/adalkiran/webrtc-nuts-and-bolts). Your support and feedback not only help the project improve and grow but also contribute to reaching a wider audience within the community. Additionally, it motivates me to create even more innovative projects in the future.
 
 ## :book: **RESOURCES**
 
@@ -130,4 +97,4 @@ I want to thank to contributors of the awesome sources which were referred durin
 
 ## :scroll: **LICENSE**
 
-WebRTC Nuts and Bolts is licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for the full license text.
+WebRTC Nuts and Bolts is licensed under the Apache License, Version 2.0. See [LICENSE](https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/LICENSE) for the full license text.

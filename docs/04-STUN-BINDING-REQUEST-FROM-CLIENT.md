@@ -1,6 +1,7 @@
 # **4. STUN BINDING REQUEST FROM CLIENT**
 
 In previous chapters:
+
 * The client joined the conference room
 * Initialized webcam and microphone devices, created media stream, video and audio tracks
 * The client and the server exchanged SDP Offer and Answer via Signaling WebSocket
@@ -8,10 +9,7 @@ In previous chapters:
 
 Note: For detailed information about STUN Protocol, you can find at "2.4.2. Implementing STUN Protocol (as Client)" chapter in [2. BACKEND INITIALIZATION](./02-BACKEND-INITIALIZATION.md)
 
-<br>
-
 ## **4.1. UDP Demultiplexing**
-<br>
 
 First of all, this is our first "expected" packet incoming via UDP. " Demultiplexing" mechanism on sockets are implemented in a different (well architected) way, but in this project, we implemented the plain way. Let's explain our demultiplexing mechanism:
 
@@ -21,6 +19,7 @@ First of all, this is our first "expected" packet incoming via UDP. " Demultiple
 * The "AddBuffer" function checks which protocol the packet can be related with:
 
 <sup>from [backend/src/agent/udpclientsocket.go](../backend/src/agent/udpclientsocket.go)</sup>
+
 ```go
 func (ms *UDPClientSocket) AddBuffer(buf []byte, offset int, arrayLen int) {
     logging.Descf(logging.ProtoUDP, "A packet received. The byte array (<u>%d bytes</u>) not parsed yet. Demultiplexing via if-else blocks.", arrayLen)
@@ -44,22 +43,25 @@ func (ms *UDPClientSocket) AddBuffer(buf []byte, offset int, arrayLen int) {
 ```
 
 In this context, we can check out stun.IsMessage function. This function checks:
-  * Data length (arrayLen) is greater than messageHeaderSize (20 bytes)
-  <br>and
-  * 4 bytes after 4. byte (between 4. and 8. indices) equals to STUN magicCookie (constant value, 0x2112A442).
+
+* Data length (arrayLen) is greater than messageHeaderSize (20 bytes)
+<br>and
+* 4 bytes after 4. byte (between 4. and 8. indices) equals to STUN magicCookie (constant value, 0x2112A442).
 
 If this buffer part complies with these conditions, we can say "this packet is a STUN protocol packet", then we can process it with STUN protocol's methods.
 
 <sup>from [backend/src/stun/message.go](../backend/src/stun/message.go)</sup>
+
 ```go
 func IsMessage(buf []byte, offset int, arrayLen int) bool {
     return arrayLen >= messageHeaderSize && binary.BigEndian.Uint32(buf[offset+4:offset+8]) == magicCookie
 }
 ```
-<details>
+
+<details markdown>
   <summary>Click to expand Wireshark capture (Received): STUN Binding Request</summary>
 
-```
+```console
 Frame 414: 140 bytes on wire (1120 bits), 140 bytes captured (1120 bits) on interface lo0, id 0
 Null/Loopback
 Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
@@ -111,15 +113,15 @@ Session Traversal Utilities for NAT
             Attribute Length: 4
             CRC-32: 0xaaff24d0
 ```
-</details>
 
-<br>
+</details>
 
 Here is the console output when the server received an "expected" STUN Binding Request.
 
 ![Server Receive STUN Binding Request](images/04-01-server-received-stun-binding-request.png)
 
 After we determined that this packet is STUN packet, our steps will be:
+
 * Decode the byte array as stun.Message object via "DecodeMessage" function [backend/src/stun/message.go](../backend/src/stun/message.go)
 * Validate the STUN packet's integrity via HMAC and fingerprint via CRC32, by "Validate" function [backend/src/stun/message.go](../backend/src/stun/message.go)
 * We only support "Binding Request" message type as incoming STUN packet, because of this, we have only one case.
@@ -128,6 +130,7 @@ After we determined that this packet is STUN packet, our steps will be:
 * If everything is OK, we create a STUN Binding Response packet (by calling "createBindingResponse" function) and send it. This means "I accept your request, we can communicate by this channel, send me DTLS ClientHello message".
 
 <sup>from [backend/src/agent/udpclientsocket.go](../backend/src/agent/udpclientsocket.go)</sup>
+
 ```go
     switch stunMessage.MessageType {
     case stun.MessageTypeBindingRequest:
@@ -159,10 +162,10 @@ After we determined that this packet is STUN packet, our steps will be:
     }
 ```
 
-<details>
+<details markdown>
   <summary>Click to expand Wireshark capture (Sent): STUN Binding Response</summary>
 
-```
+```console
 Frame 451: 144 bytes on wire (1152 bits), 144 bytes captured (1152 bits) on interface lo0, id 0
 Null/Loopback
 Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
@@ -217,9 +220,8 @@ Session Traversal Utilities for NAT
             Attribute Length: 4
             CRC-32: 0x8387d149
 ```
-</details>
 
-<br>
+</details>
 
 Now, the client will send a [ClientHello](https://datatracker.ietf.org/doc/html/rfc5246#section-7.4.1.2) message and we can start the [DTLS Handshake](https://datatracker.ietf.org/doc/html/rfc4347#section-4.2) process.
 

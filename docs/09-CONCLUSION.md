@@ -1,8 +1,8 @@
 # **9. CONCLUSION**
 
-If you really read all of my journey in this walkthrough documentation, I want to congratulate you for your perseverance, patience, and durability :) Also, I want to thank you for your interest.
+If you really read all of my journey in this walkthrough documentation, I want to congratulate you for your perseverance, patience, and durability :blush: Also, I want to thank you for your interest.
 
-If you liked this repo, you can give a star on Github :)
+If you liked this repo, you can give a star :star: on GitHub. Your support and feedback not only help the project improve and grow but also contribute to reaching a wider audience within the community. Additionally, it motivates me to create even more innovative projects in the future.
 
 Also thanks to contributors of the awesome sources which were referred during development of this project and writing this documentation. You can find these sources in [README](../README.md), also in between the lines.
 

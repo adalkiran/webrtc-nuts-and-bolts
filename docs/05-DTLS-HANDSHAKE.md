@@ -6,7 +6,7 @@ In previous chapter, we received first "expected" UDP packet (STUN Binding Reque
 
 DTLS Handshake consists of some "flights" between client and server, schematized [here](https://tools.ietf.org/html/rfc4347#section-4.2.4) as:
 
-```
+```console
     ------                                          ------
 
     ClientHello             -------->                           Flight 1
@@ -33,23 +33,23 @@ DTLS Handshake consists of some "flights" between client and server, schematized
 ```
 
 Sources:
+
 * [Breaking Down the TLS Handshake](https://www.youtube.com/watch?v=cuR05y_2Gxc&list=PLyqga7AXMtPMXgn1NwDqnSlgU05cnl4PA) (Before continuing, it's highly recommended to watch this Youtube playlist to understand TLS Handshake process, ciphers, curves, hashing, algorithms, etc... In videos, they tell about TLS v1.2 and v1.3, but we don't use v1.3).
 
-<br>
-
 ## **5.1. Client sends first ClientHello message (Flight 0)**
-<br>
 
 When a new packet comes in, the "AddBuffer" function in [backend/src/agent/udpclientsocket.go](../backend/src/agent/udpclientsocket.go) looks for which protocol standard this packet to rely on.
 
 In this context, we can check out dtls.IsDtlsPacket function. This function checks:
-  * Data length (arrayLen) is greater than zero
-  <br>and
-  * First byte of data (ordinally) is between 20 and 63. This byte represents the DTLS Record Header's ContentType value.
+
+* Data length (arrayLen) is greater than zero
+<br>and
+* First byte of data (ordinally) is between 20 and 63. This byte represents the DTLS Record Header's ContentType value.
 
 If this buffer part complies with these conditions, we can say "this packet is a DTLS protocol packet", then we can process it with DTLS protocol's methods.
 
 <sup>from [backend/src/dtls/dtlsmessage.go](../backend/src/dtls/dtlsmessage.go)</sup>
+
 ```go
 func IsDtlsPacket(buf []byte, offset int, arrayLen int) bool {
     return arrayLen > 0 && buf[offset] >= 20 && buf[offset] <= 63
@@ -64,12 +64,10 @@ We determined that this packet is DTLS packet. A DTLS packet consists of a Recor
 
 The ClientHello packet we received is a "Handshake" message, so we should discuss the structure of a Handshake packet.
 
-<br>
-
 ## **5.1.1. DTLS Record Header**
-<br>
 
 <sup>from [backend/src/dtls/recordheader.go](../backend/src/dtls/recordheader.go)</sup>
+
 ```go
 type RecordHeader struct {
     ContentType    ContentType
@@ -81,6 +79,7 @@ type RecordHeader struct {
 ```
 
 You can find:
+
 * Detailed information about attributes of this record in [WebRTC for the Curious: Securing - DTLS](https://webrtcforthecurious.com/docs/04-securing/#dtls)
 * ContentType constants in [backend/src/stun/messagetype.go](../backend/src/dtls/recordheader.go)
 * DtlsVersion constants in [backend/src/stun/messagetype.go](../backend/src/dtls/recordheader.go)
@@ -89,12 +88,10 @@ If Epoch is zero, the contents of the packet is in clear text, not encrypted. If
 
 Source: [Generic header structure of the DTLS record layer](https://github.com/eclipse/tinydtls/blob/706888256c3e03d9fcf1ec37bb1dd6499213be3c/dtls.h#L320)
 
-<br>
-
 ## **5.1.2. DTLS Record Header**
-<br>
 
 <sup>from [backend/src/dtls/handshakeheader.go](../backend/src/dtls/handshakeheader.go)</sup>
+
 ```go
 type HandshakeHeader struct {
     HandshakeType   HandshakeType
@@ -109,6 +106,7 @@ type HandshakeHeader struct {
 * "uint24" is defined in [backend/src/dtls/dtlsmessage.go](../backend/src/dtls/dtlsmessage.go), to represent 24 byte unsigned integer values in handshake data structure.
 
 <sup>from [backend/src/dtls/dtlsmessage.go](../backend/src/dtls/dtlsmessage.go)</sup>
+
 ```go
 type uint24 [3]byte
 ```
@@ -120,15 +118,12 @@ DTLS fragmentation is not supported in this project, so we ignore these fragment
 
 Source: [Header structure for the DTLS handshake protocol](https://github.com/eclipse/tinydtls/blob/706888256c3e03d9fcf1ec37bb1dd6499213be3c/dtls.h#L344)
 
-
-<br>
-
 ## **5.1.3. ClientHello Message Content (Flight 0)**
-<br>
 
 The ClientHello message is the first message of the first flight. The RFC counts flights starting from 1, we count them starting from 0, because we assume the Flight 0 is "waiting for ClientHello" state, Flight 1 is after receiving the first ClientHello. So, you can track the flight numbers this way. 
 
 <sup>from [backend/src/dtls/clienthello.go](../backend/src/dtls/clienthello.go)</sup>
+
 ```go
 type ClientHello struct {
     Version              DtlsVersion
@@ -141,10 +136,10 @@ type ClientHello struct {
 }
 ```
 
-<details>
+<details markdown>
   <summary>Click to expand Wireshark capture (Received): DTLS ClientHello (first, without cookie)</summary>
 
-```
+```console
 Frame 458: 189 bytes on wire (1512 bits), 189 bytes captured (1512 bits) on interface lo0, id 0
 Null/Loopback
 Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
@@ -254,9 +249,8 @@ Datagram Transport Layer Security
             [JA3 Fullstring: 65277,49195-49199-52393-52392-49161-49171-49162-49172-156-47-53,23-65281-10-11-35-13-14,29-23-24,0]
             [JA3: c14667d7da3e6f7a7ab5519ef78c2452]
 ```
-</details>
 
-<br>
+</details>
 
 This message is bootstrapper of a new DTLS Handshake process. Client says to us, "I want to make a DTLS handshake with you, these are my security data to share".
 
@@ -264,6 +258,7 @@ This message is bootstrapper of a new DTLS Handshake process. Client says to us,
 * Random: Each part (the client and the server) generates random values for themselves, we call them as "Client Random" and "Server Random". In DTLS v1.2, random byte array consists of 32 bytes. The first 4 bytes are for current system time, remaining 28 bytes are randomly generated. 
 
 <sup>from [backend/src/dtls/random.go](../backend/src/dtls/random.go)</sup>
+
 ```go
 type Random struct {
     GMTUnixTime time.Time
@@ -278,6 +273,7 @@ Source: [Pion WebRTC: DTLS Random](https://github.com/pion/dtls/blob/b3e235f54b6
 * CipherSuiteIDs: Each party has implemented and supported a set of [Cipher Suite](https://en.wikipedia.org/wiki/Cipher_suite)s, in DTLS and TLS each of them coded with uint16 constant value. With this information, the client informs us "I support these cipher suites, choose one of them which you support too, then we can continue using it."
 <br>
 A "Cipher Suite" is a set of algorithms, usually consists of a key exchange algorithm, a hash algorithm and signature/authentication algorithm. You can find cipher suites and values [here](https://www.rfc-editor.org/rfc/rfc8422.html#section-6), and our only one supported cipher suite constant at [backend/src/dtls/ciphersuites.go](../backend/src/dtls/ciphersuites.go).
+
 * CompressionMethodIDs: We only support Uncompressed mode with value zero.
 * Extensions: Client can send a list of extension data with the ClientHello message. Some of them which we support:
     * UseExtendedMasterSecret: In encryption, we use a "master secret". Each party generates their own "master secret" and don't share it with others. There are some ways to generate it, a standard way and an extended way. We will discuss about this, but if ClientHello contains a UseExtendedMasterSecret extension, it means "the client uses extended master secret generation method, you should use it too".
@@ -289,19 +285,18 @@ A "Cipher Suite" is a set of algorithms, usually consists of a key exchange algo
 
     <br><br>
     After receiving the first ClientHello (which doesn't contain a Cookie value), we:
+
     * Set our DTLS Handshake Context's (HandshakeContext defined in [backend/src/dtls/handshakecontext.go](../backend/src/dtls/handshakecontext.go)) state as "Connecting"
     * Set the context's ProtocolVersion as incoming ClientHello's Version. We should check it, but in this project we assume two parties speak with DTLS v1.2.
     * Generate a 20 bytes DTLS Cookie by calling "generateDtlsCookie" function, and set the context's Cookie property.
     * Set the context's Flight to "Flight 2"
 
-<br>
-
 ## **5.2. Server sends HelloVerifyRequest message (Flight 2)**
-<br>
 
 We generate a HelloVerifyRequest message by calling "createDtlsHelloVerifyRequest" function in [backend/src/dtls/handshakemanager.go](../backend/src/dtls/handshakemanager.go). We share the Cookie data which we generated previously (in context.Cookie) with the client.
 
 <sup>from [backend/src/dtls/helloverifyrequest.go](../backend/src/dtls/helloverifyrequest.go)</sup>
+
 ```go
 type HelloVerifyRequest struct {
     Version DtlsVersion
@@ -309,10 +304,10 @@ type HelloVerifyRequest struct {
 }
 ```
 
-<details>
+<details markdown>
   <summary>Click to expand Wireshark capture (Sent): DTLS HelloVerifyRequest</summary>
 
-```
+```console
 Frame 483: 80 bytes on wire (640 bits), 80 bytes captured (640 bits) on interface lo0, id 0
 Null/Loopback
 Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
@@ -334,24 +329,19 @@ Datagram Transport Layer Security
             Cookie Length: 20
             Cookie: b130316a0e21459cd54d85062f2fb018c4f78be0
 ```
-</details>
 
-<br>
+</details>
 
 Now we are waiting for another (nearly the same) ClientHello message, but with a Cookie that has the same value as our HelloVerifyRequest.
 
 <img alt="Sent HelloVerifyRequest" src="images/05-02-sent-helloverifyrequest.png" style="max-width:75%"></img>
 
-
-<br>
-
 ## **5.3. Client sends second ClientHello message (Flight 2)**
-<br>
 
-<details>
+<details markdown>
   <summary>Click to expand Wireshark capture (Received): DTLS ClientHello (second, with cookie)</summary>
 
-```
+```console
 Frame 484: 209 bytes on wire (1672 bits), 209 bytes captured (1672 bits) on interface lo0, id 0
 Null/Loopback
 Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
@@ -462,15 +452,15 @@ Datagram Transport Layer Security
             [JA3 Fullstring: 65277,49195-49199-52393-52392-49161-49171-49162-49172-156-47-53,23-65281-10-11-35-13-14,29-23-24,0]
             [JA3: c14667d7da3e6f7a7ab5519ef78c2452]
 ```
-</details>
 
-<br>
+</details>
 
 <img alt="Received second ClientHello" src="images/05-03-received-second-clienthello.png" style="max-width:75%"></img>
 
 We received second ClientHello from the client, with nearl same content but with a Cookie.
 
 We:
+
 * Know we are in Flight 2, we check if the incoming ClientHello's Cookie value and we sent via HelloVerifyRequest (stored in our context object). If it is empty, we should return to Flight 0 state and wait for a new ClientHello message. If not empty, we should compare two values.
 * Find a cipher suite ID which mutually supported by each peer, via calling "negotiateOnCipherSuiteIDs" function in [backend/src/dtls/handshakemanager.go](../backend/src/dtls/handshakemanager.go), then set it to context.CipherSuite. In our example, negotiated on TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 (0xc02b) cipher suite.
 * Loop through ClientHello message's extensions. We process the known and supported ones, and ignore unknown ones. Tracking the order at console output below:
@@ -480,15 +470,12 @@ We:
 
 ![Processed second ClientHello](images/05-04-processed-second-clienthello.png)
 
-
-<br>
-
 ### **5.3.1. Generating cryptographic keys**
-<br>
 
 Now, server chose one from each cryptographic methods, algorithms etc... which client offered as alternatives. The server knows which methods they will use while encrypting, the client will learn further. The server should generate some secrets and keys, for it's side.
 
 We:
+
 * Set incoming ClientHello.Random to context.ClientRandom
 * Generate a Server Random via calling "Generate" function in [backend/src/dtls/random.go](../backend/src/dtls/random.go) and set it to context.ServerRandom.
 * Generate a server private and server public key, by using [X25519 curve](https://pkg.go.dev/golang.org/x/crypto@v0.0.0-20220411220226-7b82a4e95df4/curve25519), via calling "GenerateCurveKeypair" function in [backend/src/dtls/crypto.go](../backend/src/dtls/crypto.go). These private and public keys are different from and not related with previously generated Server Certificate keys.
@@ -512,6 +499,7 @@ We:
     * We set this calculated signature to context.ServerKeySignature
 
 <sup>from [backend/src/dtls/handshakemanager.go](../backend/src/dtls/handshakemanager.go)</sup>
+
 ```go
 context.ServerKeySignature, err = GenerateKeySignature(
                 clientRandomBytes,
@@ -523,6 +511,7 @@ context.ServerKeySignature, err = GenerateKeySignature(
 ```
 
 <sup>from [backend/src/dtls/crypto.go](../backend/src/dtls/crypto.go)</sup>
+
 ```go
 func GenerateKeySignature(clientRandom []byte, serverRandom []byte, publicKey []byte, curve Curve, privateKey crypto.PrivateKey, hashAlgorithm HashAlgorithm) ([]byte, error) {
     msg := generateValueKeyMessage(clientRandom, serverRandom, publicKey, curve)
@@ -543,16 +532,15 @@ func GenerateKeySignature(clientRandom []byte, serverRandom []byte, publicKey []
 Now we are ready to send a group of messages: A ServerHello, a Certificate, a ServerKeyExchange, a CertificateRequest, and a ServerHelloDone message. These messages can be sent in same packet (by fragmenting) or one by one. We prefer to send them individually, one by one.
 
 Sources:
+
 * [Pion WebRTC: DTLS, Generating Elliptic Keypair](https://github.com/pion/dtls/blob/bee42643f57a7f9c85ee3aa6a45a4fa9811ed122/pkg/crypto/elliptic/elliptic.go#L70)
 
-<br>
-
 ## **5.4. Server sends ServerHello message (Flight 4)**
-<br>
 
 We generate a ServerHello message by calling "createDtlsServerHello" function in [backend/src/dtls/handshakemanager.go](../backend/src/dtls/handshakemanager.go).
 
 <sup>from [backend/src/dtls/serverhello.go](../backend/src/dtls/serverhello.go)</sup>
+
 ```go
 type ServerHello struct {
     Version   DtlsVersion
@@ -565,10 +553,10 @@ type ServerHello struct {
 }
 ```
 
-<details>
+<details markdown>
   <summary>Click to expand Wireshark capture (Sent): DTLS ServerHello</summary>
 
-```
+```console
 Frame 511: 121 bytes on wire (968 bits), 121 bytes captured (968 bits) on interface lo0, id 0
 Null/Loopback
 Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
@@ -617,9 +605,8 @@ Datagram Transport Layer Security
             [JA3S Fullstring: 65277,49195,65281-14-11-23]
             [JA3S: eeb7a12006b679344c81e682d2ae5951]
 ```
-</details>
 
-<br>
+</details>
 
 * Set Version to context.ProtocolVersion
 * Set Random to context.ServerRandom
@@ -633,24 +620,22 @@ Datagram Transport Layer Security
 
 ServerHello message was sent.
 
-<br>
-
 ## **5.5. Server sends Certificate message (Flight 4)**
-<br>
 
 We generate a Certificate message by calling "createDtlsCertificate" function in [backend/src/dtls/handshakemanager.go](../backend/src/dtls/handshakemanager.go).
 
 <sup>from [backend/src/dtls/certificate.go](../backend/src/dtls/certificate.go)</sup>
+
 ```go
 type Certificate struct {
     Certificates [][]byte
 }
 ```
 
-<details>
+<details markdown>
   <summary>Click to expand Wireshark capture (Sent): DTLS Certificate</summary>
 
-```
+```console
 Frame 513: 483 bytes on wire (3864 bits), 483 bytes captured (3864 bits) on interface lo0, id 0
 Null/Loopback
 Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
@@ -736,9 +721,8 @@ Datagram Transport Layer Security
                     Padding: 0
                     encrypted: 304502206b40cd413f21a016d5aa53325b2029e1a5ee3bddc2e49a9dadf97a5040718ff8…
 ```
-</details>
 
-<br>
+</details>
 
 * Set Certificates to ServerCertificate.Certificate
 
@@ -748,14 +732,12 @@ We shared our X.509 Server Certificate data with the client.
 
 Certificate message was sent.
 
-<br>
-
 ## **5.6. Server sends ServerKeyExchange message (Flight 4)**
-<br>
 
 We generate a ServerKeyExchange message by calling "createDtlsServerKeyExchange" function in [backend/src/dtls/handshakemanager.go](../backend/src/dtls/handshakemanager.go).
 
 <sup>from [backend/src/dtls/serverkeyexchange.go](../backend/src/dtls/serverkeyexchange.go)</sup>
+
 ```go
 type ServerKeyExchange struct {
     EllipticCurveType CurveType
@@ -766,10 +748,10 @@ type ServerKeyExchange struct {
 }
 ```
 
-<details>
+<details markdown>
   <summary>Click to expand Wireshark capture (Sent): DTLS ServerKeyExchange</summary>
 
-```
+```console
 Frame 514: 169 bytes on wire (1352 bits), 169 bytes captured (1352 bits) on interface lo0, id 0
 Null/Loopback
 Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
@@ -798,9 +780,8 @@ Datagram Transport Layer Security
                 Signature Length: 72
                 Signature: 3046022100b8609b89a48945bee8ccad168c935466c2dcf46c8539bbf0f81ac6641e5db2…
 ```
-</details>
 
-<br>
+</details>
 
 * Set EllipticCurveType to context.CurveType (CurveTypeNamedCurve 0x03)
 * Set NamedCurve to context.Curve (CurveX25519 0x001d)
@@ -818,14 +799,12 @@ Datagram Transport Layer Security
 
 ServerKeyExchange message was sent.
 
-<br>
-
 ## **5.7. Server sends CertificateRequest message (Flight 4)**
-<br>
 
 We generate a CertificateRequest message by calling "createDtlsCertificateRequest" function in [backend/src/dtls/handshakemanager.go](../backend/src/dtls/handshakemanager.go).
 
 <sup>from [backend/src/dtls/certificaterequest.go](../backend/src/dtls/certificaterequest.go)</sup>
+
 ```go
 type CertificateRequest struct {
     CertificateTypes []CertificateType
@@ -833,10 +812,10 @@ type CertificateRequest struct {
 }
 ```
 
-<details>
+<details markdown>
   <summary>Click to expand Wireshark capture (Sent): DTLS CertificateRequest</summary>
 
-```
+```console
 Frame 515: 65 bytes on wire (520 bits), 65 bytes captured (520 bits) on interface lo0, id 0
 Null/Loopback
 Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
@@ -864,9 +843,8 @@ Datagram Transport Layer Security
                     Signature Hash Algorithm Signature: ECDSA (3)
             Distinguished Names Length: 0
 ```
-</details>
 
-<br>
+</details>
 
 * Set CertificateTypes to [CertificateTypeECDSASign (0x40)]
 * Set AlgoPairs to [AlgoPair{
@@ -883,23 +861,21 @@ We requested for a client certificate which ECDSASign type, generated using hash
 
 CertificateRequest message was sent.
 
-<br>
-
 ## **5.8. Server sends ServerHelloDone message (Flight 4)**
-<br>
 
 We generate a ServerHelloDone message by calling "createDtlsServerHelloDone" function in [backend/src/dtls/handshakemanager.go](../backend/src/dtls/handshakemanager.go).
 
 <sup>from [backend/src/dtls/serverhellodone.go](../backend/src/dtls/serverhellodone.go)</sup>
+
 ```go
 type ServerHelloDone struct {
 }
 ```
 
-<details>
+<details markdown>
   <summary>Click to expand Wireshark capture (Sent): DTLS ServerHelloDone</summary>
 
-```
+```console
 Frame 516: 57 bytes on wire (456 bits), 57 bytes captured (456 bits) on interface lo0, id 0
 Null/Loopback
 Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
@@ -918,9 +894,8 @@ Datagram Transport Layer Security
             Fragment Offset: 0
             Fragment Length: 0
 ```
-</details>
 
-<br>
+</details>
 
 The message doesn't carry any data.
 
@@ -930,25 +905,22 @@ ServerHelloDone message was sent.
 
 Now we are waiting for a group of messages: A Certificate, a ClientKeyExchange, a CertificateVerify, a ChangeCipherSpec, a Finished message. For e.g., if our client is Chrome, it will send these messages in one packet.
 
-
-<br>
-
 ## **5.9. Client sends Certificate message (Flight 4)**
-<br>
 
 ![Received Certificate](images/05-10-received-certificate.png)
 
 <sup>from [backend/src/dtls/certificate.go](../backend/src/dtls/certificate.go)</sup>
+
 ```go
 type Certificate struct {
     Certificates [][]byte
 }
 ```
 
-<details>
+<details markdown>
   <summary>Click to expand Wireshark capture (Received): DTLS Certificate (came in combined packet)</summary>
 
-```
+```console
 Frame 522: 579 bytes on wire (4632 bits), 579 bytes captured (4632 bits) on interface lo0, id 0
 Null/Loopback
 Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
@@ -1008,9 +980,8 @@ Datagram Transport Layer Security
 
 ...
 ```
-</details>
 
-<br>
+</details>
 
 The client shared their X.509 Server Certificate data with the server. 
 
@@ -1018,25 +989,22 @@ The client shared their X.509 Server Certificate data with the server.
 * Call "GetCertificateFingerprintFromBytes" function in [backend/src/dtls/crypto.go](../backend/src/dtls/crypto.go) to generate the fingerprint hash from the certificate byte array
 * Compare the calculated fingerprint hash with context.ExpectedFingerprintHash which came with SDP data previously. So we can ensure that "the sender of SDP via Signaling" and "the sender of these handshake messages" are the same person/machine, not another man in the middle.
 
-
-<br>
-
 ## **5.9. Client sends ClientKeyExchange message (Flight 4)**
-<br>
 
 ![Received ClientKeyExchange](images/05-11-received-clientkeyexchange.png)
 
 <sup>from [backend/src/dtls/clientkeyexchange.go](../backend/src/dtls/clientkeyexchange.go)</sup>
+
 ```go
 type ClientKeyExchange struct {
     PublicKey []byte
 }
 ```
 
-<details>
+<details markdown>
   <summary>Click to expand Wireshark capture (Received): DTLS ClientKeyExchange (came in combined packet)</summary>
 
-```
+```console
 Frame 522: 579 bytes on wire (4632 bits), 579 bytes captured (4632 bits) on interface lo0, id 0
 Null/Loopback
 Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
@@ -1063,30 +1031,22 @@ Datagram Transport Layer Security
 
 ...
 ```
-</details>
 
-<br>
+</details>
 
 * Set context.ClientKeyExchangePublic to message.PublicKey
 * If context.IsCipherSuiteInitialized is false (our cipher suite is not initialized yet), we are ready to initialize our cipher suite, call "initCipherSuite" function in from [backend/src/dtls/handshakemanager.go](../backend/src/dtls/handshakemanager.go)
 
-
-<br>
-
 ### **5.9.1. Initialization of cipher suite**
-<br>
 
 We need to generate a master secret. Then using this master secret, client random, and server random, we will initialize our keys. We will use these keys while encrypting/decrypting the SRTP packets further.
 
-
-<br>
-
 #### **5.9.1.1. Generate a Pre-Master Secret**
-<br>
 
 We call "GeneratePreMasterSecret" function in [backend/src/dtls/crypto.go](../backend/src/dtls/crypto.go)
 
 <sup>from [backend/src/dtls/handshakemanager.go](../backend/src/dtls/handshakemanager.go)</sup>
+
 ```go
     preMasterSecret, err := GeneratePreMasterSecret(context.ClientKeyExchangePublic, context.ServerPrivateKey, context.Curve)
 ```
@@ -1096,13 +1056,10 @@ We call "GeneratePreMasterSecret" function in [backend/src/dtls/crypto.go](../ba
 ***Attention Note:** Public key was the ClientKeyExchange message's Public Key, the ServerPrivateKey was generated via "GenerateCurveKeypair".
 
 Sources:
+
 * [Differences between the terms "pre-master secret", "master secret", "private key", and "shared secret"? (Stackoverflow)](https://crypto.stackexchange.com/questions/27131/differences-between-the-terms-pre-master-secret-master-secret-private-key)
 
-
-<br>
-
 #### **5.9.1.2. Generate a Master Secret**
-<br>
 
 We look to our context.UseExtendedMasterSecret boolean value. Remember that, if ClientHello message has UseExtendedMasterSecret extension, we should generate our master secret in extended way.
 
@@ -1126,6 +1083,7 @@ Order should be like:
 * Call "GenerateExtendedMasterSecret" function in [backend/src/dtls/crypto.go](../backend/src/dtls/crypto.go) with our *preMasterSecret*, *handshakeHash*, *context.CipherSuite.HashAlgorithm*.
 
 <sup>from [backend/src/dtls/crypto.go](../backend/src/dtls/crypto.go)</sup>
+
 ```go
 func GenerateExtendedMasterSecret(preMasterSecret []byte, handshakeHash []byte, hashAlgorithm HashAlgorithm) ([]byte, error) {
     seed := append([]byte("extended master secret"), handshakeHash...)
@@ -1148,7 +1106,6 @@ func GenerateExtendedMasterSecret(preMasterSecret []byte, handshakeHash []byte, 
 
 ![Message concatenation result](images/05-12-message-concatenation-result.png)
 
-
 **If context.UseExtendedMasterSecret is false:**
 
 **Note:** In current context, our code won't come this state, because (I think) Chrome always sends the UseExtendedMasterSecret extension with ClientHello message. But we can discuss on generating non-extended master secret:
@@ -1162,20 +1119,15 @@ func GenerateExtendedMasterSecret(preMasterSecret []byte, handshakeHash []byte, 
 
 * Set the result of "GenerateMasterSecret" function to context.ServerMasterSecret.
 
-
-
 Sources:
+
 * [RFC 7627: Transport Layer Security (TLS) Session Hash and Extended Master Secret Extension - The Extended Master Secret](https://datatracker.ietf.org/doc/html/rfc7627#section-4)
 * [WebRTC for the Curious: Securing - Pseudorandom Function](https://webrtcforthecurious.com/docs/04-securing/#pseudorandom-function)
 * [Pseudorandom function family (Wikipedia)](https://en.wikipedia.org/wiki/Pseudorandom_function_family)
 * [RFC 4346: The Transport Layer Security (TLS) Protocol Version 1.1 - HMAC and the Pseudorandom Function](https://datatracker.ietf.org/doc/html/rfc4346#section-5)
 * [Pion WebRTC DTLS project, PHash function (Github)](https://github.com/pion/dtls/blob/a6397ff7282bc56dc37a68ea9211702edb4de1de/pkg/crypto/prf/prf.go#L155)
 
-
-<br>
-
 #### **5.9.1.3. Initialize GCM**
-<br>
 
 [GCM](https://en.wikipedia.org/wiki/Galois/Counter_Mode) is abbreviation for "Galois/Counter Mode" and is a type of [block cipher mode of operation
 ](https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation). In our project, we only implemented the TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 cipher suite, and it uses [AES-GCM](https://www.cryptosys.net/pki/manpki/pki_aesgcmauthencryption.html) authenticated encryption.
@@ -1187,6 +1139,7 @@ This struct was defined in "dtls" package specifically to process DTLS messages.
 You can find the original code on [Pion WebRTC DTLS project, GCM struct (Github)](https://github.com/pion/dtls/blob/b3e235f54b60ccc31aa10193807b5e8e394f17ff/pkg/crypto/ciphersuite/gcm.go#L20).
 
 <sup>from [backend/src/dtls/cryptogcm.go](../backend/src/dtls/cryptogcm.go)</sup>
+
 ```go
 type GCM struct {
     localGCM, remoteGCM         cipher.AEAD
@@ -1200,7 +1153,7 @@ type GCM struct {
     * prfMacLen: 0 bytes
     * prfKeyLen: 16 bytes (our keys will be 16 bytes length)
     * prfIvLen: 4 bytes (our [Initialization Vectors](https://en.wikipedia.org/wiki/Initialization_vector) will be 4 bytes length)
-
+    <br>
     **Note:** These constant length values can vary for different cipher suites.
 
     Due to our chosen suite's MAC length is zero, we didn't include things related with MAC in our code.
@@ -1218,10 +1171,11 @@ Because we want:
     * A key for server (serverWriteKey) (16 bytes)
     * An initialization vector for client (clientWriteIV) (4 bytes)
     * An initialization vector for server (serverWriteIV) (4 bytes)
-<br>
+
 So we need (16+16+4+4) = 40 bytes array which is generated by PHash with our masterSecret and seed. Then we extract our key and IV values from these 40 bytes sequentially.
 
 <sup>from [backend/src/dtls/crypto.go](../backend/src/dtls/crypto.go)</sup>
+
 ```go
 func GenerateEncryptionKeys(masterSecret []byte, clientRandom []byte, serverRandom []byte, keyLen int, ivLen int, hashAlgorithm HashAlgorithm) (*EncryptionKeys, error) {
     logging.Descf(logging.ProtoCRYPTO, "Generating encryption keys with Key Length: <u>%d</u>, IV Length: <u>%d</u> via <u>%s</u>, using Master Secret, Server Random, Client Random...", keyLen, ivLen, hashAlgorithm)
@@ -1264,11 +1218,13 @@ We are ready to create our GCM object, which contains our ciphers and IVs. We pa
 * While creating our ciphers, we create new instances by [aes.NewCipher](https://pkg.go.dev/crypto/aes#NewCipher) and [cipher.NewGCM](https://pkg.go.dev/crypto/cipher#NewGCM)
 
 <sup>from [backend/src/dtls/crypto.go](../backend/src/dtls/crypto.go)</sup>
+
 ```go
     gcm, err := NewGCM(keys.ServerWriteKey, keys.ServerWriteIV, keys.ClientWriteKey, keys.ClientWriteIV)
 ```
 
 <sup>from [backend/src/dtls/cryptogcm.go](../backend/src/dtls/cryptogcm.go)</sup>
+
 ```go
 func NewGCM(localKey, localWriteIV, remoteKey, remoteWriteIV []byte) (*GCM, error) {
     localBlock, err := aes.NewCipher(localKey)
@@ -1287,27 +1243,24 @@ func NewGCM(localKey, localWriteIV, remoteKey, remoteWriteIV []byte) (*GCM, erro
         remoteWriteIV: remoteWriteIV,
     }, nil
 }
-
 ```
 
 * We set returned GCM object to context.GCM and set context.IsCipherSuiteInitialized as true.
 
 Sources:
+
 * [What is the main difference between a key, an IV and a nonce? (Stackoverflow)](https://crypto.stackexchange.com/questions/3965/what-is-the-main-difference-between-a-key-an-iv-and-a-nonce)
 * [Initialization vector](https://en.wikipedia.org/wiki/Initialization_vector)
 * [Keying material (NIST)](https://csrc.nist.gov/glossary/term/keying_material)
 * [Secret keying material (NIST)](https://csrc.nist.gov/glossary/term/secret_keying_material)
 * [Key material (Mozilla)](https://infosec.mozilla.org/guidelines/key_management#key-material)
 
-
-<br>
-
 ## **5.10. Client sends CertificateVerify message (Flight 4)**
-<br>
 
 ![Received CertificateVerify](images/05-14-received-certificateverify.png)
 
 <sup>from [backend/src/dtls/certificateverify.go](../backend/src/dtls/certificateverify.go)</sup>
+
 ```go
 type CertificateVerify struct {
     AlgoPair  AlgoPair
@@ -1315,10 +1268,10 @@ type CertificateVerify struct {
 }
 ```
 
-<details>
+<details markdown>
   <summary>Click to expand Wireshark capture (Received): DTLS CertificateVerify (came in combined packet)</summary>
 
-```
+```console
 Frame 522: 579 bytes on wire (4632 bits), 579 bytes captured (4632 bits) on interface lo0, id 0
 Null/Loopback
 Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
@@ -1347,9 +1300,8 @@ Datagram Transport Layer Security
 
 ...
 ```
-</details>
 
-<br>
+</details>
 
 * Compare hash algorithm ID of incoming *message.AlgoPair.HashAlgorithm* and *context.CipherSuite.HashAlgorithm*
 * Compare signature algorithm ID of incoming *message.AlgoPair.SignatureAlgorithm* and *context.CipherSuite.SignatureAlgorithm*
@@ -1370,27 +1322,26 @@ Order should be like:
 * Check the validity of the X.509 certificate which came with Certificate message from the client, by [ecdsa.Verify](https://pkg.go.dev/crypto/ecdsa#Verify).
 
 <sup>from [backend/src/dtls/crypto.go](../backend/src/dtls/crypto.go)</sup>
+
 ```go
 ecdsa.Verify(clientCertificatePublicKey, hash, ecdsaSign.R, ecdsaSign.S)
 ```
 
-<br>
-
 ## **5.11. Client sends ChangeCipherSpec message (Flight 4)**
-<br>
 
 <img alt="Received ChangeCipherSpec" src="images/05-15-received-changecipherspec.png" style="width: 750px;max-width:75%;"></img>
 
 <sup>from [backend/src/dtls/changecipherspec.go](../backend/src/dtls/changecipherspec.go)</sup>
+
 ```go
 type ChangeCipherSpec struct {
 }
 ```
 
-<details>
+<details markdown>
   <summary>Click to expand Wireshark capture (Received): DTLS ChangeCipherSpec (came in combined packet)</summary>
 
-```
+```console
 Frame 522: 579 bytes on wire (4632 bits), 579 bytes captured (4632 bits) on interface lo0, id 0
 Null/Loopback
 Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
@@ -1409,36 +1360,31 @@ Datagram Transport Layer Security
 
 ...
 ```
-</details>
 
-<br>
+</details>
 
 This type of message contains only a byte with value 1. We don't do anything for this message.
 
 **Important note:** Epoch of Record Header were 0 and contents were in clear text (not encrypted) until (and including) this ChangeCipherSpec message. But the messages that will come after this, will have Epoch with 1 and will be encrypted.
 
-
-<br>
-
 ## **5.12. Client sends Finished message (Flight 4)**
-<br>
 
 ![Received Finished](images/05-16-received-finished.png)
 
 <sup>from [backend/src/dtls/finished.go](../backend/src/dtls/finished.go)</sup>
+
 ```go
 type Finished struct {
     VerifyData []byte
 }
 ```
 
-<details>
+<details markdown>
   <summary>Click to expand Wireshark capture (Received): DTLS Finished (came in combined packet)</summary>
-<br>
 
 **Important note:** As you can see at the end of the block, latest handshake message (Finished) has Epoch: 1, and content was encrypted. Because of this, we can't see contents of it as clear text in Wireshark.
 
-```
+```console
 Frame 522: 579 bytes on wire (4632 bits), 579 bytes captured (4632 bits) on interface lo0, id 0
 Null/Loopback
 Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
@@ -1456,9 +1402,8 @@ Datagram Transport Layer Security
         Handshake Protocol
 (Encrypted content: 0x0001000000000000e22c7b2609d96a7d3a98c7b80e32ea03868231eb419623ce8af27b5ab97b16df143e8743ab0cb6ba)
 ```
-</details>
 
-<br>
+</details>
 
 **Important note:** Epoch of Record Header is 1 and, this Finished message is the first message which was encrypted. If we can decode and decrypt contents of this message successfully, then verify the VerifyData successfully, it means that, the handshake process for our side succeeded! After that we will send two other messages, then it will be "completely" finished!
 
@@ -1482,25 +1427,24 @@ Order should be like (attention to CertificateVerify and Finished were addded de
 * Set the context's Flight to "Flight 6"
 
 Sources:
+
 * [RFC 5246: The Transport Layer Security (TLS) Protocol Version 1.2 - Finished](https://datatracker.ietf.org/doc/html/rfc5246#section-7.4.9)
 
-<br>
-
 ## **5.13. Server sends ChangeCipherSpec message (Flight 6)**
-<br>
 
 We generate a ChangeCipherSpec message by calling "createDtlsChangeCipherSpec" function in [backend/src/dtls/handshakemanager.go](../backend/src/dtls/handshakemanager.go).
 
 <sup>from [backend/src/dtls/changecipherspec.go](../backend/src/dtls/changecipherspec.go)</sup>
+
 ```go
 type ChangeCipherSpec struct {
 }
 ```
 
-<details>
+<details markdown>
   <summary>Click to expand Wireshark capture (Sent): DTLS ChangeCipherSpec</summary>
 
-```
+```console
 Frame 549: 46 bytes on wire (368 bits), 46 bytes captured (368 bits) on interface lo0, id 0
 Null/Loopback
 Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
@@ -1514,9 +1458,8 @@ Datagram Transport Layer Security
         Length: 1
         Change Cipher Spec Message
 ```
-</details>
 
-<br>
+</details>
 
 This type of message contains only a byte with value 1.
 
@@ -1528,28 +1471,24 @@ This type of message contains only a byte with value 1.
 
 * Called "IncreaseServerEpoch" function in [backend/src/dtls/handshakecontext.go](../backend/src/dtls/handshakecontext.go) to increase context.ServerEpoch to 1, and set context.ServerSequenceNumber = 0.
 
-<br>
-
 ## **5.14. Server sends Finished message (Flight 6)**
-<br>
 
 We generate a Finished message by calling "createDtlsFinished" function in [backend/src/dtls/handshakemanager.go](../backend/src/dtls/handshakemanager.go).
 
 <sup>from [backend/src/dtls/finished.go](../backend/src/dtls/finished.go)</sup>
+
 ```go
 type Finished struct {
     VerifyData []byte
 }
 ```
 
-<details>
+<details markdown>
   <summary>Click to expand Wireshark capture (Sent): DTLS Finished</summary>
-
-<br>
 
 **Important note:** As you can see at the end of the block, the handshake message (Finished) has Epoch: 1, and content was encrypted. Because of this, we can't see contents of it as clear text in Wireshark.
 
-```
+```console
 Frame 550: 93 bytes on wire (744 bits), 93 bytes captured (744 bits) on interface lo0, id 0
 Null/Loopback
 Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
@@ -1564,9 +1503,8 @@ Datagram Transport Layer Security
         Handshake Protocol
 (Encrypted content: 0x61c244d15307ccaf237e2ef34fdd5bddff3d7d17cf3fcb837a80db65f777a2496c609b03d7a35b772754cc206bb16db2)
 ```
-</details>
 
-<br>
+</details>
 
 <img alt="Sent Finished" src="images/05-18-sent-finished.png" style="max-width:75%;"></img>
 

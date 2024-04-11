@@ -38,6 +38,7 @@ Although our project was designed as a monolith and one package, in real-world D
         * The orchestrator gives the byte array to SRTP side for extracting keys and salts from given [keying material](https://csrc.nist.gov/glossary/term/keying_material)
 
 <sup>from [backend/src/dtls/finished.go](../backend/src/dtls/finished.go)</sup>
+
 ```go
 func (ms *UDPClientSocket) OnDTLSStateChangeEvent(dtlsState dtls.DTLSState) {
     logging.Infof(logging.ProtoDTLS, "State Changed: <u>%s</u> [<u>%v:%v</u>].\n", dtlsState, ms.HandshakeContext.Addr.IP, ms.HandshakeContext.Addr.Port)
@@ -62,6 +63,7 @@ func (ms *UDPClientSocket) OnDTLSStateChangeEvent(dtlsState dtls.DTLSState) {
 * It calls "extractEncryptionKeys" function in [backend/src/srtp/srtpmanager.go](../backend/src/srtp/srtpmanager.go) to extract key and salt values from this 56 bytes keying material sequentially. you can find further information [here](https://github.com/pion/srtp/blob/82008b58b1e7be7a0cb834270caafacc7ba53509/keying.go#L14)
 
 <sup>from [backend/src/srtp/srtpmanager.go](../backend/src/srtp/srtpmanager.go)</sup>
+
 ```go
 func (m *SRTPManager) extractEncryptionKeys(protectionProfile ProtectionProfile, keyingMaterial []byte) (*EncryptionKeys, error) {
     keyLength, err := protectionProfile.KeyLength()
@@ -92,12 +94,7 @@ func (m *SRTPManager) extractEncryptionKeys(protectionProfile ProtectionProfile,
 
 ![SRTP Initialization](images/06-01-srtp-initialization.png)
 
-
-
-<br>
-
 ## **6.1. Initialize GCM**
-<br>
 
 [GCM](https://en.wikipedia.org/wiki/Galois/Counter_Mode) is the abbreviation for "Galois/Counter Mode" and is a type of [Block cipher mode of operation
 ](https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation).
@@ -107,12 +104,13 @@ We discussed what is GCM and why we call our object as GCM, in initialization of
 So, we call the object that makes encryption/decryption over our SRTP and SCTP packets as GCM.
 
 <sup>from [backend/src/srtp/cryptogcm.go](../backend/src/srtp/cryptogcm.go)</sup>
+
 ```go
 type GCM struct {
     srtpGCM, srtcpGCM   cipher.AEAD
     srtpSalt, srtcpSalt []byte
 }
-````
+```
 
 * Now, we have an "EncryptionKeys" object defined in [backend/src/srtp/protectionprofiles.go](../backend/src/srtp/protectionprofiles.go).
 <br>
@@ -126,11 +124,13 @@ We are ready to create our GCM object, which contains our ciphers and salt value
 * While creating our ciphers, we create new instances by [aes.NewCipher](https://pkg.go.dev/crypto/aes#NewCipher) and [cipher.AEAD](https://pkg.go.dev/crypto/cipher#AEAD)
 
 <sup>from [backend/src/srtp/srtpmanager.go](../backend/src/srtp/srtpmanager.go)</sup>
+
 ```go
     gcm, err := InitGCM(keys.ClientMasterKey, keys.ClientMasterSalt)
 ```
 
 <sup>from [backend/src/srtp/cryptogcm.go](../backend/src/srtp/cryptogcm.go)</sup>
+
 ```go
 func NewGCM(masterKey, masterSalt []byte) (*GCM, error) {
     srtpSessionKey, err := aesCmKeyDerivation(labelSRTPEncryption, masterKey, masterSalt, 0, len(masterKey))
@@ -184,7 +184,7 @@ func NewGCM(masterKey, masterSalt []byte) (*GCM, error) {
 
 * We set returned GCM object to context.GCM and set context.IsCipherSuiteInitialized as true.
 
-Now, we are ready to receive and decrypt incoming SRTP and SRTCP packets. We are not ready to encrypt, because we don't need and implemented this part :)
+Now, we are ready to receive and decrypt incoming SRTP and SRTCP packets. We are not ready to encrypt, because we don't need and implemented this part :blush:
 
 <br>
 

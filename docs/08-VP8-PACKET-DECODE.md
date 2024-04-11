@@ -7,7 +7,8 @@ In previous chapter, we decoded the SRTP packet and decrypted it successfully, a
 * Our VP8Decoder aims to process incoming VP8 RTP packets, catch and concatenate keyframe packets then convert the result to an image object and save it as a JPEG image file.
 
 <sup>VP8 Payload Descriptor</sup>
-```
+
+```console
       0 1 2 3 4 5 6 7 
      +-+-+-+-+-+-+-+-+
      |X|R|N|S|PartID | (REQUIRED)
@@ -25,6 +26,7 @@ T/K: |TID|Y| KEYIDX  | (OPTIONAL)
 Our VP8 packet struct in [backend/src/transcoding/vp8.go](../backend/src/transcoding/vp8.go)
 
 <sup>from [backend/src/transcoding/vp8.go](../backend/src/transcoding/vp8.go)</sup>
+
 ```go
 type VP8Packet struct {
     // Required Header
@@ -53,6 +55,7 @@ type VP8Packet struct {
 * We used [libvpx-go](https://github.com/xlab/libvpx-go) as codec, we didn't implement the VP8 codec.
 
 <sup>from [backend/src/transcoding/vp8.go](../backend/src/transcoding/vp8.go)</sup>
+
 ```go
 func (d *VP8Decoder) Run() {
 
@@ -116,24 +119,26 @@ func (d *VP8Decoder) Run() {
 ```
 
 * If the function call succeeds,
+
 ```go
 img := vpx.CodecGetFrame(d.context, &iter)
 ```
+
 * We call img.Deref() to convert decoded C structures as Go wrapper variables
+
 ```go
 img.Deref()
 ```
+
 * If everything has gone OK, save the image as a JPEG file by [jpeg.Encode](https://pkg.go.dev/image/jpeg#Encode)
 * You can see your caught keyframes at /backend/output/ folder as shoot1.jpg, shoot2.jpg, etc... if multiple keyframes were caught.
-
 * As you can see below, we received multiple RTP packets containing VP8 video data, in different packet lengths, then we caught a keyframe from these packets, concatenate them, then created and saved image.
-
 * At the end of our journey, we saw the "[INFO] Image file saved: ../output/shoot1.jpg" log line! All of our these efforts are to achieve this....
 
 ![Image saved](images/08-01-image-saved.png)
 
-
 Sources:
+
 * [How to convert VP8 interframe into image with Pion/Webrtc? (Stackoverflow)](https://stackoverflow.com/questions/68859120/how-to-convert-vp8-interframe-into-image-with-pion-webrtc)
 * [RFC: RTP Payload Format for VP8 Video](https://tools.ietf.org/id/draft-ietf-payload-vp8-05.html)
 

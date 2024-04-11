@@ -4,14 +4,12 @@ The entrypoint of backend application is the "main" function in [backend/src/mai
 
 This function will generate server DTLS certificate, discover local IPs and external IP by asking configured STUN Server, create the conference manager object, start UDP listener, HTTP server with WebSocket for Signaling, then wait for client requests.
 
-<br>
-
 ## **2.1. Waiting loop**
-<br>
 
 It starts with creating a wait group, adds threads that needs to be added to the wait list. The *waitGroup.Wait()* method runs in a loop that waits until waitGroup item count becomes zero, so the process doesn't end.
 
 <sup>from [backend/src/main.go](../backend/src/main.go)</sup>
+
 ```go
 func main() {
     waitGroup := new(sync.WaitGroup)
@@ -20,40 +18,35 @@ func main() {
 }
 ```
 
-
-<br>
-
 ## **2.2. Loading configuration**
-<br>
 
 Configuration file is loaded from [config.yaml](../backend/config.yml).
-<br>
-Sources: 
+
+Sources:
+
 * [A Medium article](https://medium.com/@bnprashanth256/reading-configuration-files-and-environment-variables-in-go-golang-c2607f912b63)
 * [Viper project (Github)](https://github.com/spf13/viper)
 
 <sup>from [backend/src/main.go](../backend/src/main.go)</sup>
+
 ```go
     config.Load()
 ```
 
-
-<br>
-
 ## **2.3. DTLS initialization, generating self-signed certificate**
-<br>
-
 
 One piece of the process after a client's first request is DTLS Handshake. We will discuss further in chapter [05. DTLS HANDSHAKE](./05-DTLS-HANDSHAKE.md)
 
 During this handshake process, each peer send their digitally signed certificate each other to identify and prove themselves.
 
 This certifcate is a [X.509 certificate](https://en.wikipedia.org/wiki/X.509). In the DTLS handshake, you can use a pair of private key and public key, which:
+
 * Previously generated and digitally signed by a known [Certificate Authority](https://en.wikipedia.org/wiki/Certificate_authority) (keys are stored in disk, database, configuration file, or somewhere in sort of formats)
 * Previously generated and digitally signed by yourself ([Self-signed Certificate](https://en.wikipedia.org/wiki/Self-signed_certificate) by 3rd party software like OpenSSL) (keys are stored in disk or database, configuration file, or somewhere in sort of formats)
 * **(Our preference)** On-the-fly generated and digitally signed by yourself (same principles with Self-signed Certificate) but stored temporarily in RAM, it changes with every start of the application.
 
 <sup>from [backend/src/main.go](../backend/src/main.go)</sup>
+
 ```go
     dtls.Init()
 ```
@@ -67,6 +60,7 @@ You can use different random generators (in cryptography, randomness is an impor
 Also we can use different methods to generate private and public keys, but in this project we preferred these options.
 
 <sup>from [backend/src/dtls/crypto.go](../backend/src/dtls/crypto.go)</sup>
+
 ```go
 func generateServerCertificatePrivateKey() (*ecdsa.PrivateKey, error) {
     return ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
@@ -76,6 +70,7 @@ func generateServerCertificatePrivateKey() (*ecdsa.PrivateKey, error) {
 Now, we have randomly generated private key, and it's signed form (public key) in same object ([ecdsa.PrivateKey](https://pkg.go.dev/crypto/ecdsa#PrivateKey)). We create an [X.509 Certificate](https://pkg.go.dev/crypto/x509#Certificate) as byte array, then put them together into a [tls.Certificate](https://pkg.go.dev/crypto/tls#Certificate) object.
 
 <sup>from [backend/src/dtls/crypto.go](../backend/src/dtls/crypto.go)</sup>
+
 ```go
     pubKey := &serverCertificatePrivateKey.PublicKey
     template := x509.Certificate{
@@ -115,6 +110,7 @@ Then, we should get fingerprint hash of this Server Certificate, to use further 
 This function takes the byte array consists of certificate content, calculates [SHA256 Checksum](https://en.wikipedia.org/wiki/SHA-2) of it, result will be 32 bytes. Then, it converts this 32 bytes array to string which separated with ":", like "12:B9:B6:79:44:19:52:26:1D:01:63:2B:8B:3C:7D:19:CC:B2:5F:B5:9D:68:94:39:8D:01:D0:7B:40:6E:44:65". We store the result as global variable, "dtls.ServerCertificateFingerprint" (string)
 
 <sup>from [backend/src/dtls/crypto.go](../backend/src/dtls/crypto.go)</sup>
+
 ```go
 func GetCertificateFingerprintFromBytes(certificate []byte) string {
     fingerprint := sha256.Sum256(certificate)
@@ -131,6 +127,7 @@ func GetCertificateFingerprintFromBytes(certificate []byte) string {
 ```
 
 Sources: 
+
 * [WebRTC for the Curious: Securing](https://webrtcforthecurious.com/docs/04-securing/#securing) (this source also contains details of DTLS Handshake which we will discuss further)
 * [Pion WebRTC DTLS project, GenerateSelfSigned function (Github)](https://github.com/pion/dtls/blob/bee42643f57a7f9c85ee3aa6a45a4fa9811ed122/pkg/crypto/selfsign/selfsign.go#L22)
 * [What Is an X.509 Certificate & How Does It Work?
@@ -140,19 +137,18 @@ Sources:
 * SHA256 Sum on command line [source 1](https://www.baeldung.com/linux/sha-256-from-command-line), [source 2](https://techdocs.akamai.com/download-ctr/docs/verify-checksum)
 
 
-<br>
-
 ## **2.4. Gathering local and external IPs**
-<br>
 
 We need to know which IPs (local or external) that our server is reachable on, to use further in SDP generation (candidates part).
 
 <sup>from [backend/src/main.go](../backend/src/main.go)</sup>
+
 ```go
     discoveredServerIPs := discoverServerIPs()
 ```
 
 * Discovery of local IP addresses of available and active [network interfaces](https://en.wikipedia.org/wiki/Network_interface): Made via  "GetLocalIPs" function in [backend/src/common/networkutils.go](../backend/src/common/networkutils.go). Due to our application runs in a container, and we didn't configure Docker networking type of container as "host", we can gather only container's network interfaces, not the host machine. Expected output is one IP that in our Docker's subnet, usually starts with 172.
+
 <br>
 Note: Anyone outside the Docker network (including the host machine itself) cannot reach using this IP address. The other side of Docker networking interface to the host machine has a different gateway IP. But we include it in our result anyway.
 
@@ -161,22 +157,23 @@ Note: Anyone outside the Docker network (including the host machine itself) cann
 * Discovery of external (WAN) IP, even if behind NAT. A logical and applicable way to learn our WAN IP (our router's IP open to internet) is to ask someone else outside our network. As there are some globally available free STUN Servers, we can use one which is set up by ourselves; however, it is important that the STUN Server should be outside of our network, we should access it by WAN. We need a STUN (Session Traversal Utilities for NAT) client to speak in STUN protocol, so our project implements it with only required parts (not all STUN messages or attributes implemented).
 
 Sources:
+
 * [WebRTC for the Curious: STUN](https://webrtcforthecurious.com/docs/03-connecting/#stun)
 * [Wikipedia: STUN](https://en.wikipedia.org/wiki/STUN)
 * [Some STUN Server addresses](https://gist.github.com/zziuni/3741933)
 * [STUN Protocol RFC - Session Traversal Utilities for NAT](https://datatracker.ietf.org/doc/html/rfc5389)
 
-<br>
 
 ### **2.4.1. Using our STUN Client**
-<br>
 
 We create a STUN Client via "NewStunClient" function in [backend/src/stun/stunclient.go](../backend/src/stun/stunclient.go). This function takes some arguments:
+
 * serverAddr: Configured STUN Server Address (can be accessed via config.Val.Server.StunServerAddr). Default is "stun.l.google.com:19302".
 * ufrag: "User fragment" is a string can be considered as "user name" for STUN Server. We generate a random ufrag via "GenerateICEUfrag" function in [backend/src/agent/generators.go](../backend/src/agent/generators.go).
 * pwd: Can be considered as "password" for STUN Server.  We generate a random ufrag via "GenerateICEPwd" function in [backend/src/agent/generators.go](../backend/src/agent/generators.go).
 
 <sup>from [backend/src/stun/stunclient.go](../backend/src/stun/stunclient.go)</sup>
+
 ```go
 func NewStunClient(serverAddr string, ufrag string, pwd string) *StunClient {
     return &StunClient{
@@ -190,18 +187,16 @@ func NewStunClient(serverAddr string, ufrag string, pwd string) *StunClient {
 We call our STUN Client's Discover() method, then add it to our candidate IP list.
 
 <sup>from [backend/src/main.go](../backend/src/main.go)</sup>
+
 ```go
     mappedAddress, err := stunClient.Discover()
 ```
 
-
-<br>
-
 ### **2.4.2. Implementing STUN Protocol (as Client)**
-<br>
 
 <sup>STUN packet structure</sup>
-```
+
+```console
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -220,6 +215,7 @@ We call our STUN Client's Discover() method, then add it to our candidate IP lis
 Our STUN message struct in [backend/src/stun/message.go](../backend/src/stun/message.go):
 
 <sup>from [backend/src/stun/message.go](../backend/src/stun/message.go)</sup>
+
 ```go
 type Message struct {
     MessageType   MessageType
@@ -235,10 +231,10 @@ As a client, to ask our IP to the server, we should create a *STUN Binding Reque
 * Create a STUN message with "STUN Message Type" of MessageTypeBindingRequest (consists of Method: MessageMethodStunBinding (0x0001) and Class: MessageClassRequest (0x00)), generated Transaction ID and STUN Magic Cookie (constant value: 0x2112A442).
 <br>
 You can find:
+
     * MessageType constants in [backend/src/stun/messagetype.go](../backend/src/stun/messagetype.go)
     * MessageClass constants in [backend/src/stun/messageclass.go](../backend/src/stun/messageclass.go)
     * MessageMethod constants in [backend/src/stun/messagemethod.go](../backend/src/stun/messagemethod.go)
-
 
 * Now, our steps for sending binding request are:
     * We resolve IP address of ServerAddr (with port number)
@@ -250,6 +246,7 @@ You can find:
     * Write encoded byte array to STUN Server UDP address via started listener.
 
 <sup>from [backend/src/stun/stunclient.go](../backend/src/stun/stunclient.go)</sup>
+
 ```go
     serverUDPAddr, err := net.ResolveUDPAddr("udp", c.ServerAddr)
     if err != nil {
@@ -276,6 +273,7 @@ After we have sent *STUN Binding Request* message successfully, we expect that t
     * If message integrity and authorization check succeeded, we decode the attribute that contains result IP address encoded with XOR, via DecodeAttrXorMappedAddress function, and return as result.
 
 <sup>from [backend/src/stun/stunclient.go](../backend/src/stun/stunclient.go)</sup>
+
 ```go
     buf := make([]byte, 1024)
 
@@ -308,18 +306,17 @@ After we have sent *STUN Binding Request* message successfully, we expect that t
 At the end, now we have gathered all available IP addresses.
 
 Sources:
+
 * [go-stun project (Github)](https://github.com/ccding/go-stun)
 
-<br>
-
 ## **2.5. Initialize Conference Manager**
-<br>
 
 We create our ConferenceManager object that manages active conferences, server side ICE Agents per conference, and SDP Offer Answers, incoming via signaling WebSocket.
 
 The ConferenceManager has Run() method to listen ChanSdpOffer [Go Channel](https://go.dev/tour/concurrency/2) in infinite loop, we call this method as [Go Routine](https://medium.com/technofunnel/understanding-golang-and-goroutines-72ac3c9a014d), so it runs in parallel thread. We increase waitGroup's waiting list.
 
 <sup>from [backend/src/main.go](../backend/src/main.go)</sup>
+
 ```go
     conferenceManager = conference.NewConferenceManager(discoveredServerIPs, config.Val.Server.UDP.SinglePort)
     waitGroup.Add(1)
@@ -327,19 +324,18 @@ The ConferenceManager has Run() method to listen ChanSdpOffer [Go Channel](https
 ```
 
 Sources:
+
 * [Channel in Golang](https://www.geeksforgeeks.org/channel-in-golang/)
 * [Goroutines](https://golangbot.com/goroutines/)
 
-<br>
-
 ## **2.6. Starting UDP Listener**
-<br>
 
 We create our UdpListener object that starts to listen specified UDP port and process incoming packets.
 
 The UdpListener has Run() method to listen UDP port in infinite loop, we call this method as [Go Routine](https://medium.com/technofunnel/understanding-golang-and-goroutines-72ac3c9a014d), so it runs in parallel thread. We increase waitGroup's waiting list.
 
 <sup>from [backend/src/main.go](../backend/src/main.go)</sup>
+
 ```go
     var udpListener = udp.NewUdpListener("0.0.0.0", config.Val.Server.UDP.SinglePort, conferenceManager)
     waitGroup.Add(1)
@@ -357,6 +353,7 @@ At the "Run" function in [backend/src/udp/udpListener.go](../backend/src/udp/udp
     * AddBuffer function acts as demultiplexer for different types of packets (different types of protocols) on same connection.
 
 <sup>from [backend/src/udp/udpListener.go](../backend/src/udp/udpListener.go)</sup>
+
 ```go
     conn, err := net.ListenUDP("udp", &net.UDPAddr{
         IP:   net.IP{0, 0, 0, 0},
@@ -389,16 +386,14 @@ At the "Run" function in [backend/src/udp/udpListener.go](../backend/src/udp/udp
     }
 ```
 
-<br>
-
 ## **2.7. Starting Signaling HTTP Server**
-<br>
 
 We create our signaling.HttpServer object that starts to listen specified signaling port and process incoming HTTP requests.
 
 The HttpServer has Run() method to listen signaling port in infinite loop, we call this method as [Go Routine](https://medium.com/technofunnel/understanding-golang-and-goroutines-72ac3c9a014d), so it runs in parallel thread. We increase waitGroup's waiting list.
 
 <sup>from [backend/src/main.go](../backend/src/main.go)</sup>
+
 ```go
     httpServer, err := signaling.NewHttpServer(fmt.Sprintf(":%d", config.Val.Server.Signaling.WsPort), conferenceManager)
     ...
@@ -413,6 +408,7 @@ At the "NewHttpServer" function in [backend/src/signaling/httpserver.go](../back
 "/ws" path for WebSocket requests.
 
 <sup>from [backend/src/signaling/httpserver.go](../backend/src/signaling/httpserver.go)</sup>
+
 ```go
 func NewHttpServer(httpServerAddr string, conferenceManager *conference.ConferenceManager) (*HttpServer, error) {
     wsHub := newWsHub(conferenceManager)
@@ -433,9 +429,11 @@ func NewHttpServer(httpServerAddr string, conferenceManager *conference.Conferen
 At the "Run" function in [backend/src/signaling/httpserver.go](../backend/src/signaling/httpserver.go), we call wsHub.run() and http.ListenAndServe to start signaling HTTP server.
 
 Sources:
+
 * [Gorilla WebSocket: Chat Example (GitHub)](https://github.com/gorilla/websocket/tree/master/examples/chat)
 
 Now, our server application is waiting for client interactions on:
+
 * For signaling requests on WebSocket port 8081 (default)
 * For incoming UDP packets (STUN, DTLS, RTP, RTCP, etc... packets) on port 15000 (default)
 

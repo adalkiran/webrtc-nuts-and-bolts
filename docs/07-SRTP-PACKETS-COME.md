@@ -5,7 +5,8 @@ In previous chapter, we completed the initialization of SRTP ciphers process suc
 When a new packet comes in, the "AddBuffer" function in [backend/src/agent/udpclientsocket.go](../backend/src/agent/udpclientsocket.go) looks for which protocol standard this packet rely on.
 
 <sup>RTP packet structure</sup>
-```
+
+```console
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -25,6 +26,7 @@ When a new packet comes in, the "AddBuffer" function in [backend/src/agent/udpcl
 Our RTP packet struct in [backend/src/srtp/header.go](../backend/src/srtp/header.go) and [backend/src/srtp/packet.go](../backend/src/srtp/packet.go):
 
 <sup>from [backend/src/srtp/header.go](../backend/src/srtp/header.go) and [backend/src/srtp/packet.go](../backend/src/srtp/packet.go)</sup>
+
 ```go
 type PayloadType byte
 
@@ -57,13 +59,12 @@ type Packet struct {
 }
 ```
 
-<details>
+<details markdown>
   <summary>Click to expand Wireshark capture (Received): First SRTP Packet</summary>
-<br>
 
 **Important note:** As you can see at the end of the block, Wireshark couldn't specify the protocol of the packet as RTP. It shows RTP/SRTP packets as raw UDP packets.
 
-```
+```console
 Frame 568: 1068 bytes on wire (8544 bits), 1068 bytes captured (8544 bits) on interface lo0, id 0
 Null/Loopback
 Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***
@@ -72,20 +73,21 @@ Data (1036 bytes)
     Data: 806010d66b18660546dfb57f81a378739249bef2f2f5552907340c6229373297f3c52e7e…
     [Length: 1036]
 ```
-</details>
 
-<br>
+</details>
 
 **Important notice:** You can ask "The chapter is about SRTP but you show me RTP without the 'S'?". Because [SRTP (Secure Real-time Transport Protocol)](https://en.wikipedia.org/wiki/Secure_Real-time_Transport_Protocol), a secure version of [RTP (Real-time Transport Protocol)](https://en.wikipedia.org/wiki/Real-time_Transport_Protocol). Header is in clear text, Payload part is encrypted and authenticated we will discuss further.
 
 In this context, we can check out rtp.IsRtpPacket function. This function checks:
-  * Take the second byte (with index 1) which contains M (1 bit) (marker) and PT (7 bits) (PayloadType)
-  * Use "and" bitwise operator on this byte and 0b01111111 (it sets 8. bit as zero, takes other 7 bits)
-  * This result byte data (ordinally) is between 0 and 35, or between 96 and 127. This byte represents the SRTP Header's PayloadType value.
+
+* Take the second byte (with index 1) which contains M (1 bit) (marker) and PT (7 bits) (PayloadType)
+* Use "and" bitwise operator on this byte and 0b01111111 (it sets 8. bit as zero, takes other 7 bits)
+* This result byte data (ordinally) is between 0 and 35, or between 96 and 127. This byte represents the SRTP Header's PayloadType value.
 
 If this buffer part complies with these conditions, we can say "this packet is an SRTP protocol packet", then we can process it with SRTP protocol's methods.
 
 <sup>from [backend/src/rtp/rtpheader.go](../backend/src/rtp/rtpheader.go)</sup>
+
 ```go
 func IsRtpPacket(buf []byte, offset int, arrayLen int) bool {
     // Initial segment of RTP header; 7 bit payload
@@ -100,13 +102,10 @@ Here is the console output when the server received first "expected" SRTP packet
 ![Received RTP Packet](images/07-01-received-rtp-packet.png)
 
 Sources:
+
 * [Multiplexing RTP and RTCP on a Single Port](https://csperkins.org/standards/ietf-67/2006-11-07-IETF67-AVT-rtp-rtcp-mux.pdf)
 
-
-<br>
-
 ## **7.1. Processing incoming SRTP package**
-<br>
 
 We have determined that incoming packet is an RTP packet via rtp.IsRtpPacket function at "AddBuffer" function.
 
@@ -114,6 +113,7 @@ We have determined that incoming packet is an RTP packet via rtp.IsRtpPacket fun
 * Forward the decoded RTP packet to the UDPClientSocket's "RtpDepacketizer" [channel](https://go.dev/tour/concurrency/2). This channel is listened by runRtpDepacketizer() function of UDPClientSocket object, shown below:
 
 <sup>from [backend/src/agent/udpclientsocket.go](../backend/src/agent/udpclientsocket.go)</sup>
+
 ```go
 func (ms *UDPClientSocket) AddBuffer(buf []byte, offset int, arrayLen int) {
     logging.Descf(logging.ProtoUDP, "A packet received. The byte array (<u>%d bytes</u>) not parsed yet. Demultiplexing via if-else blocks.", arrayLen)
@@ -134,6 +134,7 @@ func (ms *UDPClientSocket) AddBuffer(buf []byte, offset int, arrayLen int) {
 * Sets the decrypted payload to rtpPacket.Payload property
 
 <sup>from [backend/src/agent/udpclientsocket.go](../backend/src/agent/udpclientsocket.go)</sup>
+
 ```go
 func (ms *UDPClientSocket) runRtpDepacketizer() {
     defer close(ms.RtpDepacketizer)
@@ -154,15 +155,12 @@ func (ms *UDPClientSocket) runRtpDepacketizer() {
 }
 ```
 
-
-<br>
-
 ## **7.2. Decoding the SRTP package**
-<br>
 
 We use "DecryptRTPPacket" function in [backend/src/srtp/srtpcontext.go](../backend/src/srtp/srtpcontext.go) to decrypt the SRTP payload. You can find the original code [here](https://github.com/pion/srtp/blob/3c34651fa0c6de900bdc91062e7ccb5992409643/srtp.go#L8).
 
 <sup>from [backend/src/srtp/srtpcontext.go](../backend/src/srtp/srtpcontext.go)</sup>
+
 ```go
 func (c *SRTPContext) DecryptRTPPacket(packet *rtp.Packet) ([]byte, error) {
     s := c.getSRTPSSRCState(packet.Header.SSRC)
@@ -191,6 +189,7 @@ func (c *SRTPContext) DecryptRTPPacket(packet *rtp.Packet) ([]byte, error) {
 * At this "srtpSSRCState" struct, we store the *ssrc*, *index*, and *rolloverHasProcessed* values:
 
 <sup>from [backend/src/srtp/srtpcontext.go](../backend/src/srtp/srtpcontext.go)</sup>
+
 ```go
 type srtpSSRCState struct {
     ssrc                 uint32
@@ -217,6 +216,7 @@ type srtpSSRCState struct {
     * **Important notice:** It will decrypt the encrypted payload part, but with checking AEAD authentication with additional header data. This will give an "authentication error" if you give wrong or missing parameters. For example, on my first try, I didn't copy the ciphertext into dst variable, passed an allocated but empty byte array. But I realized that, the [AEAD.Open](https://pkg.go.dev/crypto/cipher#AEAD.Open) checks authentication in the dst parameter.
 
 <sup>from [backend/src/srtp/cryptogcm.go](../backend/src/srtp/cryptogcm.go)</sup>
+
 ```go
     if _, err := g.srtpGCM.Open(
         dst[packet.HeaderSize:packet.HeaderSize], iv, ciphertext[packet.HeaderSize:], ciphertext[:packet.HeaderSize],
@@ -225,8 +225,8 @@ type srtpSSRCState struct {
     }
 ```
 
-
 <sup>from [backend/src/srtp/cryptogcm.go](../backend/src/srtp/cryptogcm.go)</sup>
+
 ```go
 func (g *GCM) Decrypt(packet *rtp.Packet, roc uint32) ([]byte, error) {
     ciphertext := packet.RawData
@@ -253,14 +253,9 @@ func (g *GCM) Decrypt(packet *rtp.Packet, roc uint32) ([]byte, error) {
 ```
 
 * Call the "updateROC" function which we get previously
-
 * Our encrypted Payload is now decrypted and as clear text.
 
-
-<br>
-
 ## **7.2. Decoding the VP8 Video Content**
-<br>
 
 * If the packet's PayloadType is in PayloadTypeVP8 type, it forwards to the UDPClientSocket's "vp8Depacketizer" [channel](https://go.dev/tour/concurrency/2). This channel is listened by Run() function of VP8Decoder object in [backend/src/transcoding/vp8.go](../backend/src/transcoding/vp8.go), discussed in chapter [8. VP8 PACKET DECODE](./08-VP8-PACKET-DECODE.md).
 

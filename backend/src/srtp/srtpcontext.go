@@ -20,7 +20,7 @@ type srtpSSRCState struct {
 	rolloverHasProcessed bool
 }
 
-//https://github.com/pion/srtp/blob/3c34651fa0c6de900bdc91062e7ccb5992409643/context.go#L159
+// https://github.com/pion/srtp/blob/3c34651fa0c6de900bdc91062e7ccb5992409643/context.go#L159
 func (c *SRTPContext) getSRTPSSRCState(ssrc uint32) *srtpSSRCState {
 	s, ok := c.srtpSSRCStates[ssrc]
 	if ok {
@@ -81,7 +81,7 @@ func (s *srtpSSRCState) nextRolloverCount(sequenceNumber uint16) (uint32, func()
 	}
 }
 
-//https://github.com/pion/srtp/blob/3c34651fa0c6de900bdc91062e7ccb5992409643/srtp.go#L8
+// https://github.com/pion/srtp/blob/3c34651fa0c6de900bdc91062e7ccb5992409643/srtp.go#L8
 func (c *SRTPContext) DecryptRTPPacket(packet *rtp.Packet) ([]byte, error) {
 	s := c.getSRTPSSRCState(packet.Header.SSRC)
 	roc, updateROC := s.nextRolloverCount(packet.Header.SequenceNumber)

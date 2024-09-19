@@ -155,7 +155,7 @@ T/K: |TID|Y| KEYIDX  | (OPTIONAL)
      +-+-+-+-+-+-+-+-+
 */
 
-//https://tools.ietf.org/id/draft-ietf-payload-vp8-05.html
+// https://tools.ietf.org/id/draft-ietf-payload-vp8-05.html
 type VP8Packet struct {
 	// Required Header
 	X   uint8 /* extended control bits present */

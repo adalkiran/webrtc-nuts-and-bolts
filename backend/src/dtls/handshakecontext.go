@@ -74,7 +74,7 @@ const (
 	Flight6 Flight = 6
 )
 
-//https://github.com/pion/dtls/blob/bee42643f57a7f9c85ee3aa6a45a4fa9811ed122/state.go#L182
+// https://github.com/pion/dtls/blob/bee42643f57a7f9c85ee3aa6a45a4fa9811ed122/state.go#L182
 func (c *HandshakeContext) ExportKeyingMaterial(length int) ([]byte, error) {
 	if c.KeyingMaterialCache != nil {
 		return c.KeyingMaterialCache, nil

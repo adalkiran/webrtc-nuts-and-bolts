@@ -9,7 +9,7 @@ import (
 	"github.com/adalkiran/webrtc-nuts-and-bolts/src/rtp"
 )
 
-//https://github.com/pion/srtp/blob/e338637eb5c459e0e43daf9c88cf28dd441eeb7c/context.go#L9
+// https://github.com/pion/srtp/blob/e338637eb5c459e0e43daf9c88cf28dd441eeb7c/context.go#L9
 const (
 	labelSRTPEncryption        = 0x00
 	labelSRTPAuthenticationTag = 0x01

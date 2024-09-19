@@ -1,0 +1,1063 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A holistic way of understanding how WebRTC and its protocols run in practice, with code and detailed documentation.">
+      
+      
+        <meta name="author" content="Adil Alper DALKIRAN">
+      
+      
+        <link rel="canonical" href="https://adalkiran.github.io/webrtc-nuts-and-bolts/04-STUN-BINDING-REQUEST-FROM-CLIENT/">
+      
+      
+        <link rel="prev" href="../03-FIRST-CLIENT-COMES-IN/">
+      
+      
+        <link rel="next" href="../05-DTLS-HANDSHAKE/">
+      
+      
+      <link rel="icon" href="../assets/icon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.35">
+    
+    
+      
+        <title>STUN BINDING REQUEST FROM CLIENT - WebRTC Nuts and Bolts</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.35f28582.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/custom.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-05VMCF3NF0"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-05VMCF3NF0",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-05VMCF3NF0",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
+
+    
+    
+      
+        <meta  property="og:type"  content="website" >
+      
+        <meta  property="og:title"  content="STUN BINDING REQUEST FROM CLIENT - WebRTC Nuts and Bolts" >
+      
+        <meta  property="og:description"  content="A holistic way of understanding how WebRTC and its protocols run in practice, with code and detailed documentation." >
+      
+        <meta  property="og:image"  content="https://adalkiran.github.io/webrtc-nuts-and-bolts/assets/images/social/04-STUN-BINDING-REQUEST-FROM-CLIENT.png" >
+      
+        <meta  property="og:image:type"  content="image/png" >
+      
+        <meta  property="og:image:width"  content="1200" >
+      
+        <meta  property="og:image:height"  content="630" >
+      
+        <meta  property="og:url"  content="https://adalkiran.github.io/webrtc-nuts-and-bolts/04-STUN-BINDING-REQUEST-FROM-CLIENT/" >
+      
+        <meta  name="twitter:card"  content="summary_large_image" >
+      
+        <meta  name="twitter:title"  content="STUN BINDING REQUEST FROM CLIENT - WebRTC Nuts and Bolts" >
+      
+        <meta  name="twitter:description"  content="A holistic way of understanding how WebRTC and its protocols run in practice, with code and detailed documentation." >
+      
+        <meta  name="twitter:image"  content="https://adalkiran.github.io/webrtc-nuts-and-bolts/assets/images/social/04-STUN-BINDING-REQUEST-FROM-CLIENT.png" >
+      
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#4-stun-binding-request-from-client" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="WebRTC Nuts and Bolts" class="md-header__button md-logo" aria-label="WebRTC Nuts and Bolts" data-md-component="logo">
+      
+  <img src="../assets/icon.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            WebRTC Nuts and Bolts
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              STUN BINDING REQUEST FROM CLIENT
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    adalkiran/webrtc-nuts-and-bolts
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../llama-nuts-and-bolts" class="md-tabs__link">
+        
+  
+    
+  
+  LLaMA Nuts and Bolts
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href=".." class="md-tabs__link">
+          
+  
+  WebRTC Nuts and Bolts
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://www.linkedin.com/in/alper-dalkiran/" class="md-tabs__link">
+        
+  
+    
+  
+  Contact
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="WebRTC Nuts and Bolts" class="md-nav__button md-logo" aria-label="WebRTC Nuts and Bolts" data-md-component="logo">
+      
+  <img src="../assets/icon.svg" alt="logo">
+
+    </a>
+    WebRTC Nuts and Bolts
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    adalkiran/webrtc-nuts-and-bolts
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../llama-nuts-and-bolts" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    LLaMA Nuts and Bolts
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    WebRTC Nuts and Bolts
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            WebRTC Nuts and Bolts
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    HOME
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-INFRASTRUCTURE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    INFRASTRUCTURE
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-RUNNING-IN-DEV-MODE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    RUNNING IN DEVELOPMENT MODE
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-BACKEND-INITIALIZATION/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BACKEND INITIALIZATION
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-FIRST-CLIENT-COMES-IN/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FIRST CLIENT COMES IN
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    STUN BINDING REQUEST FROM CLIENT
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    STUN BINDING REQUEST FROM CLIENT
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#41-udp-demultiplexing" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1. UDP Demultiplexing
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-DTLS-HANDSHAKE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DTLS HANDSHAKE
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-SRTP-INITIALIZATION/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SRTP INITIALIZATION
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-SRTP-PACKETS-COME/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SRTP PACKETS COME
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-VP8-PACKET-DECODE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    VP8 PACKET DECODE
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-CONCLUSION/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CONCLUSION
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://www.linkedin.com/in/alper-dalkiran/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Contact
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="4-stun-binding-request-from-client"><strong>4. STUN BINDING REQUEST FROM CLIENT</strong><a class="headerlink" href="#4-stun-binding-request-from-client" title="Permanent link">&para;</a></h1>
+<p>In previous chapters:</p>
+<ul>
+<li>The client joined the conference room</li>
+<li>Initialized webcam and microphone devices, created media stream, video and audio tracks</li>
+<li>The client and the server exchanged SDP Offer and Answer via Signaling WebSocket</li>
+<li>Now, interaction over UDP is starting: The client sends STUN Binding Request message.</li>
+</ul>
+<p>Note: For detailed information about STUN Protocol, you can find at "2.4.2. Implementing STUN Protocol (as Client)" chapter in <a href="../02-BACKEND-INITIALIZATION/">2. BACKEND INITIALIZATION</a></p>
+<h2 id="41-udp-demultiplexing"><strong>4.1. UDP Demultiplexing</strong><a class="headerlink" href="#41-udp-demultiplexing" title="Permanent link">&para;</a></h2>
+<p>First of all, this is our first "expected" packet incoming via UDP. " Demultiplexing" mechanism on sockets are implemented in a different (well architected) way, but in this project, we implemented the plain way. Let's explain our demultiplexing mechanism:</p>
+<ul>
+<li>UDP listener object receives a packet (byte array) in "Run" function in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/udp/udpListener.go" target="_blank">backend/src/udp/udpListener.go</a></li>
+<li>Checks if the packet came from a known socket</li>
+<li>Forwards the packet buffer to "AddBuffer" function in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/agent/udpclientsocket.go" target="_blank">backend/src/agent/udpclientsocket.go</a></li>
+<li>The "AddBuffer" function checks which protocol the packet can be related with:</li>
+</ul>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/agent/udpclientsocket.go" target="_blank">backend/src/agent/udpclientsocket.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">ms</span><span class="w"> </span><span class="o">*</span><span class="nx">UDPClientSocket</span><span class="p">)</span><span class="w"> </span><span class="nx">AddBuffer</span><span class="p">(</span><span class="nx">buf</span><span class="w"> </span><span class="p">[]</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="nx">offset</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">arrayLen</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="nx">logging</span><span class="p">.</span><span class="nx">Descf</span><span class="p">(</span><span class="nx">logging</span><span class="p">.</span><span class="nx">ProtoUDP</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;A packet received. The byte array (&lt;u&gt;%d bytes&lt;/u&gt;) not parsed yet. Demultiplexing via if-else blocks.&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">arrayLen</span><span class="p">)</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">stun</span><span class="p">.</span><span class="nx">IsMessage</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span><span class="w"> </span><span class="nx">offset</span><span class="p">,</span><span class="w"> </span><span class="nx">arrayLen</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">        </span><span class="nx">logging</span><span class="p">.</span><span class="nx">Descf</span><span class="p">(</span><span class="nx">logging</span><span class="p">.</span><span class="nx">ProtoSTUN</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;This is a STUN message.&quot;</span><span class="p">)</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">        </span><span class="o">...</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nx">dtls</span><span class="p">.</span><span class="nx">IsDtlsPacket</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span><span class="w"> </span><span class="nx">offset</span><span class="p">,</span><span class="w"> </span><span class="nx">arrayLen</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">        </span><span class="nx">logging</span><span class="p">.</span><span class="nx">Descf</span><span class="p">(</span><span class="nx">logging</span><span class="p">.</span><span class="nx">ProtoDTLS</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;This is a DTLS packet.&quot;</span><span class="p">)</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">        </span><span class="o">...</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nx">rtp</span><span class="p">.</span><span class="nx">IsRtpPacket</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span><span class="w"> </span><span class="nx">offset</span><span class="p">,</span><span class="w"> </span><span class="nx">arrayLen</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">        </span><span class="nx">logging</span><span class="p">.</span><span class="nx">Descf</span><span class="p">(</span><span class="nx">logging</span><span class="p">.</span><span class="nx">ProtoRTP</span><span class="p">,</span><span class="w"> </span><span class="s">&quot; This is an RTP packet.&quot;</span><span class="p">)</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">        </span><span class="o">...</span><span class="p">.</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nx">rtcp</span><span class="p">.</span><span class="nx">IsRtcpPacket</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span><span class="w"> </span><span class="nx">offset</span><span class="p">,</span><span class="w"> </span><span class="nx">arrayLen</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">        </span><span class="nx">logging</span><span class="p">.</span><span class="nx">Descf</span><span class="p">(</span><span class="nx">logging</span><span class="p">.</span><span class="nx">ProtoRTP</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;This is an RTCP packet.&quot;</span><span class="p">)</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">        </span><span class="o">...</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">        </span><span class="nx">logging</span><span class="p">.</span><span class="nx">Descf</span><span class="p">(</span><span class="nx">logging</span><span class="p">.</span><span class="nx">ProtoUDP</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;This packet in a different format which is not known by the server, ignoring it.&quot;</span><span class="p">)</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">        </span><span class="nx">logging</span><span class="p">.</span><span class="nx">Warningf</span><span class="p">(</span><span class="nx">logging</span><span class="p">.</span><span class="nx">ProtoUDP</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Unknown message from: &lt;u&gt;%s&lt;/u&gt;, &lt;u&gt;%v&lt;/u&gt;&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">ms</span><span class="p">.</span><span class="nx">Addr</span><span class="p">,</span><span class="w"> </span><span class="nx">buf</span><span class="p">[</span><span class="nx">offset</span><span class="p">:</span><span class="nx">offset</span><span class="o">+</span><span class="nx">arrayLen</span><span class="p">])</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>In this context, we can check out stun.IsMessage function. This function checks:</p>
+<ul>
+<li>Data length (arrayLen) is greater than messageHeaderSize (20 bytes)
+<br>and</li>
+<li>4 bytes after 4. byte (between 4. and 8. indices) equals to STUN magicCookie (constant value, 0x2112A442).</li>
+</ul>
+<p>If this buffer part complies with these conditions, we can say "this packet is a STUN protocol packet", then we can process it with STUN protocol's methods.</p>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/stun/message.go" target="_blank">backend/src/stun/message.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">IsMessage</span><span class="p">(</span><span class="nx">buf</span><span class="w"> </span><span class="p">[]</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="nx">offset</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">arrayLen</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">arrayLen</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="nx">messageHeaderSize</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">binary</span><span class="p">.</span><span class="nx">BigEndian</span><span class="p">.</span><span class="nx">Uint32</span><span class="p">(</span><span class="nx">buf</span><span class="p">[</span><span class="nx">offset</span><span class="o">+</span><span class="mi">4</span><span class="p">:</span><span class="nx">offset</span><span class="o">+</span><span class="mi">8</span><span class="p">])</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nx">magicCookie</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="p">}</span>
+</span></code></pre></div>
+<details>
+<summary>Click to expand Wireshark capture (Received): STUN Binding Request</summary>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="go">Frame 414: 140 bytes on wire (1120 bits), 140 bytes captured (1120 bits) on interface lo0, id 0</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="go">Null/Loopback</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="go">Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="go">User Datagram Protocol, Src Port: 52993, Dst Port: 15000</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="go">Session Traversal Utilities for NAT</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="go">    [Response In: 451]</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="go">    Message Type: 0x0001 (Binding Request)</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="go">    Message Length: 88</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="go">    Message Cookie: 2112a442</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="go">    Message Transaction ID: 467479737a594f3632596a2f</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="go">    [STUN Network Version: RFC-5389/8489 (3)]</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="go">    Attributes</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="go">        USERNAME: xPLDnJObCsNVlwnb:vv+t</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="go">            Attribute Type: USERNAME</span>
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="go">                0... .... .... .... = Attribute Type Comprehension: Required (0x0)</span>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="go">                .0.. .... .... .... = Attribute Type Assignment: IETF Review (0x0)</span>
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="go">            Attribute Length: 21</span>
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="go">            Username: xPLDnJObCsNVlwnb:vv+t</span>
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="go">            Padding: 3</span>
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="go">        GOOG-NETWORK-INFO</span>
+</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="go">            Attribute Type: GOOG-NETWORK-INFO</span>
+</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="go">                1... .... .... .... = Attribute Type Comprehension: Optional (0x1)</span>
+</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="go">                .1.. .... .... .... = Attribute Type Assignment: Designated Expert (0x1)</span>
+</span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a><span class="go">            Attribute Length: 4</span>
+</span><span id="__span-2-25"><a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a><span class="go">            Google Network ID: 1</span>
+</span><span id="__span-2-26"><a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a><span class="go">            Google Network Cost: Low (10)</span>
+</span><span id="__span-2-27"><a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a><span class="go">        ICE-CONTROLLED</span>
+</span><span id="__span-2-28"><a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a><span class="go">            Attribute Type: ICE-CONTROLLED</span>
+</span><span id="__span-2-29"><a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a><span class="go">                1... .... .... .... = Attribute Type Comprehension: Optional (0x1)</span>
+</span><span id="__span-2-30"><a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a><span class="go">                .0.. .... .... .... = Attribute Type Assignment: IETF Review (0x0)</span>
+</span><span id="__span-2-31"><a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a><span class="go">            Attribute Length: 8</span>
+</span><span id="__span-2-32"><a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a><span class="go">            Tie breaker: 3d35f1dedc0b9ace</span>
+</span><span id="__span-2-33"><a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a><span class="go">        PRIORITY</span>
+</span><span id="__span-2-34"><a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a><span class="go">            Attribute Type: PRIORITY</span>
+</span><span id="__span-2-35"><a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a><span class="go">                0... .... .... .... = Attribute Type Comprehension: Required (0x0)</span>
+</span><span id="__span-2-36"><a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a><span class="go">                .0.. .... .... .... = Attribute Type Assignment: IETF Review (0x0)</span>
+</span><span id="__span-2-37"><a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a><span class="go">            Attribute Length: 4</span>
+</span><span id="__span-2-38"><a id="__codelineno-2-38" name="__codelineno-2-38" href="#__codelineno-2-38"></a><span class="go">            Priority: 1853824767</span>
+</span><span id="__span-2-39"><a id="__codelineno-2-39" name="__codelineno-2-39" href="#__codelineno-2-39"></a><span class="go">        MESSAGE-INTEGRITY</span>
+</span><span id="__span-2-40"><a id="__codelineno-2-40" name="__codelineno-2-40" href="#__codelineno-2-40"></a><span class="go">            Attribute Type: MESSAGE-INTEGRITY</span>
+</span><span id="__span-2-41"><a id="__codelineno-2-41" name="__codelineno-2-41" href="#__codelineno-2-41"></a><span class="go">                0... .... .... .... = Attribute Type Comprehension: Required (0x0)</span>
+</span><span id="__span-2-42"><a id="__codelineno-2-42" name="__codelineno-2-42" href="#__codelineno-2-42"></a><span class="go">                .0.. .... .... .... = Attribute Type Assignment: IETF Review (0x0)</span>
+</span><span id="__span-2-43"><a id="__codelineno-2-43" name="__codelineno-2-43" href="#__codelineno-2-43"></a><span class="go">            Attribute Length: 20</span>
+</span><span id="__span-2-44"><a id="__codelineno-2-44" name="__codelineno-2-44" href="#__codelineno-2-44"></a><span class="go">            HMAC-SHA1: 5b8ea8d6e018e4789af5f951e64e5f737e2539df</span>
+</span><span id="__span-2-45"><a id="__codelineno-2-45" name="__codelineno-2-45" href="#__codelineno-2-45"></a><span class="go">        FINGERPRINT</span>
+</span><span id="__span-2-46"><a id="__codelineno-2-46" name="__codelineno-2-46" href="#__codelineno-2-46"></a><span class="go">            Attribute Type: FINGERPRINT</span>
+</span><span id="__span-2-47"><a id="__codelineno-2-47" name="__codelineno-2-47" href="#__codelineno-2-47"></a><span class="go">                1... .... .... .... = Attribute Type Comprehension: Optional (0x1)</span>
+</span><span id="__span-2-48"><a id="__codelineno-2-48" name="__codelineno-2-48" href="#__codelineno-2-48"></a><span class="go">                .0.. .... .... .... = Attribute Type Assignment: IETF Review (0x0)</span>
+</span><span id="__span-2-49"><a id="__codelineno-2-49" name="__codelineno-2-49" href="#__codelineno-2-49"></a><span class="go">            Attribute Length: 4</span>
+</span><span id="__span-2-50"><a id="__codelineno-2-50" name="__codelineno-2-50" href="#__codelineno-2-50"></a><span class="go">            CRC-32: 0xaaff24d0</span>
+</span></code></pre></div>
+</details>
+<p>Here is the console output when the server received an "expected" STUN Binding Request.</p>
+<p><img alt="Server Receive STUN Binding Request" src="../images/04-01-server-received-stun-binding-request.png" /></p>
+<p>After we determined that this packet is STUN packet, our steps will be:</p>
+<ul>
+<li>Decode the byte array as stun.Message object via "DecodeMessage" function <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/stun/message.go" target="_blank">backend/src/stun/message.go</a></li>
+<li>Validate the STUN packet's integrity via HMAC and fingerprint via CRC32, by "Validate" function <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/stun/message.go" target="_blank">backend/src/stun/message.go</a></li>
+<li>We only support "Binding Request" message type as incoming STUN packet, because of this, we have only one case.</li>
+<li>Split the AttrUserName attribute's value with ":", interpret first part as serverUfrag, second part as clientUfrag. serverUfrag represents which Server ICE Agent (conference) the client wants to communicate.</li>
+<li>While creating UdpClientSocket objects, we specify related ServerUfrag and ClientUfrag (values coming previously by SDP data), so a UdpClientSocket can accept STUN packets that only have the server ufrag value and the client ufrag value it has. Because of this, we check these values.</li>
+<li>If everything is OK, we create a STUN Binding Response packet (by calling "createBindingResponse" function) and send it. This means "I accept your request, we can communicate by this channel, send me DTLS ClientHello message".</li>
+</ul>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/agent/udpclientsocket.go" target="_blank">backend/src/agent/udpclientsocket.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="nx">stunMessage</span><span class="p">.</span><span class="nx">MessageType</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="nx">stun</span><span class="p">.</span><span class="nx">MessageTypeBindingRequest</span><span class="p">:</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">        </span><span class="nx">userNameAttr</span><span class="p">,</span><span class="w"> </span><span class="nx">userNameExists</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">stunMessage</span><span class="p">.</span><span class="nx">Attributes</span><span class="p">[</span><span class="nx">stun</span><span class="p">.</span><span class="nx">AttrUserName</span><span class="p">]</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">userNameExists</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">            </span><span class="k">return</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">        </span><span class="nx">userNameParts</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">strings</span><span class="p">.</span><span class="nx">Split</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">userNameAttr</span><span class="p">.</span><span class="nx">Value</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;:&quot;</span><span class="p">)</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">        </span><span class="nx">serverUfrag</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">userNameParts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">        </span><span class="nx">clientUfrag</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">userNameParts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">        </span><span class="nx">logging</span><span class="p">.</span><span class="nx">Descf</span><span class="p">(</span><span class="nx">logging</span><span class="p">.</span><span class="nx">ProtoSTUN</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;We are checking: are the incoming STUN binding request&#39;s user fragment (first part of username attribute) &lt;u&gt;%s&lt;/u&gt; and our server ICE Agent&#39;s ufrag &lt;u&gt;%s&lt;/u&gt; same?&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">serverUfrag</span><span class="p">,</span><span class="w"> </span><span class="nx">ms</span><span class="p">.</span><span class="nx">ServerUfrag</span><span class="p">)</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">serverUfrag</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nx">ms</span><span class="p">.</span><span class="nx">ServerUfrag</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">            </span><span class="nx">logging</span><span class="p">.</span><span class="nx">Descf</span><span class="p">(</span><span class="nx">logging</span><span class="p">.</span><span class="nx">ProtoUDP</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;STUN Binding Request message forwarded wrong agent, serverUfrag &lt;u&gt;%s&lt;/u&gt; points, ignore it.&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">serverUfrag</span><span class="p">)</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">            </span><span class="k">return</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">clientUfrag</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nx">ms</span><span class="p">.</span><span class="nx">ClientUfrag</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="w">            </span><span class="nx">logging</span><span class="p">.</span><span class="nx">Descf</span><span class="p">(</span><span class="nx">logging</span><span class="p">.</span><span class="nx">ProtoUDP</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;It seems a STUN Binding Request message received after processed first one, clientUfrag &lt;u&gt;%s&lt;/u&gt;, ignore it.&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">clientUfrag</span><span class="p">)</span>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="w">            </span><span class="k">return</span>
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="w">        </span><span class="nx">logging</span><span class="p">.</span><span class="nx">Descf</span><span class="p">(</span><span class="nx">logging</span><span class="p">.</span><span class="nx">ProtoSTUN</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;This is a STUN Binding Request message with transaction &lt;u&gt;%s&lt;/u&gt;, user name &lt;u&gt;%s&lt;/u&gt;.  Client says to the server \&quot;hey, I received some ICE candidates (IP-port pairs) via Signaling, I&#39;m trying these candidates one by one. If this binding request message arrives at you, and you send me a binding response packet, I will understand that we can communicate by this channel, then I will start a DTLS handshake by sending a DTLS ClientHello message.\&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">stunMessage</span><span class="p">.</span><span class="nx">TransactionID</span><span class="p">,</span><span class="w"> </span><span class="nb">string</span><span class="p">(</span><span class="nx">userNameAttr</span><span class="p">.</span><span class="nx">Value</span><span class="p">))</span>
+</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>
+</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="w">        </span><span class="nx">bindingResponse</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">createBindingResponse</span><span class="p">(</span><span class="nx">stunMessage</span><span class="p">,</span><span class="w"> </span><span class="nx">ms</span><span class="p">.</span><span class="nx">Addr</span><span class="p">,</span><span class="w"> </span><span class="nb">string</span><span class="p">(</span><span class="nx">userNameAttr</span><span class="p">.</span><span class="nx">Value</span><span class="p">))</span>
+</span><span id="__span-3-23"><a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="w">        </span><span class="nx">logging</span><span class="p">.</span><span class="nx">Infof</span><span class="p">(</span><span class="nx">logging</span><span class="p">.</span><span class="nx">ProtoSTUN</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Sending response to &lt;u&gt;%v:%v&lt;/u&gt; for transaction &lt;u&gt;%s&lt;/u&gt;, user name &lt;u&gt;%s&lt;/u&gt;\n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">ms</span><span class="p">.</span><span class="nx">Addr</span><span class="p">.</span><span class="nx">IP</span><span class="p">,</span><span class="w"> </span><span class="nx">ms</span><span class="p">.</span><span class="nx">Addr</span><span class="p">.</span><span class="nx">Port</span><span class="p">,</span><span class="w"> </span><span class="nx">stunMessage</span><span class="p">.</span><span class="nx">TransactionID</span><span class="p">,</span><span class="w"> </span><span class="nb">string</span><span class="p">(</span><span class="nx">userNameAttr</span><span class="p">.</span><span class="nx">Value</span><span class="p">))</span>
+</span><span id="__span-3-24"><a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span class="w">        </span><span class="nx">encodedBindingResponse</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">bindingResponse</span><span class="p">.</span><span class="nx">Encode</span><span class="p">(</span><span class="nx">ms</span><span class="p">.</span><span class="nx">ServerPwd</span><span class="p">)</span>
+</span><span id="__span-3-25"><a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a>
+</span><span id="__span-3-26"><a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a><span class="w">        </span><span class="nx">ms</span><span class="p">.</span><span class="nx">Conn</span><span class="p">.</span><span class="nx">WriteToUDP</span><span class="p">(</span><span class="nx">encodedBindingResponse</span><span class="p">,</span><span class="w"> </span><span class="nx">ms</span><span class="p">.</span><span class="nx">Addr</span><span class="p">)</span>
+</span><span id="__span-3-27"><a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a><span class="w">        </span><span class="nx">logging</span><span class="p">.</span><span class="nx">Descf</span><span class="p">(</span><span class="nx">logging</span><span class="p">.</span><span class="nx">ProtoSTUN</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Now we are waiting for a DTLS ClientHello packet from the client!&quot;</span><span class="p">)</span>
+</span><span id="__span-3-28"><a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a><span class="w">    </span><span class="p">}</span>
+</span></code></pre></div>
+<details>
+<summary>Click to expand Wireshark capture (Sent): STUN Binding Response</summary>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="go">Frame 451: 144 bytes on wire (1152 bits), 144 bytes captured (1152 bits) on interface lo0, id 0</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="go">Null/Loopback</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="go">Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="go">User Datagram Protocol, Src Port: 15000, Dst Port: 52993</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="go">Session Traversal Utilities for NAT</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="go">    [Request In: 414]</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="go">    [Time: 0.004788000 seconds]</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="go">    Message Type: 0x0101 (Binding Success Response)</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="go">        .... ...1 ...0 .... = Message Class: 0x10 Success Response (2)</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="go">        ..00 000. 000. 0001 = Message Method: 0x0001 Binding (0x001)</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="go">        ..0. .... .... .... = Message Method Assignment: IETF Review (0x0)</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="go">    Message Length: 92</span>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="go">    Message Cookie: 2112a442</span>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="go">    Message Transaction ID: 467479737a594f3632596a2f</span>
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="go">    [STUN Network Version: RFC-5389/8489 (3)]</span>
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="go">    Attributes</span>
+</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="go">        XOR-MAPPED-ADDRESS: 172.19.0.1:63001</span>
+</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="go">            Attribute Type: XOR-MAPPED-ADDRESS</span>
+</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="go">                0... .... .... .... = Attribute Type Comprehension: Required (0x0)</span>
+</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="go">                .0.. .... .... .... = Attribute Type Assignment: IETF Review (0x0)</span>
+</span><span id="__span-4-21"><a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="go">            Attribute Length: 8</span>
+</span><span id="__span-4-22"><a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="go">            Reserved: 00</span>
+</span><span id="__span-4-23"><a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="go">            Protocol Family: IPv4 (0x01)</span>
+</span><span id="__span-4-24"><a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="go">            Port (XOR-d): d70b</span>
+</span><span id="__span-4-25"><a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a><span class="go">            [Port: 63001]</span>
+</span><span id="__span-4-26"><a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a><span class="go">            IP (XOR-d): 8d01a443</span>
+</span><span id="__span-4-27"><a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a><span class="go">            [IP: 172.19.0.1]</span>
+</span><span id="__span-4-28"><a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a><span class="go">        USERNAME: xPLDnJObCsNVlwnb:vv+t</span>
+</span><span id="__span-4-29"><a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a><span class="go">            Attribute Type: USERNAME</span>
+</span><span id="__span-4-30"><a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a><span class="go">                0... .... .... .... = Attribute Type Comprehension: Required (0x0)</span>
+</span><span id="__span-4-31"><a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a><span class="go">                .0.. .... .... .... = Attribute Type Assignment: IETF Review (0x0)</span>
+</span><span id="__span-4-32"><a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a><span class="go">            Attribute Length: 21</span>
+</span><span id="__span-4-33"><a id="__codelineno-4-33" name="__codelineno-4-33" href="#__codelineno-4-33"></a><span class="go">            Username: xPLDnJObCsNVlwnb:vv+t</span>
+</span><span id="__span-4-34"><a id="__codelineno-4-34" name="__codelineno-4-34" href="#__codelineno-4-34"></a><span class="go">            Padding: 3</span>
+</span><span id="__span-4-35"><a id="__codelineno-4-35" name="__codelineno-4-35" href="#__codelineno-4-35"></a><span class="go">        SOFTWARE</span>
+</span><span id="__span-4-36"><a id="__codelineno-4-36" name="__codelineno-4-36" href="#__codelineno-4-36"></a><span class="go">            Attribute Type: SOFTWARE</span>
+</span><span id="__span-4-37"><a id="__codelineno-4-37" name="__codelineno-4-37" href="#__codelineno-4-37"></a><span class="go">                1... .... .... .... = Attribute Type Comprehension: Optional (0x1)</span>
+</span><span id="__span-4-38"><a id="__codelineno-4-38" name="__codelineno-4-38" href="#__codelineno-4-38"></a><span class="go">                .0.. .... .... .... = Attribute Type Assignment: IETF Review (0x0)</span>
+</span><span id="__span-4-39"><a id="__codelineno-4-39" name="__codelineno-4-39" href="#__codelineno-4-39"></a><span class="go">            Attribute Length: 15</span>
+</span><span id="__span-4-40"><a id="__codelineno-4-40" name="__codelineno-4-40" href="#__codelineno-4-40"></a><span class="go">            Software: WebRTCNutsBolts</span>
+</span><span id="__span-4-41"><a id="__codelineno-4-41" name="__codelineno-4-41" href="#__codelineno-4-41"></a><span class="go">            Padding: 1</span>
+</span><span id="__span-4-42"><a id="__codelineno-4-42" name="__codelineno-4-42" href="#__codelineno-4-42"></a><span class="go">        MESSAGE-INTEGRITY</span>
+</span><span id="__span-4-43"><a id="__codelineno-4-43" name="__codelineno-4-43" href="#__codelineno-4-43"></a><span class="go">            Attribute Type: MESSAGE-INTEGRITY</span>
+</span><span id="__span-4-44"><a id="__codelineno-4-44" name="__codelineno-4-44" href="#__codelineno-4-44"></a><span class="go">                0... .... .... .... = Attribute Type Comprehension: Required (0x0)</span>
+</span><span id="__span-4-45"><a id="__codelineno-4-45" name="__codelineno-4-45" href="#__codelineno-4-45"></a><span class="go">                .0.. .... .... .... = Attribute Type Assignment: IETF Review (0x0)</span>
+</span><span id="__span-4-46"><a id="__codelineno-4-46" name="__codelineno-4-46" href="#__codelineno-4-46"></a><span class="go">            Attribute Length: 20</span>
+</span><span id="__span-4-47"><a id="__codelineno-4-47" name="__codelineno-4-47" href="#__codelineno-4-47"></a><span class="go">            HMAC-SHA1: 8d55bd07b6dfda1861f4f37541248a6ee330330c</span>
+</span><span id="__span-4-48"><a id="__codelineno-4-48" name="__codelineno-4-48" href="#__codelineno-4-48"></a><span class="go">        FINGERPRINT</span>
+</span><span id="__span-4-49"><a id="__codelineno-4-49" name="__codelineno-4-49" href="#__codelineno-4-49"></a><span class="go">            Attribute Type: FINGERPRINT</span>
+</span><span id="__span-4-50"><a id="__codelineno-4-50" name="__codelineno-4-50" href="#__codelineno-4-50"></a><span class="go">                1... .... .... .... = Attribute Type Comprehension: Optional (0x1)</span>
+</span><span id="__span-4-51"><a id="__codelineno-4-51" name="__codelineno-4-51" href="#__codelineno-4-51"></a><span class="go">                .0.. .... .... .... = Attribute Type Assignment: IETF Review (0x0)</span>
+</span><span id="__span-4-52"><a id="__codelineno-4-52" name="__codelineno-4-52" href="#__codelineno-4-52"></a><span class="go">            Attribute Length: 4</span>
+</span><span id="__span-4-53"><a id="__codelineno-4-53" name="__codelineno-4-53" href="#__codelineno-4-53"></a><span class="go">            CRC-32: 0x8387d149</span>
+</span></code></pre></div>
+</details>
+<p>Now, the client will send a <a href="https://datatracker.ietf.org/doc/html/rfc5246#section-7.4.1.2" target="_blank">ClientHello</a> message and we can start the <a href="https://datatracker.ietf.org/doc/html/rfc4347#section-4.2" target="_blank">DTLS Handshake</a> process.</p>
+<p>Note that, one of reference link "ClientHello" refers to "The Transport Layer Security (TLS) Protocol Version 1.2", reference link of "DTLS Handshake" refers to "Datagram Transport Layer Security". Because DTLS was developed over TLS.</p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../03-FIRST-CLIENT-COMES-IN/" class="md-footer__link md-footer__link--prev" aria-label="Previous: FIRST CLIENT COMES IN">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                FIRST CLIENT COMES IN
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../05-DTLS-HANDSHAKE/" class="md-footer__link md-footer__link--next" aria-label="Next: DTLS HANDSHAKE">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                DTLS HANDSHAKE
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2022 - present, Adil Alper DALKIRAN. All rights reserved.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/adalkiran" target="_blank" rel="noopener" title="adalkiran" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://www.linkedin.com/in/alper-dalkiran/" target="_blank" rel="noopener" title="@aadalkiran" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8l164.9-188.5L26.8 48h145.6l100.5 132.9zm-24.8 373.8h39.1L151.1 88h-42z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://www.linkedin.com/in/alper-dalkiran/" target="_blank" rel="noopener" title="in/alper-dalkiran" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3M135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5m282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["toc.follow", "toc.integrate", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "navigation.footer", "content.code.copy"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.56dfad97.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

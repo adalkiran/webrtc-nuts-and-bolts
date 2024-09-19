@@ -1,0 +1,1106 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A holistic way of understanding how WebRTC and its protocols run in practice, with code and detailed documentation.">
+      
+      
+        <meta name="author" content="Adil Alper DALKIRAN">
+      
+      
+        <link rel="canonical" href="https://adalkiran.github.io/webrtc-nuts-and-bolts/07-SRTP-PACKETS-COME/">
+      
+      
+        <link rel="prev" href="../06-SRTP-INITIALIZATION/">
+      
+      
+        <link rel="next" href="../08-VP8-PACKET-DECODE/">
+      
+      
+      <link rel="icon" href="../assets/icon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.35">
+    
+    
+      
+        <title>SRTP PACKETS COME - WebRTC Nuts and Bolts</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.35f28582.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/custom.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-05VMCF3NF0"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-05VMCF3NF0",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-05VMCF3NF0",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
+
+    
+    
+      
+        <meta  property="og:type"  content="website" >
+      
+        <meta  property="og:title"  content="SRTP PACKETS COME - WebRTC Nuts and Bolts" >
+      
+        <meta  property="og:description"  content="A holistic way of understanding how WebRTC and its protocols run in practice, with code and detailed documentation." >
+      
+        <meta  property="og:image"  content="https://adalkiran.github.io/webrtc-nuts-and-bolts/assets/images/social/07-SRTP-PACKETS-COME.png" >
+      
+        <meta  property="og:image:type"  content="image/png" >
+      
+        <meta  property="og:image:width"  content="1200" >
+      
+        <meta  property="og:image:height"  content="630" >
+      
+        <meta  property="og:url"  content="https://adalkiran.github.io/webrtc-nuts-and-bolts/07-SRTP-PACKETS-COME/" >
+      
+        <meta  name="twitter:card"  content="summary_large_image" >
+      
+        <meta  name="twitter:title"  content="SRTP PACKETS COME - WebRTC Nuts and Bolts" >
+      
+        <meta  name="twitter:description"  content="A holistic way of understanding how WebRTC and its protocols run in practice, with code and detailed documentation." >
+      
+        <meta  name="twitter:image"  content="https://adalkiran.github.io/webrtc-nuts-and-bolts/assets/images/social/07-SRTP-PACKETS-COME.png" >
+      
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#7-srtp-packets-come" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="WebRTC Nuts and Bolts" class="md-header__button md-logo" aria-label="WebRTC Nuts and Bolts" data-md-component="logo">
+      
+  <img src="../assets/icon.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            WebRTC Nuts and Bolts
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SRTP PACKETS COME
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    adalkiran/webrtc-nuts-and-bolts
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../llama-nuts-and-bolts" class="md-tabs__link">
+        
+  
+    
+  
+  LLaMA Nuts and Bolts
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href=".." class="md-tabs__link">
+          
+  
+  WebRTC Nuts and Bolts
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://www.linkedin.com/in/alper-dalkiran/" class="md-tabs__link">
+        
+  
+    
+  
+  Contact
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="WebRTC Nuts and Bolts" class="md-nav__button md-logo" aria-label="WebRTC Nuts and Bolts" data-md-component="logo">
+      
+  <img src="../assets/icon.svg" alt="logo">
+
+    </a>
+    WebRTC Nuts and Bolts
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    adalkiran/webrtc-nuts-and-bolts
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../llama-nuts-and-bolts" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    LLaMA Nuts and Bolts
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    WebRTC Nuts and Bolts
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            WebRTC Nuts and Bolts
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    HOME
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-INFRASTRUCTURE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    INFRASTRUCTURE
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-RUNNING-IN-DEV-MODE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    RUNNING IN DEVELOPMENT MODE
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-BACKEND-INITIALIZATION/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BACKEND INITIALIZATION
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-FIRST-CLIENT-COMES-IN/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FIRST CLIENT COMES IN
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-STUN-BINDING-REQUEST-FROM-CLIENT/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    STUN BINDING REQUEST FROM CLIENT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-DTLS-HANDSHAKE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DTLS HANDSHAKE
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-SRTP-INITIALIZATION/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SRTP INITIALIZATION
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    SRTP PACKETS COME
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    SRTP PACKETS COME
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#71-processing-incoming-srtp-package" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.1. Processing incoming SRTP package
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#72-decoding-the-srtp-package" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.2. Decoding the SRTP package
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#72-decoding-the-vp8-video-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.2. Decoding the VP8 Video Content
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-VP8-PACKET-DECODE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    VP8 PACKET DECODE
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-CONCLUSION/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CONCLUSION
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://www.linkedin.com/in/alper-dalkiran/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Contact
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="7-srtp-packets-come"><strong>7. SRTP PACKETS COME</strong><a class="headerlink" href="#7-srtp-packets-come" title="Permanent link">&para;</a></h1>
+<p>In previous chapter, we completed the initialization of SRTP ciphers process successfully.</p>
+<p>When a new packet comes in, the "AddBuffer" function in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/agent/udpclientsocket.go" target="_blank">backend/src/agent/udpclientsocket.go</a> looks for which protocol standard this packet rely on.</p>
+<p><sup>RTP packet structure</sup></p>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="go">    0                   1                   2                   3</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="go">    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="go">    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="go">    |V=2|P|X|  CC   |M|     PT      |       Sequence Number         |</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="go">    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="go">    |                           Timestamp                           |</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="go">    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="go">    |           Synchronization Source (SSRC) identifier            |</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="go">    +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="go">    |            Contributing Source (CSRC) identifiers             |</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="go">    |                             ....                              |</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="go">    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="go">    |                            Payload                            |</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="go">    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span>
+</span></code></pre></div>
+<p>Our RTP packet struct in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/srtp/header.go" target="_blank">backend/src/srtp/header.go</a> and <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/srtp/packet.go" target="_blank">backend/src/srtp/packet.go</a>:</p>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/srtp/header.go" target="_blank">backend/src/srtp/header.go</a> and <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/srtp/packet.go" target="_blank">backend/src/srtp/packet.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">PayloadType</span><span class="w"> </span><span class="kt">byte</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kd">type</span><span class="w"> </span><span class="nx">Extension</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="nx">Id</span><span class="w">      </span><span class="kt">byte</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="nx">Payload</span><span class="w"> </span><span class="p">[]</span><span class="kt">byte</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">}</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="kd">type</span><span class="w"> </span><span class="nx">Header</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="nx">Version</span><span class="w">          </span><span class="kt">byte</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="nx">Padding</span><span class="w">          </span><span class="kt">bool</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="nx">Extension</span><span class="w">        </span><span class="kt">bool</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">    </span><span class="nx">Marker</span><span class="w">           </span><span class="kt">bool</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="nx">PayloadType</span><span class="w">      </span><span class="nx">PayloadType</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="nx">SequenceNumber</span><span class="w">   </span><span class="kt">uint16</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">    </span><span class="nx">Timestamp</span><span class="w">        </span><span class="kt">uint32</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">    </span><span class="nx">SSRC</span><span class="w">             </span><span class="kt">uint32</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">    </span><span class="nx">CSRC</span><span class="w">             </span><span class="p">[]</span><span class="kt">uint32</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="nx">ExtensionProfile</span><span class="w"> </span><span class="kt">uint16</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">    </span><span class="nx">Extensions</span><span class="w">       </span><span class="p">[]</span><span class="nx">Extension</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">    </span><span class="nx">RawData</span><span class="w"> </span><span class="p">[]</span><span class="kt">byte</span>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="p">}</span>
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>
+</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="kd">type</span><span class="w"> </span><span class="nx">Packet</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="w">    </span><span class="nx">Header</span><span class="w">     </span><span class="o">*</span><span class="nx">Header</span>
+</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="w">    </span><span class="nx">HeaderSize</span><span class="w"> </span><span class="kt">int</span>
+</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="w">    </span><span class="nx">Payload</span><span class="w">    </span><span class="p">[]</span><span class="kt">byte</span>
+</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="w">    </span><span class="nx">RawData</span><span class="w">    </span><span class="p">[]</span><span class="kt">byte</span>
+</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="p">}</span>
+</span></code></pre></div>
+<details>
+<summary>Click to expand Wireshark capture (Received): First SRTP Packet</summary>
+<p><strong>Important note:</strong> As you can see at the end of the block, Wireshark couldn't specify the protocol of the packet as RTP. It shows RTP/SRTP packets as raw UDP packets.</p>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="go">Frame 568: 1068 bytes on wire (8544 bits), 1068 bytes captured (8544 bits) on interface lo0, id 0</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="go">Null/Loopback</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="go">Internet Protocol Version 4, Src: 192.168.***.***, Dst: 192.168.***.***</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="go">User Datagram Protocol, Src Port: 52993, Dst Port: 15000</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="go">Data (1036 bytes)</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="go">    Data: 806010d66b18660546dfb57f81a378739249bef2f2f5552907340c6229373297f3c52e7e…</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="go">    [Length: 1036]</span>
+</span></code></pre></div>
+</details>
+<p><strong>Important notice:</strong> You can ask "The chapter is about SRTP but you show me RTP without the 'S'?". Because <a href="https://en.wikipedia.org/wiki/Secure_Real-time_Transport_Protocol" target="_blank">SRTP (Secure Real-time Transport Protocol)</a>, a secure version of <a href="https://en.wikipedia.org/wiki/Real-time_Transport_Protocol" target="_blank">RTP (Real-time Transport Protocol)</a>. Header is in clear text, Payload part is encrypted and authenticated we will discuss further.</p>
+<p>In this context, we can check out rtp.IsRtpPacket function. This function checks:</p>
+<ul>
+<li>Take the second byte (with index 1) which contains M (1 bit) (marker) and PT (7 bits) (PayloadType)</li>
+<li>Use "and" bitwise operator on this byte and 0b01111111 (it sets 8. bit as zero, takes other 7 bits)</li>
+<li>This result byte data (ordinally) is between 0 and 35, or between 96 and 127. This byte represents the SRTP Header's PayloadType value.</li>
+</ul>
+<p>If this buffer part complies with these conditions, we can say "this packet is an SRTP protocol packet", then we can process it with SRTP protocol's methods.</p>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/rtp/rtpheader.go" target="_blank">backend/src/rtp/rtpheader.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">IsRtpPacket</span><span class="p">(</span><span class="nx">buf</span><span class="w"> </span><span class="p">[]</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="nx">offset</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">arrayLen</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="c1">// Initial segment of RTP header; 7 bit payload</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="c1">// type; values 0...35 and 96...127 usually used</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nx">payloadType</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">buf</span><span class="p">[</span><span class="nx">offset</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mi">0</span><span class="nx">b01111111</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="nx">payloadType</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">35</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="nx">payloadType</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">96</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">payloadType</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">127</span><span class="p">)</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Here is the console output when the server received first "expected" SRTP packet.</p>
+<p><img alt="Received RTP Packet" src="../images/07-01-received-rtp-packet.png" /></p>
+<p>Sources:</p>
+<ul>
+<li><a href="https://csperkins.org/standards/ietf-67/2006-11-07-IETF67-AVT-rtp-rtcp-mux.pdf" target="_blank">Multiplexing RTP and RTCP on a Single Port</a></li>
+</ul>
+<h2 id="71-processing-incoming-srtp-package"><strong>7.1. Processing incoming SRTP package</strong><a class="headerlink" href="#71-processing-incoming-srtp-package" title="Permanent link">&para;</a></h2>
+<p>We have determined that incoming packet is an RTP packet via rtp.IsRtpPacket function at "AddBuffer" function.</p>
+<ul>
+<li>Call "DecodePacket" function in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/rtp/packet.go" target="_blank">backend/src/rtp/packet.go</a>. This method only decodes the byte array buffer to RTP header and packet objects, it doesn't decrypt the payload yet. Our RTP packet object has to store decoded/parsed values, and also the complete raw data, because we will need the raw state of the data while decryption.</li>
+<li>Forward the decoded RTP packet to the UDPClientSocket's "RtpDepacketizer" <a href="https://go.dev/tour/concurrency/2" target="_blank">channel</a>. This channel is listened by runRtpDepacketizer() function of UDPClientSocket object, shown below:</li>
+</ul>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/agent/udpclientsocket.go" target="_blank">backend/src/agent/udpclientsocket.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">ms</span><span class="w"> </span><span class="o">*</span><span class="nx">UDPClientSocket</span><span class="p">)</span><span class="w"> </span><span class="nx">AddBuffer</span><span class="p">(</span><span class="nx">buf</span><span class="w"> </span><span class="p">[]</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="nx">offset</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">arrayLen</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="nx">logging</span><span class="p">.</span><span class="nx">Descf</span><span class="p">(</span><span class="nx">logging</span><span class="p">.</span><span class="nx">ProtoUDP</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;A packet received. The byte array (&lt;u&gt;%d bytes&lt;/u&gt;) not parsed yet. Demultiplexing via if-else blocks.&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">arrayLen</span><span class="p">)</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="o">...</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nx">rtcp</span><span class="p">.</span><span class="nx">IsRtcpPacket</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span><span class="w"> </span><span class="nx">offset</span><span class="p">,</span><span class="w"> </span><span class="nx">arrayLen</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">        </span><span class="nx">logging</span><span class="p">.</span><span class="nx">Descf</span><span class="p">(</span><span class="nx">logging</span><span class="p">.</span><span class="nx">ProtoRTP</span><span class="p">,</span><span class="w"> </span><span class="s">&quot; This is an RTP packet.&quot;</span><span class="p">)</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">        </span><span class="nx">rtpPacket</span><span class="p">,</span><span class="w"> </span><span class="nx">offset</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">rtp</span><span class="p">.</span><span class="nx">DecodePacket</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span><span class="w"> </span><span class="nx">offset</span><span class="p">,</span><span class="w"> </span><span class="nx">arrayLen</span><span class="p">)</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">        </span><span class="o">...</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">        </span><span class="nx">logging</span><span class="p">.</span><span class="nx">Infof</span><span class="p">(</span><span class="nx">logging</span><span class="p">.</span><span class="nx">ProtoRTP</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Received packet: %s\n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">rtpPacket</span><span class="p">)</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">        </span><span class="nx">ms</span><span class="p">.</span><span class="nx">RtpDepacketizer</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">rtpPacket</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">    </span><span class="o">...</span>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="p">}</span>
+</span></code></pre></div>
+<ul>
+<li>This method in an infinite loop, when a message forwarded to "RtpDepacketizer" channel, it receives the forwarded SRTP packet, decrypts it via "DecryptRTPPacket" function in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/srtp/srtpcontext.go" target="_blank">backend/src/srtp/srtpcontext.go</a></li>
+<li>Sets the decrypted payload to rtpPacket.Payload property</li>
+</ul>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/agent/udpclientsocket.go" target="_blank">backend/src/agent/udpclientsocket.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">ms</span><span class="w"> </span><span class="o">*</span><span class="nx">UDPClientSocket</span><span class="p">)</span><span class="w"> </span><span class="nx">runRtpDepacketizer</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nb">close</span><span class="p">(</span><span class="nx">ms</span><span class="p">.</span><span class="nx">RtpDepacketizer</span><span class="p">)</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nb">close</span><span class="p">(</span><span class="nx">ms</span><span class="p">.</span><span class="nx">vp8Depacketizer</span><span class="p">)</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="k">go</span><span class="w"> </span><span class="nx">ms</span><span class="p">.</span><span class="nx">vp8Decoder</span><span class="p">.</span><span class="nx">Run</span><span class="p">()</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">rtpPacket</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">ms</span><span class="p">.</span><span class="nx">RtpDepacketizer</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">        </span><span class="nx">decrypted</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">ms</span><span class="p">.</span><span class="nx">SRTPContext</span><span class="p">.</span><span class="nx">DecryptRTPPacket</span><span class="p">(</span><span class="nx">rtpPacket</span><span class="p">)</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">        </span><span class="nx">rtpPacket</span><span class="p">.</span><span class="nx">Payload</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">decrypted</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">            </span><span class="nx">logging</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="nx">logging</span><span class="p">.</span><span class="nx">ProtoDTLS</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Error while decrypting: %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">            </span><span class="k">continue</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">        </span><span class="k">switch</span><span class="w"> </span><span class="nx">rtpPacket</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nx">PayloadType</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nx">rtp</span><span class="p">.</span><span class="nx">PayloadTypeVP8</span><span class="p">:</span>
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">            </span><span class="nx">ms</span><span class="p">.</span><span class="nx">vp8Depacketizer</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">rtpPacket</span>
+</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="p">}</span>
+</span></code></pre></div>
+<h2 id="72-decoding-the-srtp-package"><strong>7.2. Decoding the SRTP package</strong><a class="headerlink" href="#72-decoding-the-srtp-package" title="Permanent link">&para;</a></h2>
+<p>We use "DecryptRTPPacket" function in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/srtp/srtpcontext.go" target="_blank">backend/src/srtp/srtpcontext.go</a> to decrypt the SRTP payload. You can find the original code <a href="https://github.com/pion/srtp/blob/3c34651fa0c6de900bdc91062e7ccb5992409643/srtp.go#L8" target="_blank">here</a>.</p>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/srtp/srtpcontext.go" target="_blank">backend/src/srtp/srtpcontext.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">SRTPContext</span><span class="p">)</span><span class="w"> </span><span class="nx">DecryptRTPPacket</span><span class="p">(</span><span class="nx">packet</span><span class="w"> </span><span class="o">*</span><span class="nx">rtp</span><span class="p">.</span><span class="nx">Packet</span><span class="p">)</span><span class="w"> </span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="nx">s</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">getSRTPSSRCState</span><span class="p">(</span><span class="nx">packet</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nx">SSRC</span><span class="p">)</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="nx">roc</span><span class="p">,</span><span class="w"> </span><span class="nx">updateROC</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">nextRolloverCount</span><span class="p">(</span><span class="nx">packet</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nx">SequenceNumber</span><span class="p">)</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="nx">result</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">GCM</span><span class="p">.</span><span class="nx">Decrypt</span><span class="p">(</span><span class="nx">packet</span><span class="p">,</span><span class="w"> </span><span class="nx">roc</span><span class="p">)</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="nx">updateROC</span><span class="p">()</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">result</span><span class="p">[</span><span class="nx">packet</span><span class="p">.</span><span class="nx">HeaderSize</span><span class="p">:],</span><span class="w"> </span><span class="kc">nil</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="p">}</span>
+</span></code></pre></div>
+<ul>
+<li>If we revisit the same screenshoot above, we can see that this packet has some attributes:<ul>
+<li>Version: 2</li>
+<li><a href="https://help.callstats.io/hc/en-us/articles/360004485394-What-is-the-Synchronization-Source-SSRC" target="_blank">SSRC</a>: (some <a href="https://help.callstats.io/hc/en-us/articles/360004485394-What-is-the-Synchronization-Source-SSRC" target="_blank">Synchronization Source</a> value)</li>
+<li>Payload Type: VP8/90000 (96)</li>
+<li>Sequence Number: (Some increasing sequence number)</li>
+<li>CSRC Count (we don't use)</li>
+<li>Payload length</li>
+</ul>
+</li>
+</ul>
+<p><img alt="Received RTP Packet" src="../images/07-01-received-rtp-packet.png" /></p>
+<ul>
+<li>We may receive multiple different streams (with a unique <a href="https://help.callstats.io/hc/en-us/articles/360004485394-What-is-the-Synchronization-Source-SSRC" target="_blank">SSRC</a> identifier per stream)</li>
+<li>At the "SRTPContext" object which defined in "UDPClientSocket" object, we have "srtpSSRCStates" map that stores "srtpSSRCState" objects per different SSRC values.</li>
+<li>At this "srtpSSRCState" struct, we store the <em>ssrc</em>, <em>index</em>, and <em>rolloverHasProcessed</em> values:</li>
+</ul>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/srtp/srtpcontext.go" target="_blank">backend/src/srtp/srtpcontext.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">srtpSSRCState</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="nx">ssrc</span><span class="w">                 </span><span class="kt">uint32</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="nx">index</span><span class="w">                </span><span class="kt">uint64</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="nx">rolloverHasProcessed</span><span class="w"> </span><span class="kt">bool</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="p">}</span>
+</span></code></pre></div>
+<ul>
+<li>In the "DecryptRTPPacket" function, we get or create an srtpSSRCState state object for our packet's SSRC value (packet.Header.SSRC) via "getSRTPSSRCState" function</li>
+<li>Call "nextRolloverCount" of our state object to calculate next rollover count value (roc), and get rollover update function</li>
+<li>
+<p>Call "Decrypt" function of our SRTP GCM object in the context in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/srtp/cryptogcm.go" target="_blank">backend/src/srtp/cryptogcm.go</a> with our RTP packet object and calculated roc value</p>
+<ul>
+<li>Here, our ciphertext is packet.RawData (not only the Payload, whole raw packet byte array, because <a href="https://en.wikipedia.org/wiki/Authenticated_encryption" target="_blank">AEAD</a> encryption should calculate the authentication data from whole bytes including clear text header bytes)</li>
+<li>Create a byte array (dst) that has same length as ciphertext array</li>
+<li>Copy the ciphertext context to dst. Because we will pass pointer of dst array, contents will be changed and we need to backup original ciphertext</li>
+<li>We "know" that our aeadAuthTagLen is 16</li>
+<li>Crop the dst array by taking first (ciphertext length - aeadAuthTagLen)</li>
+<li>Calculate the initialization vector which is special for this RTP packet via "rtpInitializationVector" function, using packet header's SSRC, roc, and packet header's SequenceNumber, then XOR it with our srtpSalt</li>
+<li>Decrypt the bytes by <a href="https://pkg.go.dev/crypto/cipher#AEAD.Open" target="_blank">AEAD.Open</a>. We gave parameters:<ul>
+<li>dst: dst[packet.HeaderSize:packet.HeaderSize] (starting pointer of payload's first byte in the array that includes the header)</li>
+<li>nonce: Our calculated IV value</li>
+<li>ciphertext: Our ciphertext's payload (encrypted) part, starting from header ends (ciphertext[packet.HeaderSize:])</li>
+<li>additionalData: Our ciphertext's header (not encrypted) part (ciphertext[:packet.HeaderSize]).</li>
+</ul>
+</li>
+<li><strong>Important notice:</strong> It will decrypt the encrypted payload part, but with checking AEAD authentication with additional header data. This will give an "authentication error" if you give wrong or missing parameters. For example, on my first try, I didn't copy the ciphertext into dst variable, passed an allocated but empty byte array. But I realized that, the <a href="https://pkg.go.dev/crypto/cipher#AEAD.Open" target="_blank">AEAD.Open</a> checks authentication in the dst parameter.</li>
+</ul>
+</li>
+</ul>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/srtp/cryptogcm.go" target="_blank">backend/src/srtp/cryptogcm.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">g</span><span class="p">.</span><span class="nx">srtpGCM</span><span class="p">.</span><span class="nx">Open</span><span class="p">(</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">        </span><span class="nx">dst</span><span class="p">[</span><span class="nx">packet</span><span class="p">.</span><span class="nx">HeaderSize</span><span class="p">:</span><span class="nx">packet</span><span class="p">.</span><span class="nx">HeaderSize</span><span class="p">],</span><span class="w"> </span><span class="nx">iv</span><span class="p">,</span><span class="w"> </span><span class="nx">ciphertext</span><span class="p">[</span><span class="nx">packet</span><span class="p">.</span><span class="nx">HeaderSize</span><span class="p">:],</span><span class="w"> </span><span class="nx">ciphertext</span><span class="p">[:</span><span class="nx">packet</span><span class="p">.</span><span class="nx">HeaderSize</span><span class="p">],</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="p">}</span>
+</span></code></pre></div>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/srtp/cryptogcm.go" target="_blank">backend/src/srtp/cryptogcm.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">g</span><span class="w"> </span><span class="o">*</span><span class="nx">GCM</span><span class="p">)</span><span class="w"> </span><span class="nx">Decrypt</span><span class="p">(</span><span class="nx">packet</span><span class="w"> </span><span class="o">*</span><span class="nx">rtp</span><span class="p">.</span><span class="nx">Packet</span><span class="p">,</span><span class="w"> </span><span class="nx">roc</span><span class="w"> </span><span class="kt">uint32</span><span class="p">)</span><span class="w"> </span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="nx">ciphertext</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">packet</span><span class="p">.</span><span class="nx">RawData</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="nx">dst</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">ciphertext</span><span class="p">))</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="nb">copy</span><span class="p">(</span><span class="nx">dst</span><span class="p">,</span><span class="w"> </span><span class="nx">ciphertext</span><span class="p">)</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="nx">aeadAuthTagLen</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">16</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">    </span><span class="nx">resultLength</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">ciphertext</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">aeadAuthTagLen</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">resultLength</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nx">dst</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">        </span><span class="nx">dst</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">dst</span><span class="p">[:</span><span class="nx">resultLength</span><span class="p">]</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">    </span><span class="nx">iv</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">g</span><span class="p">.</span><span class="nx">rtpInitializationVector</span><span class="p">(</span><span class="nx">packet</span><span class="p">.</span><span class="nx">Header</span><span class="p">,</span><span class="w"> </span><span class="nx">roc</span><span class="p">)</span>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">g</span><span class="p">.</span><span class="nx">srtpGCM</span><span class="p">.</span><span class="nx">Open</span><span class="p">(</span>
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="w">        </span><span class="nx">dst</span><span class="p">[</span><span class="nx">packet</span><span class="p">.</span><span class="nx">HeaderSize</span><span class="p">:</span><span class="nx">packet</span><span class="p">.</span><span class="nx">HeaderSize</span><span class="p">],</span><span class="w"> </span><span class="nx">iv</span><span class="p">,</span><span class="w"> </span><span class="nx">ciphertext</span><span class="p">[</span><span class="nx">packet</span><span class="p">.</span><span class="nx">HeaderSize</span><span class="p">:],</span><span class="w"> </span><span class="nx">ciphertext</span><span class="p">[:</span><span class="nx">packet</span><span class="p">.</span><span class="nx">HeaderSize</span><span class="p">],</span>
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="w">    </span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
+</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-9-19"><a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>
+</span><span id="__span-9-20"><a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="w">    </span><span class="nb">copy</span><span class="p">(</span><span class="nx">dst</span><span class="p">[:</span><span class="nx">packet</span><span class="p">.</span><span class="nx">HeaderSize</span><span class="p">],</span><span class="w"> </span><span class="nx">ciphertext</span><span class="p">[:</span><span class="nx">packet</span><span class="p">.</span><span class="nx">HeaderSize</span><span class="p">])</span>
+</span><span id="__span-9-21"><a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">dst</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span>
+</span><span id="__span-9-22"><a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a><span class="p">}</span>
+</span></code></pre></div>
+<ul>
+<li>Call the "updateROC" function which we get previously</li>
+<li>Our encrypted Payload is now decrypted and as clear text.</li>
+</ul>
+<h2 id="72-decoding-the-vp8-video-content"><strong>7.2. Decoding the VP8 Video Content</strong><a class="headerlink" href="#72-decoding-the-vp8-video-content" title="Permanent link">&para;</a></h2>
+<ul>
+<li>If the packet's PayloadType is in PayloadTypeVP8 type, it forwards to the UDPClientSocket's "vp8Depacketizer" <a href="https://go.dev/tour/concurrency/2" target="_blank">channel</a>. This channel is listened by Run() function of VP8Decoder object in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/transcoding/vp8.go" target="_blank">backend/src/transcoding/vp8.go</a>, discussed in chapter <a href="../08-VP8-PACKET-DECODE/">8. VP8 PACKET DECODE</a>.</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../06-SRTP-INITIALIZATION/" class="md-footer__link md-footer__link--prev" aria-label="Previous: SRTP INITIALIZATION">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                SRTP INITIALIZATION
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../08-VP8-PACKET-DECODE/" class="md-footer__link md-footer__link--next" aria-label="Next: VP8 PACKET DECODE">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                VP8 PACKET DECODE
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2022 - present, Adil Alper DALKIRAN. All rights reserved.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/adalkiran" target="_blank" rel="noopener" title="adalkiran" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://www.linkedin.com/in/alper-dalkiran/" target="_blank" rel="noopener" title="@aadalkiran" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8l164.9-188.5L26.8 48h145.6l100.5 132.9zm-24.8 373.8h39.1L151.1 88h-42z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://www.linkedin.com/in/alper-dalkiran/" target="_blank" rel="noopener" title="in/alper-dalkiran" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3M135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5m282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["toc.follow", "toc.integrate", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "navigation.footer", "content.code.copy"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.56dfad97.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

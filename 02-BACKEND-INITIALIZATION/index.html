@@ -1,0 +1,1300 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A holistic way of understanding how WebRTC and its protocols run in practice, with code and detailed documentation.">
+      
+      
+        <meta name="author" content="Adil Alper DALKIRAN">
+      
+      
+        <link rel="canonical" href="https://adalkiran.github.io/webrtc-nuts-and-bolts/02-BACKEND-INITIALIZATION/">
+      
+      
+        <link rel="prev" href="../01-RUNNING-IN-DEV-MODE/">
+      
+      
+        <link rel="next" href="../03-FIRST-CLIENT-COMES-IN/">
+      
+      
+      <link rel="icon" href="../assets/icon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.35">
+    
+    
+      
+        <title>BACKEND INITIALIZATION - WebRTC Nuts and Bolts</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.35f28582.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/custom.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-05VMCF3NF0"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-05VMCF3NF0",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-05VMCF3NF0",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
+
+    
+    
+      
+        <meta  property="og:type"  content="website" >
+      
+        <meta  property="og:title"  content="BACKEND INITIALIZATION - WebRTC Nuts and Bolts" >
+      
+        <meta  property="og:description"  content="A holistic way of understanding how WebRTC and its protocols run in practice, with code and detailed documentation." >
+      
+        <meta  property="og:image"  content="https://adalkiran.github.io/webrtc-nuts-and-bolts/assets/images/social/02-BACKEND-INITIALIZATION.png" >
+      
+        <meta  property="og:image:type"  content="image/png" >
+      
+        <meta  property="og:image:width"  content="1200" >
+      
+        <meta  property="og:image:height"  content="630" >
+      
+        <meta  property="og:url"  content="https://adalkiran.github.io/webrtc-nuts-and-bolts/02-BACKEND-INITIALIZATION/" >
+      
+        <meta  name="twitter:card"  content="summary_large_image" >
+      
+        <meta  name="twitter:title"  content="BACKEND INITIALIZATION - WebRTC Nuts and Bolts" >
+      
+        <meta  name="twitter:description"  content="A holistic way of understanding how WebRTC and its protocols run in practice, with code and detailed documentation." >
+      
+        <meta  name="twitter:image"  content="https://adalkiran.github.io/webrtc-nuts-and-bolts/assets/images/social/02-BACKEND-INITIALIZATION.png" >
+      
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#2-backend-initialization" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="WebRTC Nuts and Bolts" class="md-header__button md-logo" aria-label="WebRTC Nuts and Bolts" data-md-component="logo">
+      
+  <img src="../assets/icon.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            WebRTC Nuts and Bolts
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              BACKEND INITIALIZATION
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    adalkiran/webrtc-nuts-and-bolts
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../llama-nuts-and-bolts" class="md-tabs__link">
+        
+  
+    
+  
+  LLaMA Nuts and Bolts
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href=".." class="md-tabs__link">
+          
+  
+  WebRTC Nuts and Bolts
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://www.linkedin.com/in/alper-dalkiran/" class="md-tabs__link">
+        
+  
+    
+  
+  Contact
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="WebRTC Nuts and Bolts" class="md-nav__button md-logo" aria-label="WebRTC Nuts and Bolts" data-md-component="logo">
+      
+  <img src="../assets/icon.svg" alt="logo">
+
+    </a>
+    WebRTC Nuts and Bolts
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    adalkiran/webrtc-nuts-and-bolts
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../llama-nuts-and-bolts" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    LLaMA Nuts and Bolts
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    WebRTC Nuts and Bolts
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            WebRTC Nuts and Bolts
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    HOME
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-INFRASTRUCTURE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    INFRASTRUCTURE
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-RUNNING-IN-DEV-MODE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    RUNNING IN DEVELOPMENT MODE
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    BACKEND INITIALIZATION
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    BACKEND INITIALIZATION
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#21-waiting-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1. Waiting loop
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#22-loading-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2. Loading configuration
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#23-dtls-initialization-generating-self-signed-certificate" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.3. DTLS initialization, generating self-signed certificate
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#24-gathering-local-and-external-ips" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.4. Gathering local and external IPs
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.4. Gathering local and external IPs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#241-using-our-stun-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.4.1. Using our STUN Client
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#242-implementing-stun-protocol-as-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.4.2. Implementing STUN Protocol (as Client)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#25-initialize-conference-manager" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.5. Initialize Conference Manager
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#26-starting-udp-listener" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.6. Starting UDP Listener
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#27-starting-signaling-http-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.7. Starting Signaling HTTP Server
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-FIRST-CLIENT-COMES-IN/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FIRST CLIENT COMES IN
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-STUN-BINDING-REQUEST-FROM-CLIENT/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    STUN BINDING REQUEST FROM CLIENT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-DTLS-HANDSHAKE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DTLS HANDSHAKE
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-SRTP-INITIALIZATION/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SRTP INITIALIZATION
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-SRTP-PACKETS-COME/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SRTP PACKETS COME
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-VP8-PACKET-DECODE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    VP8 PACKET DECODE
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-CONCLUSION/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CONCLUSION
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://www.linkedin.com/in/alper-dalkiran/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Contact
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="2-backend-initialization"><strong>2. BACKEND INITIALIZATION</strong><a class="headerlink" href="#2-backend-initialization" title="Permanent link">&para;</a></h1>
+<p>The entrypoint of backend application is the "main" function in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/main.go" target="_blank">backend/src/main.go</a>.</p>
+<p>This function will generate server DTLS certificate, discover local IPs and external IP by asking configured STUN Server, create the conference manager object, start UDP listener, HTTP server with WebSocket for Signaling, then wait for client requests.</p>
+<h2 id="21-waiting-loop"><strong>2.1. Waiting loop</strong><a class="headerlink" href="#21-waiting-loop" title="Permanent link">&para;</a></h2>
+<p>It starts with creating a wait group, adds threads that needs to be added to the wait list. The <em>waitGroup.Wait()</em> method runs in a loop that waits until waitGroup item count becomes zero, so the process doesn't end.</p>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/main.go" target="_blank">backend/src/main.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="nx">waitGroup</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">new</span><span class="p">(</span><span class="nx">sync</span><span class="p">.</span><span class="nx">WaitGroup</span><span class="p">)</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="o">...</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nx">waitGroup</span><span class="p">.</span><span class="nx">Wait</span><span class="p">()</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">}</span>
+</span></code></pre></div>
+<h2 id="22-loading-configuration"><strong>2.2. Loading configuration</strong><a class="headerlink" href="#22-loading-configuration" title="Permanent link">&para;</a></h2>
+<p>Configuration file is loaded from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/config.yml" target="_blank">config.yaml</a>.</p>
+<p>Sources:</p>
+<ul>
+<li><a href="https://medium.com/@bnprashanth256/reading-configuration-files-and-environment-variables-in-go-golang-c2607f912b63" target="_blank">A Medium article</a></li>
+<li><a href="https://github.com/spf13/viper" target="_blank">Viper project (Github)</a></li>
+</ul>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/main.go" target="_blank">backend/src/main.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="w">    </span><span class="nx">config</span><span class="p">.</span><span class="nx">Load</span><span class="p">()</span>
+</span></code></pre></div>
+<h2 id="23-dtls-initialization-generating-self-signed-certificate"><strong>2.3. DTLS initialization, generating self-signed certificate</strong><a class="headerlink" href="#23-dtls-initialization-generating-self-signed-certificate" title="Permanent link">&para;</a></h2>
+<p>One piece of the process after a client's first request is DTLS Handshake. We will discuss further in chapter <a href="../05-DTLS-HANDSHAKE/">05. DTLS HANDSHAKE</a></p>
+<p>During this handshake process, each peer send their digitally signed certificate each other to identify and prove themselves.</p>
+<p>This certifcate is a <a href="https://en.wikipedia.org/wiki/X.509" target="_blank">X.509 certificate</a>. In the DTLS handshake, you can use a pair of private key and public key, which:</p>
+<ul>
+<li>Previously generated and digitally signed by a known <a href="https://en.wikipedia.org/wiki/Certificate_authority" target="_blank">Certificate Authority</a> (keys are stored in disk, database, configuration file, or somewhere in sort of formats)</li>
+<li>Previously generated and digitally signed by yourself (<a href="https://en.wikipedia.org/wiki/Self-signed_certificate" target="_blank">Self-signed Certificate</a> by 3rd party software like OpenSSL) (keys are stored in disk or database, configuration file, or somewhere in sort of formats)</li>
+<li><strong>(Our preference)</strong> On-the-fly generated and digitally signed by yourself (same principles with Self-signed Certificate) but stored temporarily in RAM, it changes with every start of the application.</li>
+</ul>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/main.go" target="_blank">backend/src/main.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="w">    </span><span class="nx">dtls</span><span class="p">.</span><span class="nx">Init</span><span class="p">()</span>
+</span></code></pre></div>
+<p>When we go deeper into dtls.Init() function, we find ourselves at "GenerateServerCertificate" function in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/dtls/crypto.go" target="_blank">backend/src/dtls/crypto.go</a></p>
+<p>This function calls generateServerCertificatePrivateKey, which generates a random private key using specified "rand.Reader" (using standard random generator of Go) and sign it using <a href="https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm" target="_blank">ECDSA - Elliptic Curve Digital Signature Algorithm</a> with P-256 (secp256r1) <a href="https://en.wikipedia.org/wiki/Elliptic-curve_cryptography" target="_blank">curve</a>.</p>
+<p>You can use different random generators (in cryptography, randomness is an important thing, and is your "random number" truly random? <a href="https://stackoverflow.com/questions/4156907/why-is-random-not-so-random" target="_blank">See this post</a>). Cryptographic libraries like OpenSSL can generate random values in different way of randomness.</p>
+<p>Also we can use different methods to generate private and public keys, but in this project we preferred these options.</p>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/dtls/crypto.go" target="_blank">backend/src/dtls/crypto.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">generateServerCertificatePrivateKey</span><span class="p">()</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">ecdsa</span><span class="p">.</span><span class="nx">PrivateKey</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">ecdsa</span><span class="p">.</span><span class="nx">GenerateKey</span><span class="p">(</span><span class="nx">elliptic</span><span class="p">.</span><span class="nx">P256</span><span class="p">(),</span><span class="w"> </span><span class="nx">rand</span><span class="p">.</span><span class="nx">Reader</span><span class="p">)</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Now, we have randomly generated private key, and it's signed form (public key) in same object (<a href="https://pkg.go.dev/crypto/ecdsa#PrivateKey" target="_blank">ecdsa.PrivateKey</a>). We create an <a href="https://pkg.go.dev/crypto/x509#Certificate" target="_blank">X.509 Certificate</a> as byte array, then put them together into a <a href="https://pkg.go.dev/crypto/tls#Certificate" target="_blank">tls.Certificate</a> object.</p>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/dtls/crypto.go" target="_blank">backend/src/dtls/crypto.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="w">    </span><span class="nx">pubKey</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">serverCertificatePrivateKey</span><span class="p">.</span><span class="nx">PublicKey</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="nx">template</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">x509</span><span class="p">.</span><span class="nx">Certificate</span><span class="p">{</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">        </span><span class="nx">SerialNumber</span><span class="p">:</span><span class="w"> </span><span class="nx">serialNumber</span><span class="p">,</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">        </span><span class="nx">Version</span><span class="p">:</span><span class="w">      </span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">        </span><span class="nx">IsCA</span><span class="p">:</span><span class="w">         </span><span class="kc">true</span><span class="p">,</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">        </span><span class="nx">Subject</span><span class="p">:</span><span class="w"> </span><span class="nx">pkix</span><span class="p">.</span><span class="nx">Name</span><span class="p">{</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">            </span><span class="nx">CommonName</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;WebRTC-Nuts-and-Bolts&quot;</span><span class="p">,</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">        </span><span class="p">},</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">        </span><span class="nx">NotBefore</span><span class="p">:</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Now</span><span class="p">(),</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">        </span><span class="nx">NotAfter</span><span class="p">:</span><span class="w">  </span><span class="nx">time</span><span class="p">.</span><span class="nx">Now</span><span class="p">().</span><span class="nx">Add</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Hour</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">24</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">180</span><span class="p">),</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">        </span><span class="nx">KeyUsage</span><span class="p">:</span><span class="w"> </span><span class="nx">x509</span><span class="p">.</span><span class="nx">KeyUsageKeyEncipherment</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">x509</span><span class="p">.</span><span class="nx">KeyUsageDigitalSignature</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">x509</span><span class="p">.</span><span class="nx">KeyUsageCertSign</span><span class="p">,</span>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">        </span><span class="nx">ExtKeyUsage</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="nx">x509</span><span class="p">.</span><span class="nx">ExtKeyUsage</span><span class="p">{</span>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">            </span><span class="nx">x509</span><span class="p">.</span><span class="nx">ExtKeyUsageClientAuth</span><span class="p">,</span>
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">            </span><span class="nx">x509</span><span class="p">.</span><span class="nx">ExtKeyUsageServerAuth</span><span class="p">,</span>
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">        </span><span class="p">},</span>
+</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">        </span><span class="nx">BasicConstraintsValid</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>
+</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="w">    </span><span class="nx">raw</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">x509</span><span class="p">.</span><span class="nx">CreateCertificate</span><span class="p">(</span><span class="nx">rand</span><span class="p">.</span><span class="nx">Reader</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">template</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">template</span><span class="p">,</span><span class="w"> </span><span class="nx">pubKey</span><span class="p">,</span><span class="w"> </span><span class="nx">serverCertificatePrivateKey</span><span class="p">)</span>
+</span><span id="__span-4-21"><a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-22"><a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
+</span><span id="__span-4-23"><a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-4-24"><a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>
+</span><span id="__span-4-25"><a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">tls</span><span class="p">.</span><span class="nx">Certificate</span><span class="p">{</span>
+</span><span id="__span-4-26"><a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a><span class="w">        </span><span class="nx">Certificate</span><span class="p">:</span><span class="w"> </span><span class="p">[][]</span><span class="kt">byte</span><span class="p">{</span><span class="nx">raw</span><span class="p">},</span>
+</span><span id="__span-4-27"><a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a><span class="w">        </span><span class="nx">PrivateKey</span><span class="p">:</span><span class="w">  </span><span class="nx">serverCertificatePrivateKey</span><span class="p">,</span>
+</span><span id="__span-4-28"><a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a><span class="w">        </span><span class="nx">Leaf</span><span class="p">:</span><span class="w">        </span><span class="o">&amp;</span><span class="nx">template</span><span class="p">,</span>
+</span><span id="__span-4-29"><a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a><span class="w">    </span><span class="p">},</span><span class="w"> </span><span class="kc">nil</span>
+</span></code></pre></div>
+<p>We store the generated certificate as global variable, "dtls.ServerCertificate" (*tls.Certificate)</p>
+<p>Then, we should get fingerprint hash of this Server Certificate, to use further in SDP generation. We call "GetCertificateFingerprintFromBytes" function in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/dtls/crypto.go" target="_blank">backend/src/dtls/crypto.go</a></p>
+<p>This function takes the byte array consists of certificate content, calculates <a href="https://en.wikipedia.org/wiki/SHA-2" target="_blank">SHA256 Checksum</a> of it, result will be 32 bytes. Then, it converts this 32 bytes array to string which separated with ":", like "12:B9:B6:79:44:19:52:26:1D:01:63:2B:8B:3C:7D:19:CC:B2:5F:B5:9D:68:94:39:8D:01:D0:7B:40:6E:44:65". We store the result as global variable, "dtls.ServerCertificateFingerprint" (string)</p>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/dtls/crypto.go" target="_blank">backend/src/dtls/crypto.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">GetCertificateFingerprintFromBytes</span><span class="p">(</span><span class="nx">certificate</span><span class="w"> </span><span class="p">[]</span><span class="kt">byte</span><span class="p">)</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="nx">fingerprint</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">sha256</span><span class="p">.</span><span class="nx">Sum256</span><span class="p">(</span><span class="nx">certificate</span><span class="p">)</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">buf</span><span class="w"> </span><span class="nx">bytes</span><span class="p">.</span><span class="nx">Buffer</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="p">,</span><span class="w"> </span><span class="nx">f</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">fingerprint</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">            </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Fprintf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">buf</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;:&quot;</span><span class="p">)</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Fprintf</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">buf</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%02X&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">f</span><span class="p">)</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">buf</span><span class="p">.</span><span class="nx">String</span><span class="p">()</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Sources: </p>
+<ul>
+<li><a href="https://webrtcforthecurious.com/docs/04-securing/#securing" target="_blank">WebRTC for the Curious: Securing</a> (this source also contains details of DTLS Handshake which we will discuss further)</li>
+<li><a href="https://github.com/pion/dtls/blob/bee42643f57a7f9c85ee3aa6a45a4fa9811ed122/pkg/crypto/selfsign/selfsign.go#L22" target="_blank">Pion WebRTC DTLS project, GenerateSelfSigned function (Github)</a></li>
+<li><a href="https://sectigo.com/resource-library/what-is-x509-certificate">What Is an X.509 Certificate &amp; How Does It Work?
+</a></li>
+<li><a href="https://gist.github.com/samuel/8b500ddd3f6118d052b5e6bc16bc4c09">Generate a self-signed certificate in Go (Gist)
+</a></li>
+<li>SHA256 Sum on command line <a href="https://www.baeldung.com/linux/sha-256-from-command-line" target="_blank">source 1</a>, <a href="https://techdocs.akamai.com/download-ctr/docs/verify-checksum" target="_blank">source 2</a></li>
+</ul>
+<h2 id="24-gathering-local-and-external-ips"><strong>2.4. Gathering local and external IPs</strong><a class="headerlink" href="#24-gathering-local-and-external-ips" title="Permanent link">&para;</a></h2>
+<p>We need to know which IPs (local or external) that our server is reachable on, to use further in SDP generation (candidates part).</p>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/main.go" target="_blank">backend/src/main.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="w">    </span><span class="nx">discoveredServerIPs</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">discoverServerIPs</span><span class="p">()</span>
+</span></code></pre></div>
+<ul>
+<li>Discovery of local IP addresses of available and active <a href="https://en.wikipedia.org/wiki/Network_interface" target="_blank">network interfaces</a>: Made via  "GetLocalIPs" function in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/common/networkutils.go" target="_blank">backend/src/common/networkutils.go</a>. Due to our application runs in a container, and we didn't configure Docker networking type of container as "host", we can gather only container's network interfaces, not the host machine. Expected output is one IP that in our Docker's subnet, usually starts with 172.</li>
+</ul>
+<p><br>
+Note: Anyone outside the Docker network (including the host machine itself) cannot reach using this IP address. The other side of Docker networking interface to the host machine has a different gateway IP. But we include it in our result anyway.</p>
+<ul>
+<li>
+<p>Including previously configured IP address to the result: In this project, we can't discover our LAN IP by code. So we have a configuration entry "server/udp/dockerHostIp" in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/config.yml" target="_blank">backend/config.yml</a>, accessing by "config.Val.Server.UDP.DockerHostIp" global variable. We include it in our result statically, if not empty.</p>
+</li>
+<li>
+<p>Discovery of external (WAN) IP, even if behind NAT. A logical and applicable way to learn our WAN IP (our router's IP open to internet) is to ask someone else outside our network. As there are some globally available free STUN Servers, we can use one which is set up by ourselves; however, it is important that the STUN Server should be outside of our network, we should access it by WAN. We need a STUN (Session Traversal Utilities for NAT) client to speak in STUN protocol, so our project implements it with only required parts (not all STUN messages or attributes implemented).</p>
+</li>
+</ul>
+<p>Sources:</p>
+<ul>
+<li><a href="https://webrtcforthecurious.com/docs/03-connecting/#stun" target="_blank">WebRTC for the Curious: STUN</a></li>
+<li><a href="https://en.wikipedia.org/wiki/STUN" target="_blank">Wikipedia: STUN</a></li>
+<li><a href="https://gist.github.com/zziuni/3741933" target="_blank">Some STUN Server addresses</a></li>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc5389" target="_blank">STUN Protocol RFC - Session Traversal Utilities for NAT</a></li>
+</ul>
+<h3 id="241-using-our-stun-client"><strong>2.4.1. Using our STUN Client</strong><a class="headerlink" href="#241-using-our-stun-client" title="Permanent link">&para;</a></h3>
+<p>We create a STUN Client via "NewStunClient" function in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/stun/stunclient.go" target="_blank">backend/src/stun/stunclient.go</a>. This function takes some arguments:</p>
+<ul>
+<li>serverAddr: Configured STUN Server Address (can be accessed via config.Val.Server.StunServerAddr). Default is "stun.l.google.com:19302".</li>
+<li>ufrag: "User fragment" is a string can be considered as "user name" for STUN Server. We generate a random ufrag via "GenerateICEUfrag" function in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/agent/generators.go" target="_blank">backend/src/agent/generators.go</a>.</li>
+<li>pwd: Can be considered as "password" for STUN Server.  We generate a random ufrag via "GenerateICEPwd" function in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/agent/generators.go" target="_blank">backend/src/agent/generators.go</a>.</li>
+</ul>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/stun/stunclient.go" target="_blank">backend/src/stun/stunclient.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">NewStunClient</span><span class="p">(</span><span class="nx">serverAddr</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">ufrag</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">pwd</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="nx">StunClient</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">StunClient</span><span class="p">{</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">        </span><span class="nx">ServerAddr</span><span class="p">:</span><span class="w"> </span><span class="nx">serverAddr</span><span class="p">,</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">        </span><span class="nx">Ufrag</span><span class="p">:</span><span class="w">      </span><span class="nx">ufrag</span><span class="p">,</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">        </span><span class="nx">Pwd</span><span class="p">:</span><span class="w">        </span><span class="nx">pwd</span><span class="p">,</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>We call our STUN Client's Discover() method, then add it to our candidate IP list.</p>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/main.go" target="_blank">backend/src/main.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="w">    </span><span class="nx">mappedAddress</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">stunClient</span><span class="p">.</span><span class="nx">Discover</span><span class="p">()</span>
+</span></code></pre></div>
+<h3 id="242-implementing-stun-protocol-as-client"><strong>2.4.2. Implementing STUN Protocol (as Client)</strong><a class="headerlink" href="#242-implementing-stun-protocol-as-client" title="Permanent link">&para;</a></h3>
+<p><sup>STUN packet structure</sup></p>
+<div class="language-console highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="go"> 0                   1                   2                   3</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="go"> 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="go">+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="go">|0 0|     STUN Message Type     |         Message Length        |</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="go">+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="go">|                         Magic Cookie                          |</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="go">+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="go">|                                                               |</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="go">|                     Transaction ID (96 bits)                  |</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="go">|                                                               |</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="go">+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="go">|                             Data                              |</span>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="go">+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span>
+</span></code></pre></div>
+<p>Our STUN message struct in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/stun/message.go" target="_blank">backend/src/stun/message.go</a>:</p>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/stun/message.go" target="_blank">backend/src/stun/message.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">Message</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="nx">MessageType</span><span class="w">   </span><span class="nx">MessageType</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="nx">TransactionID</span><span class="w"> </span><span class="p">[</span><span class="nx">TransactionIDSize</span><span class="p">]</span><span class="kt">byte</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="nx">Attributes</span><span class="w">    </span><span class="kd">map</span><span class="p">[</span><span class="nx">AttributeType</span><span class="p">]</span><span class="nx">Attribute</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="nx">RawMessage</span><span class="w">    </span><span class="p">[]</span><span class="kt">byte</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>As a client, to ask our IP to the server, we should create a <em>STUN Binding Request</em> message and encode it to a byte array.</p>
+<ul>
+<li>We generate a random 12 bytes (96 bits) Transaction ID via "generateTransactionID" function in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/stun/stunclient.go" target="_blank">backend/src/stun/stunclient.go</a></li>
+<li>
+<p>Create a STUN message with "STUN Message Type" of MessageTypeBindingRequest (consists of Method: MessageMethodStunBinding (0x0001) and Class: MessageClassRequest (0x00)), generated Transaction ID and STUN Magic Cookie (constant value: 0x2112A442).
+<br>
+You can find:</p>
+<ul>
+<li>MessageType constants in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/stun/messagetype.go" target="_blank">backend/src/stun/messagetype.go</a></li>
+<li>MessageClass constants in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/stun/messageclass.go" target="_blank">backend/src/stun/messageclass.go</a></li>
+<li>MessageMethod constants in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/stun/messagemethod.go" target="_blank">backend/src/stun/messagemethod.go</a></li>
+</ul>
+</li>
+<li>
+<p>Now, our steps for sending binding request are:</p>
+<ul>
+<li>We resolve IP address of ServerAddr (with port number)</li>
+<li>Create binding request message object</li>
+<li>Encode it into a byte array<ul>
+<li>Before encoding, we call "preEncode" function in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/stun/message.go" target="_blank">backend/src/stun/message.go</a> to remove attributes which has AttrMessageIntegrity and AttrFingerprint types, if exist, then add an attribute which has AttrSoftware type.</li>
+<li>After encoding, we call "postEncode" function in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/stun/message.go" target="_blank">backend/src/stun/message.go</a> to add attributes which has AttrMessageIntegrity and AttrFingerprint types. While adding these two attributes; we should calculate SHA1 <a href="https://en.wikipedia.org/wiki/HMAC" target="_blank">HMAC</a> of the message via "calculateHmac" function using "pwd" value as key to <a href="https://pkg.go.dev/crypto/hmac#New" target="_blank">hmac.New</a>, then calculate <a href="https://en.wikipedia.org/wiki/Cyclic_redundancy_check" target="_blank">CRC32</a> checksum of the message via "calculateFingerprint" function, by <a href="https://pkg.go.dev/hash/crc32#ChecksumIEEE" target="_blank">crc32.ChecksumIEEE</a>.</li>
+</ul>
+</li>
+<li>Start an UDP listener (without specifying any IP or port)</li>
+<li>Write encoded byte array to STUN Server UDP address via started listener.</li>
+</ul>
+</li>
+</ul>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/stun/stunclient.go" target="_blank">backend/src/stun/stunclient.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="w">    </span><span class="nx">serverUDPAddr</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">net</span><span class="p">.</span><span class="nx">ResolveUDPAddr</span><span class="p">(</span><span class="s">&quot;udp&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">ServerAddr</span><span class="p">)</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">        </span><span class="c1">//return NATError, nil, err</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">    </span><span class="nx">bindingRequest</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">createBindingRequest</span><span class="p">(</span><span class="nx">transactionID</span><span class="p">)</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">    </span><span class="nx">encodedBindingRequest</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">bindingRequest</span><span class="p">.</span><span class="nx">Encode</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">Pwd</span><span class="p">)</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">    </span><span class="nx">conn</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">net</span><span class="p">.</span><span class="nx">ListenUDP</span><span class="p">(</span><span class="s">&quot;udp&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span><span class="p">)</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nx">conn</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="w">    </span><span class="nx">conn</span><span class="p">.</span><span class="nx">WriteToUDP</span><span class="p">(</span><span class="nx">encodedBindingRequest</span><span class="p">,</span><span class="w"> </span><span class="nx">serverUDPAddr</span><span class="p">)</span>
+</span></code></pre></div>
+<p>After we have sent <em>STUN Binding Request</em> message successfully, we expect that the STUN Server sends us <em>STUN Binding Response</em>.</p>
+<ul>
+<li>Now, our steps for reading incoming binding response are:<ul>
+<li>Waiting for incoming bytes via conn.ReadFromUDP</li>
+<li>If any packet was received, we check "is packet's sender our STUN Server?". We ignore any packet from other peers</li>
+<li>Decode the byte array into "stun.Message" object</li>
+<li>Calculate HMAC and Fingerprint (CRC32) values and compare with message's AttrMessageIntegrity and AttrFingerprint attributes, via stunMessage.Validate function</li>
+<li>If message integrity and authorization check succeeded, we decode the attribute that contains result IP address encoded with XOR, via DecodeAttrXorMappedAddress function, and return as result.</li>
+</ul>
+</li>
+</ul>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/stun/stunclient.go" target="_blank">backend/src/stun/stunclient.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="w">    </span><span class="nx">buf</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="mi">1024</span><span class="p">)</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">        </span><span class="nx">bufLen</span><span class="p">,</span><span class="w"> </span><span class="nx">addr</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">conn</span><span class="p">.</span><span class="nx">ReadFromUDP</span><span class="p">(</span><span class="nx">buf</span><span class="p">)</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">        </span><span class="c1">// If requested target server address and responder address not fit, ignore the packet</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">addr</span><span class="p">.</span><span class="nx">IP</span><span class="p">.</span><span class="nx">Equal</span><span class="p">(</span><span class="nx">serverUDPAddr</span><span class="p">.</span><span class="nx">IP</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">addr</span><span class="p">.</span><span class="nx">Port</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nx">serverUDPAddr</span><span class="p">.</span><span class="nx">Port</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">            </span><span class="k">continue</span>
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">        </span><span class="nx">stunMessage</span><span class="p">,</span><span class="w"> </span><span class="nx">stunErr</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">DecodeMessage</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nx">bufLen</span><span class="p">)</span>
+</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">stunErr</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="w">            </span><span class="nb">panic</span><span class="p">(</span><span class="nx">stunErr</span><span class="p">)</span>
+</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="w">        </span><span class="nx">stunMessage</span><span class="p">.</span><span class="nx">Validate</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">Ufrag</span><span class="p">,</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">Pwd</span><span class="p">)</span>
+</span><span id="__span-12-17"><a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">bytes</span><span class="p">.</span><span class="nx">Equal</span><span class="p">(</span><span class="nx">stunMessage</span><span class="p">.</span><span class="nx">TransactionID</span><span class="p">[:],</span><span class="w"> </span><span class="nx">transactionID</span><span class="p">[:])</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-18"><a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="w">            </span><span class="k">continue</span>
+</span><span id="__span-12-19"><a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-12-20"><a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a><span class="w">        </span><span class="nx">xorMappedAddressAttr</span><span class="p">,</span><span class="w"> </span><span class="nx">ok</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">stunMessage</span><span class="p">.</span><span class="nx">Attributes</span><span class="p">[</span><span class="nx">AttrXorMappedAddress</span><span class="p">]</span>
+</span><span id="__span-12-21"><a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">ok</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-22"><a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a><span class="w">            </span><span class="k">continue</span>
+</span><span id="__span-12-23"><a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-12-24"><a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a><span class="w">        </span><span class="nx">mappedAddress</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">DecodeAttrXorMappedAddress</span><span class="p">(</span><span class="nx">xorMappedAddressAttr</span><span class="p">,</span><span class="w"> </span><span class="nx">stunMessage</span><span class="p">.</span><span class="nx">TransactionID</span><span class="p">)</span>
+</span><span id="__span-12-25"><a id="__codelineno-12-25" name="__codelineno-12-25" href="#__codelineno-12-25"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">mappedAddress</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span>
+</span><span id="__span-12-26"><a id="__codelineno-12-26" name="__codelineno-12-26" href="#__codelineno-12-26"></a><span class="w">    </span><span class="p">}</span>
+</span></code></pre></div>
+<p>At the end, now we have gathered all available IP addresses.</p>
+<p>Sources:</p>
+<ul>
+<li><a href="https://github.com/ccding/go-stun" target="_blank">go-stun project (Github)</a></li>
+</ul>
+<h2 id="25-initialize-conference-manager"><strong>2.5. Initialize Conference Manager</strong><a class="headerlink" href="#25-initialize-conference-manager" title="Permanent link">&para;</a></h2>
+<p>We create our ConferenceManager object that manages active conferences, server side ICE Agents per conference, and SDP Offer Answers, incoming via signaling WebSocket.</p>
+<p>The ConferenceManager has Run() method to listen ChanSdpOffer <a href="https://go.dev/tour/concurrency/2" target="_blank">Go Channel</a> in infinite loop, we call this method as <a href="https://medium.com/technofunnel/understanding-golang-and-goroutines-72ac3c9a014d" target="_blank">Go Routine</a>, so it runs in parallel thread. We increase waitGroup's waiting list.</p>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/main.go" target="_blank">backend/src/main.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="w">    </span><span class="nx">conferenceManager</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">conference</span><span class="p">.</span><span class="nx">NewConferenceManager</span><span class="p">(</span><span class="nx">discoveredServerIPs</span><span class="p">,</span><span class="w"> </span><span class="nx">config</span><span class="p">.</span><span class="nx">Val</span><span class="p">.</span><span class="nx">Server</span><span class="p">.</span><span class="nx">UDP</span><span class="p">.</span><span class="nx">SinglePort</span><span class="p">)</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">    </span><span class="nx">waitGroup</span><span class="p">.</span><span class="nx">Add</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="k">go</span><span class="w"> </span><span class="nx">conferenceManager</span><span class="p">.</span><span class="nx">Run</span><span class="p">(</span><span class="nx">waitGroup</span><span class="p">)</span>
+</span></code></pre></div>
+<p>Sources:</p>
+<ul>
+<li><a href="https://www.geeksforgeeks.org/channel-in-golang/" target="_blank">Channel in Golang</a></li>
+<li><a href="https://golangbot.com/goroutines/" target="_blank">Goroutines</a></li>
+</ul>
+<h2 id="26-starting-udp-listener"><strong>2.6. Starting UDP Listener</strong><a class="headerlink" href="#26-starting-udp-listener" title="Permanent link">&para;</a></h2>
+<p>We create our UdpListener object that starts to listen specified UDP port and process incoming packets.</p>
+<p>The UdpListener has Run() method to listen UDP port in infinite loop, we call this method as <a href="https://medium.com/technofunnel/understanding-golang-and-goroutines-72ac3c9a014d" target="_blank">Go Routine</a>, so it runs in parallel thread. We increase waitGroup's waiting list.</p>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/main.go" target="_blank">backend/src/main.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">udpListener</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">udp</span><span class="p">.</span><span class="nx">NewUdpListener</span><span class="p">(</span><span class="s">&quot;0.0.0.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">config</span><span class="p">.</span><span class="nx">Val</span><span class="p">.</span><span class="nx">Server</span><span class="p">.</span><span class="nx">UDP</span><span class="p">.</span><span class="nx">SinglePort</span><span class="p">,</span><span class="w"> </span><span class="nx">conferenceManager</span><span class="p">)</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="nx">waitGroup</span><span class="p">.</span><span class="nx">Add</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="k">go</span><span class="w"> </span><span class="nx">udpListener</span><span class="p">.</span><span class="nx">Run</span><span class="p">(</span><span class="nx">waitGroup</span><span class="p">)</span>
+</span></code></pre></div>
+<p>At the "Run" function in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/udp/udpListener.go" target="_blank">backend/src/udp/udpListener.go</a>, we create <a href="https://pkg.go.dev/net#ListenUDP" target="_blank">net.UDPConn</a> object.</p>
+<ul>
+<li>Now, our steps for reading incoming binding response are:<ul>
+<li>Waiting for incoming bytes via conn.ReadFromUDP</li>
+<li>Check if the sender IP and port socket known by us, if known, get it as destinationSocket variable</li>
+<li>Otherwise, if this packet is the first packet coming from the sender, we expect that this packet is STUN Binding Request. If it is, we read it's ufrag value (two ufrags separated by ":", one for client ICE agent, one for server ICE agent), and check if we have a Server ICE Agent with incoming ufrag. Then we check if the client ufrag is known by us (previously came by SDP Offer Answer from the client)</li>
+<li>If everything is OK, we create an "agent.UDPClientSocket" object and set it to Server ICE Agent's and UDP Listener's sockets map</li>
+<li>Then, forward incoming packet to the "AddBuffer" function of "agent.UDPClientSocket" (we will discuss further)</li>
+<li>AddBuffer function acts as demultiplexer for different types of packets (different types of protocols) on same connection.</li>
+</ul>
+</li>
+</ul>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/udp/udpListener.go" target="_blank">backend/src/udp/udpListener.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="w">    </span><span class="nx">conn</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">net</span><span class="p">.</span><span class="nx">ListenUDP</span><span class="p">(</span><span class="s">&quot;udp&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">net</span><span class="p">.</span><span class="nx">UDPAddr</span><span class="p">{</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">        </span><span class="nx">IP</span><span class="p">:</span><span class="w">   </span><span class="nx">net</span><span class="p">.</span><span class="nx">IP</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">        </span><span class="nx">Port</span><span class="p">:</span><span class="w"> </span><span class="nx">udpListener</span><span class="p">.</span><span class="nx">Port</span><span class="p">,</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">    </span><span class="p">})</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">    </span><span class="o">...</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="w">    </span><span class="nx">udpListener</span><span class="p">.</span><span class="nx">conn</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">conn</span>
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>
+</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nx">conn</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
+</span><span id="__span-15-11"><a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="w">    </span><span class="o">...</span>
+</span><span id="__span-15-12"><a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>
+</span><span id="__span-15-13"><a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-15-14"><a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a><span class="w">        </span><span class="nx">bufLen</span><span class="p">,</span><span class="w"> </span><span class="nx">addr</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">conn</span><span class="p">.</span><span class="nx">ReadFromUDP</span><span class="p">(</span><span class="nx">buf</span><span class="p">)</span>
+</span><span id="__span-15-15"><a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-15-16"><a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a><span class="w">            </span><span class="c1">// Is the client socket known and authenticated by server before?</span>
+</span><span id="__span-15-17"><a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a><span class="w">            </span><span class="nx">destinationSocket</span><span class="p">,</span><span class="w"> </span><span class="nx">ok</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">udpListener</span><span class="p">.</span><span class="nx">Sockets</span><span class="p">[</span><span class="nb">string</span><span class="p">(</span><span class="nx">addr</span><span class="p">.</span><span class="nx">IP</span><span class="p">)</span><span class="o">+</span><span class="s">&quot;:&quot;</span><span class="o">+</span><span class="nb">string</span><span class="p">(</span><span class="nb">rune</span><span class="p">(</span><span class="nx">addr</span><span class="p">.</span><span class="nx">Port</span><span class="p">))]</span>
+</span><span id="__span-15-18"><a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>
+</span><span id="__span-15-19"><a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">ok</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-15-20"><a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a><span class="w">                </span><span class="c1">// If client socket is not known by server, it can be a STUN binding request.</span>
+</span><span id="__span-15-21"><a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a><span class="w">                </span><span class="c1">// Read the server and client ufrag (user fragment) string concatenated via &quot;:&quot; and split it.</span>
+</span><span id="__span-15-22"><a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a><span class="w">                </span><span class="o">...</span>
+</span><span id="__span-15-23"><a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a><span class="w">            </span><span class="p">}</span>
+</span><span id="__span-15-24"><a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a><span class="w">            </span><span class="c1">// Now the client socket is known by server, we forward incoming byte array to our socket object dedicated for the client.</span>
+</span><span id="__span-15-25"><a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a><span class="w">            </span><span class="nx">destinationSocket</span><span class="p">.</span><span class="nx">AddBuffer</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nx">bufLen</span><span class="p">)</span>
+</span><span id="__span-15-26"><a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-15-27"><a id="__codelineno-15-27" name="__codelineno-15-27" href="#__codelineno-15-27"></a>
+</span><span id="__span-15-28"><a id="__codelineno-15-28" name="__codelineno-15-28" href="#__codelineno-15-28"></a><span class="w">        </span><span class="o">...</span>
+</span><span id="__span-15-29"><a id="__codelineno-15-29" name="__codelineno-15-29" href="#__codelineno-15-29"></a><span class="w">    </span><span class="p">}</span>
+</span></code></pre></div>
+<h2 id="27-starting-signaling-http-server"><strong>2.7. Starting Signaling HTTP Server</strong><a class="headerlink" href="#27-starting-signaling-http-server" title="Permanent link">&para;</a></h2>
+<p>We create our signaling.HttpServer object that starts to listen specified signaling port and process incoming HTTP requests.</p>
+<p>The HttpServer has Run() method to listen signaling port in infinite loop, we call this method as <a href="https://medium.com/technofunnel/understanding-golang-and-goroutines-72ac3c9a014d" target="_blank">Go Routine</a>, so it runs in parallel thread. We increase waitGroup's waiting list.</p>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/main.go" target="_blank">backend/src/main.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="w">    </span><span class="nx">httpServer</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">signaling</span><span class="p">.</span><span class="nx">NewHttpServer</span><span class="p">(</span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">&quot;:%d&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">config</span><span class="p">.</span><span class="nx">Val</span><span class="p">.</span><span class="nx">Server</span><span class="p">.</span><span class="nx">Signaling</span><span class="p">.</span><span class="nx">WsPort</span><span class="p">),</span><span class="w"> </span><span class="nx">conferenceManager</span><span class="p">)</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">    </span><span class="o">...</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span><span class="nx">waitGroup</span><span class="p">.</span><span class="nx">Add</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">    </span><span class="k">go</span><span class="w"> </span><span class="nx">httpServer</span><span class="p">.</span><span class="nx">Run</span><span class="p">(</span><span class="nx">waitGroup</span><span class="p">)</span>
+</span></code></pre></div>
+<p>At the "NewHttpServer" function in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/signaling/httpserver.go" target="_blank">backend/src/signaling/httpserver.go</a>, we create signaling.HttpServer object and a signaling.WsHub object that manages WebSocket operations. Also we map "/" and "/ws" path patterns to handler functions.</p>
+<p>"/" path for home page placeholder
+<br>
+"/ws" path for WebSocket requests.</p>
+<p><sup>from <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/signaling/httpserver.go" target="_blank">backend/src/signaling/httpserver.go</a></sup></p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">NewHttpServer</span><span class="p">(</span><span class="nx">httpServerAddr</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">conferenceManager</span><span class="w"> </span><span class="o">*</span><span class="nx">conference</span><span class="p">.</span><span class="nx">ConferenceManager</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">HttpServer</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">    </span><span class="nx">wsHub</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">newWsHub</span><span class="p">(</span><span class="nx">conferenceManager</span><span class="p">)</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">    </span><span class="nx">httpServer</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">HttpServer</span><span class="p">{</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w">        </span><span class="nx">HttpServerAddr</span><span class="p">:</span><span class="w"> </span><span class="nx">httpServerAddr</span><span class="p">,</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="w">        </span><span class="nx">WsHub</span><span class="p">:</span><span class="w">          </span><span class="nx">wsHub</span><span class="p">,</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="w">    </span><span class="nx">http</span><span class="p">.</span><span class="nx">HandleFunc</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">httpServer</span><span class="p">.</span><span class="nx">serveHome</span><span class="p">)</span>
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="w">    </span><span class="nx">http</span><span class="p">.</span><span class="nx">HandleFunc</span><span class="p">(</span><span class="s">&quot;/ws&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="w">        </span><span class="nx">httpServer</span><span class="p">.</span><span class="nx">serveWs</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="p">)</span>
+</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="w">    </span><span class="p">})</span>
+</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>
+</span><span id="__span-17-13"><a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">httpServer</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span>
+</span><span id="__span-17-14"><a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>At the "Run" function in <a href="https://github.com/adalkiran/webrtc-nuts-and-bolts/blob/main/backend/src/signaling/httpserver.go" target="_blank">backend/src/signaling/httpserver.go</a>, we call wsHub.run() and http.ListenAndServe to start signaling HTTP server.</p>
+<p>Sources:</p>
+<ul>
+<li><a href="https://github.com/gorilla/websocket/tree/master/examples/chat" target="_blank">Gorilla WebSocket: Chat Example (GitHub)</a></li>
+</ul>
+<p>Now, our server application is waiting for client interactions on:</p>
+<ul>
+<li>For signaling requests on WebSocket port 8081 (default)</li>
+<li>For incoming UDP packets (STUN, DTLS, RTP, RTCP, etc... packets) on port 15000 (default)</li>
+</ul>
+<p>We are ready to answer client interactions!</p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../01-RUNNING-IN-DEV-MODE/" class="md-footer__link md-footer__link--prev" aria-label="Previous: RUNNING IN DEVELOPMENT MODE">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                RUNNING IN DEVELOPMENT MODE
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../03-FIRST-CLIENT-COMES-IN/" class="md-footer__link md-footer__link--next" aria-label="Next: FIRST CLIENT COMES IN">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                FIRST CLIENT COMES IN
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2022 - present, Adil Alper DALKIRAN. All rights reserved.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/adalkiran" target="_blank" rel="noopener" title="adalkiran" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://www.linkedin.com/in/alper-dalkiran/" target="_blank" rel="noopener" title="@aadalkiran" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8l164.9-188.5L26.8 48h145.6l100.5 132.9zm-24.8 373.8h39.1L151.1 88h-42z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://www.linkedin.com/in/alper-dalkiran/" target="_blank" rel="noopener" title="in/alper-dalkiran" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3M135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5m282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["toc.follow", "toc.integrate", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "navigation.footer", "content.code.copy"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.56dfad97.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,6 +1,6 @@
 module github.com/adalkiran/webrtc-nuts-and-bolts
 
-go 1.23.0
+go 1.23
 
 require (
 	github.com/fatih/color v1.17.0

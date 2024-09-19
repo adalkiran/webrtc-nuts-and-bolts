@@ -49,26 +49,39 @@ We assign some event handlers for some events, which we will discuss further. We
             iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
         });
         result.onicecandidate = (e: RTCPeerConnectionIceEvent) => {
-            if ((<any>e.target).iceGatheringState != 'complete') {
-                return;
+            if (e.candidate === null) {
+                console.log('onicecandidate: localSessionDescription:\n', (<any>e.target).localDescription);
+            } else {            
+                console.log('New ICE candidate:', e.candidate);
             }
-            console.log('onicecandidate', e.candidate, '\n', e);
-            const parsedSdp: sdpTransform.SessionDescription = sdpTransform.parse(this.localConnection.localDescription.sdp);
-            this.localDescriptionChanged(parsedSdp);
         };
         result.addEventListener('track', e => {
             console.log('onTrack', e);
         });
         result.onicecandidateerror = (e: Event) => {
-            console.log('onicecandidateerror', e);
+            console.log("onicecandidateerror", "candidate address:", (<any>e).hostCandidate ?? '', "error text:", (<any>e).errorText ?? '', e);
         };
         result.onconnectionstatechange = (e: Event) => {
             console.log('onconnectionstatechange', (<any>e.target).connectionState, '\n', e);
         };
         result.oniceconnectionstatechange = (e: Event) => {
-            console.log('oniceconnectionstatechange', (<any>e.target).iceConnectionState, '\n', e);
-            if ((<any>e.target).iceConnectionState == 'disconnected') {
+            const peerConnection = <any>e.target;
+            this.updateStatus(peerConnection.iceConnectionState);
+            console.log('oniceconnectionstatechange', peerConnection.iceConnectionState, '\n', e);
+            if (peerConnection.iceConnectionState == 'disconnected') {
                 this.stop(true);
+            } else if (peerConnection.iceConnectionState === 'connected' || peerConnection.iceConnectionState === 'completed') {
+                // Get the stats for the peer connection
+                peerConnection.getStats().then((stats: any) => {                
+                    stats.forEach((report: any) => {
+                        if (report.type === 'candidate-pair' && report.state === 'succeeded') {
+                            const localCandidate = stats.get(report.localCandidateId);
+                            const remoteCandidate = stats.get(report.remoteCandidateId);
+                            console.log('Succeded Local Candidate:', report.localCandidateId, 'address:', localCandidate?.address, 'object:', localCandidate);
+                            console.log('Succeded Remote Candidate:', report.remoteCandidateId, 'address:', remoteCandidate?.address, 'object:', remoteCandidate);
+                        }
+                    });
+                });
             }
         };
         result.onicegatheringstatechange = (e: Event) => {
@@ -114,6 +127,8 @@ The button click will call "rtc.start()" function which:
 
 ```ts
     start() {
+        this.updateStatus("starting...");
+        this.localConnection = this.createLocalPeerConnection();
         return this.createLocalTracks()
             .then(stream => {
                 stream.getTracks().forEach(track => {
@@ -235,7 +250,12 @@ The "Welcome message" coming from the server is processed by switch case for "We
 
 ```ts
     this.ws.onmessage = (message) => {
-        const data = message.data ? JSON.parse(message.data) : null;
+        let data = null;
+        try {
+            data = message.data ? JSON.parse(message.data) : null;
+        } catch {
+            // Do nothing
+        }            
         console.log('Received from WS:', message.data);
         if (!data) {
             return;
@@ -335,7 +355,7 @@ The "SDP Offer message" coming from the server is processed by switch case for "
                     username: 'a_user',
                     sessionId: sdpOffer.sessionId,
                     sessionVersion: 2,
-                    netType: 'udp',
+                    netType: 'IN',
                     ipVer: 4,
                     address: '127.0.0.1'
                 },
@@ -408,6 +428,10 @@ The "SDP Offer message" coming from the server is processed by switch case for "
             return this.localConnection.createAnswer()
                 .then((answer: RTCSessionDescriptionInit) => {
                     console.log('answer', answer.type, answer.sdp);
+                    const parsedSdp: sdpTransform.SessionDescription = sdpTransform.parse(
+                        answer.sdp
+                    );
+                    this.sendSdpToSignaling(parsedSdp);
                     this.localConnection.setLocalDescription(answer);
                 });
         });

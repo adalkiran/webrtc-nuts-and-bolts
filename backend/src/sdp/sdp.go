@@ -72,11 +72,18 @@ func ParseSdpOfferAnswer(offer map[string]interface{}) *SdpMessage {
 		mediaItem := mediaItemObj.(map[string]interface{})
 		//mediaId := mediaItem["mid"].(float64)
 		sdpMedia.Type = MediaType(mediaItem["type"].(string))
-		candidates := mediaItem["candidates"].([]interface{})
+		candidates := make([]interface{}, 0)
+		if mediaItem["candidates"] != nil {
+			candidates = mediaItem["candidates"].([]interface{})
+		}
 		sdpMedia.Ufrag = mediaItem["iceUfrag"].(string)
 		sdpMedia.Pwd = mediaItem["icePwd"].(string)
 		//iceOptions := mediaItem["iceOptions"].(string)
-		fingerprint := mediaItem["fingerprint"].(map[string]interface{})
+		fingerprintRaw, ok := mediaItem["fingerprint"]
+		if !ok {
+			fingerprintRaw = offer["fingerprint"]
+		}
+		fingerprint := fingerprintRaw.(map[string]interface{})
 		sdpMedia.FingerprintType = FingerprintType(fingerprint["type"].(string))
 		sdpMedia.FingerprintHash = fingerprint["hash"].(string)
 		//direction := mediaItem["direction"].(string)
@@ -109,7 +116,7 @@ func GenerateSdpOffer(iceAgent *agent.ServerAgent) *SdpMessage {
 		})
 	}
 	offer := &SdpMessage{
-		SessionID: "a_sessId",
+		SessionID: "1234",
 		MediaItems: []SdpMedia{
 			{
 				MediaId:  0,

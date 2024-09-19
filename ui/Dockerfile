@@ -1,8 +1,7 @@
-# See here for image contents: https://github.com/microsoft/vscode-dev-containers/blob/main/containers/typescript-node/.devcontainer/base.Dockerfile
-# See for available variants: https://github.com/microsoft/vscode-dev-containers/tree/main/containers/typescript-node
-# [Choice] Node.js version (use -bullseye variants on local arm64/Apple Silicon): 18, 16, 14, 18-bullseye, 16-bullseye, 14-bullseye, 18-buster, 16-buster, 14-buster
-ARG VARIANT=18-bullseye
-FROM mcr.microsoft.com/vscode/devcontainers/typescript-node:0-${VARIANT}
+# See here for image contents: https://github.com/devcontainers/images/blob/main/src/typescript-node/.devcontainer/Dockerfile
+# See for available variants: https://github.com/devcontainers/images/tree/main/src/typescript-node
+ARG VARIANT=22-bookworm
+FROM mcr.microsoft.com/vscode/devcontainers/typescript-node:${VARIANT}
 
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive
 #     && apt-get -y install --no-install-recommends <your-package-list-here>

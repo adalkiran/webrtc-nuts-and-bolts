@@ -14,7 +14,7 @@ When you run the docker-compose.yml file individually (for production mode) or d
     build:
       context: ui # Dockerfile location
       args:
-        - VARIANT:18-bullseye
+        - VARIANT:22-bookworm
     volumes:
       # Mount the root folder that contains .git
       - "./ui:/workspace:cached"
@@ -26,8 +26,8 @@ When you run the docker-compose.yml file individually (for production mode) or d
 <sup>Related part of [ui/Dockerfile](../ui/Dockerfile):</sup>
 
 ```dockerfile
-ARG VARIANT=18-bullseye
-FROM mcr.microsoft.com/vscode/devcontainers/typescript-node:0-${VARIANT}
+ARG VARIANT=22-bookworm
+FROM mcr.microsoft.com/vscode/devcontainers/typescript-node:${VARIANT}
 
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive
 
@@ -36,7 +36,7 @@ WORKDIR /workspace
 ENTRYPOINT yarn install && npm run start
 ```
 
-This file inherits from *mcr.microsoft.com/vscode/devcontainers/typescript-node:18-bullseye* image which come up with an environment includes NodeJS, Webpack, Webpack Dev Server, TypeScript, over Debian "Bullseye" Linux Distribution. We don't need to install related things manually.
+This file inherits from *mcr.microsoft.com/vscode/devcontainers/typescript-node:22-bookworm* image which come up with an environment includes NodeJS, Webpack, Webpack Dev Server, TypeScript, over Debian "bookworm" Linux Distribution. We don't need to install related things manually.
 
 While building the custom image (once):
 
@@ -63,7 +63,7 @@ While every time of the container starting up:
     build:
       context: backend # Dockerfile location
       args:
-        - VARIANT:1.20.2-bullseye
+        - VARIANT:1.23.0-bookworm
     # [Optional] Required for ptrace-based debuggers like C++, Go, and Rust
     cap_add:
       - SYS_PTRACE
@@ -81,7 +81,7 @@ While every time of the container starting up:
 <sup>Related part of [backend/Dockerfile](../backend/Dockerfile):</sup>
 
 ```dockerfile
-ARG VARIANT=1.20.2-bullseye
+ARG VARIANT=1.23.0-bookworm
 FROM golang:${VARIANT}
 
 COPY entrypoint.sh entrypoint-dev.sh /
@@ -95,7 +95,7 @@ WORKDIR /workspace
 ENTRYPOINT "/entrypoint.sh"
 ```
 
-This file inherits from *golang:1.20.2-bullseye* image which come up with an environment includes Go language support, libraries for processing VP8 (video) and OPUS (audio) encoding, on Debian "Bullseye" Linux Distribution. We don't need to install related things manually.
+This file inherits from *golang:1.23.0-bookworm* image which come up with an environment includes Go language support, libraries for processing VP8 (video) and OPUS (audio) encoding, on Debian "bookworm" Linux Distribution. We don't need to install related things manually.
 
 While building the custom image (once):
 

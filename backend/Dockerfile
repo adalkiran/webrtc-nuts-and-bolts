@@ -1,6 +1,6 @@
 # See: https://levelup.gitconnected.com/debugging-go-inside-docker-using-visual-studio-code-and-remote-containers-5c3724fe87b9
 # See for available variants: https://hub.docker.com/_/golang?tab=tags
-ARG VARIANT=1.20.2-bullseye
+ARG VARIANT=1.23.0-bookworm
 FROM golang:${VARIANT}
 
 COPY entrypoint.sh entrypoint-dev.sh /

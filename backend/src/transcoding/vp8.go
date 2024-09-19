@@ -105,10 +105,19 @@ func (d *VP8Decoder) Run() {
 	}
 }
 
+func (d *VP8Decoder) safeEncodeJpeg(buffer *bytes.Buffer, img *vpx.Image) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("error: %v, image width: %d, height: %d", r, img.W, img.H)
+		}
+	}()
+	return jpeg.Encode(buffer, img.ImageYCbCr(), nil)
+}
+
 func (d *VP8Decoder) saveImageFile(img *vpx.Image) (string, error) {
 	fileCount++
 	buffer := new(bytes.Buffer)
-	if err := jpeg.Encode(buffer, img.ImageYCbCr(), nil); err != nil {
+	if err := d.safeEncodeJpeg(buffer, img); err != nil {
 		return "", fmt.Errorf("jpeg Encode Error: %s", err)
 	}
 
